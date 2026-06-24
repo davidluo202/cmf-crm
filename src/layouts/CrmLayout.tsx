@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import dayjs from 'dayjs'
 
-const VERSION = '260624.001'
+const VERSION = '260624.004'
 
 const navItems = [
   { path: '/crm/dashboard', label: 'Dashboard', labelZh: '仪表盘', icon: '📊' },
@@ -107,9 +107,19 @@ export default function CrmLayout() {
       </aside>
 
       {/* Main content */}
-      <main className="flex-1 overflow-y-auto text-base" style={{ fontSize: '16px' }}>
-        <Outlet />
-      </main>
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Header bar */}
+        <header className="bg-[#0f172a] text-white px-6 py-3 flex items-center justify-between shrink-0">
+          <div>
+            <h1 className="text-xl font-bold tracking-wide">誠港金融客戶關係管理系統</h1>
+            <p className="text-sm text-slate-300 font-medium">Canton Mutual Financial — Customer Relationship Management (CRM)</p>
+          </div>
+          <span className="text-xs text-slate-400 font-mono">v{VERSION}</span>
+        </header>
+        <main className="flex-1 overflow-y-auto text-base p-6" style={{ fontSize: '16px' }}>
+          <Outlet />
+        </main>
+      </div>
     </div>
   )
 }
