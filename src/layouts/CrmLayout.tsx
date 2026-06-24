@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import dayjs from 'dayjs'
 
-const VERSION = '260624.004'
+const VERSION = '260624.005'
 
 const navItems = [
   { path: '/crm/dashboard', label: 'Dashboard', labelZh: '仪表盘', icon: '📊' },
@@ -27,7 +27,21 @@ export default function CrmLayout() {
   const [date, setDate] = useState(dayjs().format('YYYY-MM-DD dddd'))
   const [greeting, setGreeting] = useState(getGreeting(dayjs().hour()))
   const [weather, setWeather] = useState({ icon: '🌤️', temp: '--°C' })
-  const [userName] = useState(() => localStorage.getItem('userName') || 'David先生')
+  const [userName] = useState(() => {
+    // 1. Check crm-user-name in localStorage
+    const stored = localStorage.getItem('crm-user-name')
+    if (stored) return stored
+    // 2. Try to decode JWT token payload
+    try {
+      const token = localStorage.getItem('token')
+      if (token) {
+        const payload = JSON.parse(atob(token.split('.')[1]))
+        if (payload.name) return payload.name
+      }
+    } catch { /* ignore */ }
+    // 3. Fallback
+    return 'User'
+  })
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -52,7 +66,7 @@ export default function CrmLayout() {
   }
 
   return (
-    <div className="flex h-screen bg-gray-950 text-white">
+    <div className="flex h-screen text-white">
       {/* Sidebar */}
       <aside className="w-72 flex flex-col" style={{ backgroundColor: '#0f172a' }}>
         {/* Logo */}
@@ -116,7 +130,7 @@ export default function CrmLayout() {
           </div>
           <span className="text-xs text-slate-400 font-mono">v{VERSION}</span>
         </header>
-        <main className="flex-1 overflow-y-auto text-base p-6" style={{ fontSize: '16px' }}>
+        <main className="flex-1 overflow-y-auto text-base p-6 bg-slate-50 text-slate-800" style={{ fontSize: '16px' }}>
           <Outlet />
         </main>
       </div>

@@ -31,35 +31,35 @@ const revenueData = [
 
 export default function Dashboard() {
   return (
-    <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-bold text-white">RM Dashboard / 客户经理仪表盘</h1>
+    <div className="space-y-6">
+      <h1 className="text-2xl font-bold text-slate-900">RM Dashboard / 客户经理仪表盘</h1>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {summaryCards.map((card) => (
           <div
             key={card.title}
-            className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-5 border border-gray-800"
+            className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm"
           >
-            <div className="text-sm text-gray-400">{card.title}</div>
-            <div className="text-2xl font-bold text-white mt-2">{card.value}</div>
-            <div className="text-xs text-gray-500 mt-1">{card.change}</div>
+            <div className="text-sm text-slate-500">{card.title}</div>
+            <div className="text-2xl font-bold text-slate-900 mt-2">{card.value}</div>
+            <div className="text-xs text-slate-400 mt-1">{card.change}</div>
           </div>
         ))}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Overdue Follow-ups */}
-        <div className="bg-gray-900 rounded-2xl p-5 border border-gray-800">
-          <h2 className="text-lg font-semibold text-white mb-4">Overdue Follow-ups / 逾期跟进</h2>
+        <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+          <h2 className="text-lg font-semibold text-slate-900 mb-4">Overdue Follow-ups / 逾期跟进</h2>
           <div className="space-y-3">
             {overdueFollowups.map((item) => (
-              <div key={item.client} className="flex items-center justify-between p-3 bg-gray-800/50 rounded-xl">
+              <div key={item.client} className="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100">
                 <div>
-                  <div className="text-sm text-white">{item.client}</div>
-                  <div className="text-xs text-gray-500">{item.reason}</div>
+                  <div className="text-sm text-slate-800">{item.client}</div>
+                  <div className="text-xs text-slate-500">{item.reason}</div>
                 </div>
-                <span className="text-xs text-red-400 bg-red-400/10 px-2 py-1 rounded-full">
+                <span className="text-xs text-red-600 bg-red-50 px-2 py-1 rounded-full border border-red-200">
                   {item.days}d overdue
                 </span>
               </div>
@@ -68,13 +68,13 @@ export default function Dashboard() {
         </div>
 
         {/* Recent Activity */}
-        <div className="bg-gray-900 rounded-2xl p-5 border border-gray-800">
-          <h2 className="text-lg font-semibold text-white mb-4">Recent Activity / 近期活动</h2>
+        <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+          <h2 className="text-lg font-semibold text-slate-900 mb-4">Recent Activity / 近期活动</h2>
           <div className="space-y-3">
             {recentActivity.map((item, i) => (
-              <div key={i} className="flex gap-3 p-3 bg-gray-800/50 rounded-xl">
-                <span className="text-xs text-gray-500 whitespace-nowrap mt-0.5">{item.time}</span>
-                <span className="text-sm text-gray-300">{item.action}</span>
+              <div key={i} className="flex gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
+                <span className="text-xs text-slate-500 whitespace-nowrap mt-0.5">{item.time}</span>
+                <span className="text-sm text-slate-700">{item.action}</span>
               </div>
             ))}
           </div>
@@ -82,16 +82,16 @@ export default function Dashboard() {
       </div>
 
       {/* Revenue Chart */}
-      <div className="bg-gray-900 rounded-2xl p-5 border border-gray-800">
-        <h2 className="text-lg font-semibold text-white mb-4">Monthly Revenue (HK$ '000) / 月度收入</h2>
+      <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+        <h2 className="text-lg font-semibold text-slate-900 mb-4">Monthly Revenue (HK$ '000) / 月度收入</h2>
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={revenueData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-            <XAxis dataKey="month" stroke="#9ca3af" />
-            <YAxis stroke="#9ca3af" />
+            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+            <XAxis dataKey="month" stroke="#64748b" />
+            <YAxis stroke="#64748b" />
             <Tooltip
-              contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px' }}
-              labelStyle={{ color: '#fff' }}
+              contentStyle={{ backgroundColor: '#fff', border: '1px solid #e2e8f0', borderRadius: '8px' }}
+              labelStyle={{ color: '#1e293b' }}
             />
             <Bar dataKey="revenue" fill="#3b82f6" radius={[4, 4, 0, 0]} />
           </BarChart>

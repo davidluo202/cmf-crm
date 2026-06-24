@@ -35,39 +35,39 @@ export default function ClientDetail() {
   const client = mockClientData[id || '']
   if (!client) {
     return (
-      <div className="p-8 text-center text-gray-400">
+      <div className="p-8 text-center text-slate-500">
         Client not found.{' '}
-        <button onClick={() => navigate('/crm/clients')} className="text-blue-400 underline">Back to list</button>
+        <button onClick={() => navigate('/crm/clients')} className="text-blue-600 underline">Back to list</button>
       </div>
     )
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-6">
       {/* Back */}
-      <button onClick={() => navigate('/crm/clients')} className="text-sm text-gray-400 hover:text-white transition-colors">
+      <button onClick={() => navigate('/crm/clients')} className="text-sm text-slate-500 hover:text-slate-900 transition-colors">
         &larr; Back to Clients
       </button>
 
       {/* Header */}
-      <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-6 border border-gray-800">
+      <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
         <div className="flex flex-wrap items-center gap-3">
-          <h1 className="text-2xl font-bold text-white">{client.name}</h1>
-          <span className={`text-xs px-2 py-1 rounded-full ${segmentColor[client.segment] || 'bg-gray-600 text-gray-300'}`}>{client.segment}</span>
+          <h1 className="text-2xl font-bold text-slate-900">{client.name}</h1>
+          <span className={`text-xs px-2 py-1 rounded-full ${segmentColor[client.segment] || 'bg-slate-200 text-slate-600'}`}>{client.segment}</span>
           <span className={`text-xs px-2 py-1 rounded-full ${tierColor[client.tier] || ''}`}>{client.tier}</span>
-          <span className={`text-xs px-2 py-1 rounded-full ${client.status === 'Active' ? 'bg-green-500/20 text-green-400' : client.status === 'Prospect' ? 'bg-yellow-500/20 text-yellow-400' : 'bg-gray-500/20 text-gray-400'}`}>{client.status}</span>
+          <span className={`text-xs px-2 py-1 rounded-full ${client.status === 'Active' ? 'bg-green-100 text-green-700' : client.status === 'Prospect' ? 'bg-yellow-100 text-yellow-700' : 'bg-slate-200 text-slate-600'}`}>{client.status}</span>
         </div>
-        <div className="text-sm text-gray-400 mt-2">RM: {client.rm} &middot; Ref: {client.ref} &middot; AUM: {client.aum}</div>
+        <div className="text-sm text-slate-500 mt-2">RM: {client.rm} &middot; Ref: {client.ref} &middot; AUM: {client.aum}</div>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 border-b border-gray-800 pb-1">
+      <div className="flex gap-2 border-b border-slate-200 pb-1">
         {tabList.map((t) => (
           <button
             key={t}
             onClick={() => setActiveTab(t)}
             className={`px-4 py-2 text-sm rounded-t-lg transition-colors ${
-              activeTab === t ? 'bg-gray-800 text-white' : 'text-gray-500 hover:text-gray-300'
+              activeTab === t ? 'bg-white text-slate-900 border border-slate-200 border-b-white -mb-px' : 'text-slate-500 hover:text-slate-700'
             }`}
           >
             {t}
@@ -86,16 +86,16 @@ export default function ClientDetail() {
             ['Onboarded / 开户日期', client.onboarded],
             ['AUM / 管理资产', client.aum],
           ] as const).map(([label, value]) => (
-            <div key={label} className="bg-gray-900 rounded-2xl p-4 border border-gray-800">
-              <div className="text-xs text-gray-500">{label}</div>
-              <div className="text-sm text-white mt-1">{value}</div>
+            <div key={label} className="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm">
+              <div className="text-xs text-slate-500">{label}</div>
+              <div className="text-sm text-slate-900 mt-1">{value}</div>
             </div>
           ))}
         </div>
       )}
 
       {activeTab !== 'Profile' && (
-        <div className="bg-gray-900 rounded-2xl p-8 border border-gray-800 text-center text-gray-500">
+        <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm text-center text-slate-500">
           {activeTab} - Coming Soon
         </div>
       )}

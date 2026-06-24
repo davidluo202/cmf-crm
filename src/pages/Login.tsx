@@ -80,6 +80,11 @@ export default function Login() {
         return
       }
       localStorage.setItem('token', data.token)
+      // Try to decode JWT to get user name
+      try {
+        const payload = JSON.parse(atob(data.token.split('.')[1]))
+        if (payload.name) localStorage.setItem('crm-user-name', payload.name)
+      } catch { /* ignore */ }
       navigate('/crm')
     } catch {
       setError('網絡錯誤，請重試')
@@ -183,6 +188,8 @@ export default function Login() {
         return
       }
       localStorage.setItem('token', data.token)
+      // Save user name from registration
+      localStorage.setItem('crm-user-name', regName.trim())
       navigate('/crm')
     } catch {
       setError('網絡錯誤，請重試')
@@ -198,33 +205,33 @@ export default function Login() {
     if (t === 'login') fetchCaptcha()
   }
 
-  const inputClass = 'w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-blue-500 placeholder-gray-500'
-  const btnClass = 'w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
+  const inputClass = 'w-full text-base py-3.5 px-4 bg-white border-2 border-gray-500 rounded-lg text-slate-900 focus:outline-none focus:border-blue-600 placeholder-gray-400'
+  const btnClass = 'w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white text-base rounded-lg font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
 
   return (
-    <div className="min-h-screen bg-gray-950 flex items-center justify-center">
-      <div className="w-full max-w-md p-8">
+    <div className="min-h-screen bg-slate-100 flex items-center justify-center">
+      <div className="w-full max-w-lg p-8">
         {/* Header */}
         <div className="text-center mb-8">
-          <img src="/logo-zh.jpg" alt="CMF" className="h-12 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-white">CRM System</h1>
-          <p className="text-gray-400 text-sm mt-1">Canton Mutual Financial Limited</p>
+          <img src="/logo-zh.jpg" alt="CMF" className="h-20 mx-auto mb-5" />
+          <h1 className="text-3xl font-bold text-slate-900">CRM System</h1>
+          <p className="text-slate-600 text-base mt-2 font-medium">Canton Mutual Financial Limited</p>
         </div>
 
         {/* Tabs */}
-        <div className="flex mb-6 bg-gray-900 rounded-xl p-1 border border-gray-800">
+        <div className="flex mb-6 bg-slate-200 rounded-xl p-1">
           <button
             onClick={() => switchTab('login')}
-            className={`flex-1 py-2 text-sm font-medium rounded-lg transition-colors ${
-              tab === 'login' ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-white'
+            className={`flex-1 py-3 text-base font-bold rounded-lg transition-colors ${
+              tab === 'login' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             登入 / Login
           </button>
           <button
             onClick={() => switchTab('register')}
-            className={`flex-1 py-2 text-sm font-medium rounded-lg transition-colors ${
-              tab === 'register' ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-white'
+            className={`flex-1 py-3 text-base font-bold rounded-lg transition-colors ${
+              tab === 'register' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             註冊 / Register
@@ -233,14 +240,14 @@ export default function Login() {
 
         {/* Error */}
         {error && (
-          <div className="text-red-400 text-sm bg-red-400/10 rounded-lg p-3 mb-4">{error}</div>
+          <div className="text-red-700 text-base font-medium bg-red-100 border border-red-300 rounded-lg p-4 mb-4">{error}</div>
         )}
 
         {/* Login Form */}
         {tab === 'login' && (
-          <form onSubmit={handleLogin} className="bg-gray-900 rounded-2xl p-6 space-y-4 border border-gray-800">
+          <form onSubmit={handleLogin} className="bg-white rounded-2xl p-8 space-y-5 shadow-xl border border-slate-200">
             <div>
-              <label className="block text-sm text-gray-400 mb-1">郵箱 / Email</label>
+              <label className="block text-base font-bold text-slate-700 mb-2">郵箱 / Email</label>
               <input
                 type="email"
                 value={loginEmail}
@@ -251,7 +258,7 @@ export default function Login() {
             </div>
 
             <div>
-              <label className="block text-sm text-gray-400 mb-1">密碼 / Password</label>
+              <label className="block text-base font-bold text-slate-700 mb-2">密碼 / Password</label>
               <input
                 type="password"
                 value={loginPassword}
@@ -262,7 +269,7 @@ export default function Login() {
             </div>
 
             <div>
-              <label className="block text-sm text-gray-400 mb-1">驗證碼 / Captcha</label>
+              <label className="block text-base font-bold text-slate-700 mb-2">驗證碼 / Captcha</label>
               <div className="flex gap-3 items-center">
                 <input
                   type="text"
@@ -276,13 +283,13 @@ export default function Login() {
                   <img
                     src={captchaImage}
                     alt="captcha"
-                    className="h-10 rounded-lg cursor-pointer border border-gray-700"
+                    className="h-14 rounded-lg cursor-pointer border-2 border-gray-400"
                     onClick={fetchCaptcha}
                     title="點擊刷新"
                   />
                 ) : (
                   <div
-                    className="h-10 w-[120px] bg-gray-800 rounded-lg border border-gray-700 flex items-center justify-center text-gray-500 text-xs cursor-pointer"
+                    className="h-14 w-[130px] bg-slate-100 rounded-lg border-2 border-gray-400 flex items-center justify-center text-slate-500 text-sm cursor-pointer"
                     onClick={fetchCaptcha}
                   >
                     載入中...
@@ -299,27 +306,27 @@ export default function Login() {
 
         {/* Register Form */}
         {tab === 'register' && (
-          <div className="bg-gray-900 rounded-2xl p-6 space-y-4 border border-gray-800">
+          <div className="bg-white rounded-2xl p-8 space-y-5 shadow-xl border border-slate-200">
             {/* Step indicator */}
-            <div className="flex items-center justify-center gap-2 mb-2">
+            <div className="flex items-center justify-center gap-3 mb-4">
               {[1, 2, 3].map((s) => (
-                <div key={s} className="flex items-center gap-2">
-                  <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium ${
-                    regStep >= s ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-400'
+                <div key={s} className="flex items-center gap-3">
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center text-base font-bold ${
+                    regStep >= s ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-500'
                   }`}>
                     {s}
                   </div>
-                  {s < 3 && <div className={`w-8 h-0.5 ${regStep > s ? 'bg-blue-600' : 'bg-gray-700'}`} />}
+                  {s < 3 && <div className={`w-10 h-1 rounded ${regStep > s ? 'bg-blue-600' : 'bg-slate-200'}`} />}
                 </div>
               ))}
             </div>
 
             {/* Step 1: Email */}
             {regStep === 1 && (
-              <div className="space-y-4">
-                <p className="text-gray-400 text-sm text-center">輸入公司郵箱以接收驗證碼</p>
+              <div className="space-y-5">
+                <p className="text-slate-600 text-base text-center font-medium">輸入公司郵箱以接收驗證碼</p>
                 <div>
-                  <label className="block text-sm text-gray-400 mb-1">公司郵箱</label>
+                  <label className="block text-base font-bold text-slate-700 mb-2">公司郵箱</label>
                   <input
                     type="email"
                     value={regEmail}
@@ -336,17 +343,17 @@ export default function Login() {
 
             {/* Step 2: OTP */}
             {regStep === 2 && (
-              <div className="space-y-4">
-                <p className="text-gray-400 text-sm text-center">
-                  驗證碼已發送至 <span className="text-white">{regEmail}</span>
+              <div className="space-y-5">
+                <p className="text-slate-600 text-base text-center font-medium">
+                  驗證碼已發送至 <span className="text-slate-900 font-bold">{regEmail}</span>
                 </p>
                 <div>
-                  <label className="block text-sm text-gray-400 mb-1">6位驗證碼</label>
+                  <label className="block text-base font-bold text-slate-700 mb-2">6位驗證碼</label>
                   <input
                     type="text"
                     value={otpCode}
                     onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                    className={`${inputClass} text-center tracking-[0.5em] text-lg`}
+                    className={`${inputClass} text-center tracking-[0.5em] text-xl`}
                     placeholder="000000"
                     maxLength={6}
                   />
@@ -356,7 +363,7 @@ export default function Login() {
                 </button>
                 <button
                   onClick={() => { setRegStep(1); setError('') }}
-                  className="w-full py-2 text-sm text-gray-400 hover:text-white transition-colors"
+                  className="w-full py-2.5 text-base text-slate-500 hover:text-slate-900 transition-colors"
                 >
                   返回上一步
                 </button>
@@ -365,10 +372,10 @@ export default function Login() {
 
             {/* Step 3: Name + Password */}
             {regStep === 3 && (
-              <form onSubmit={handleRegister} className="space-y-4">
-                <p className="text-gray-400 text-sm text-center">設置帳號信息完成註冊</p>
+              <form onSubmit={handleRegister} className="space-y-5">
+                <p className="text-slate-600 text-base text-center font-medium">設置帳號信息完成註冊</p>
                 <div>
-                  <label className="block text-sm text-gray-400 mb-1">姓名 / Name</label>
+                  <label className="block text-base font-bold text-slate-700 mb-2">姓名 / Name</label>
                   <input
                     type="text"
                     value={regName}
@@ -378,7 +385,7 @@ export default function Login() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm text-gray-400 mb-1">密碼 / Password</label>
+                  <label className="block text-base font-bold text-slate-700 mb-2">密碼 / Password</label>
                   <input
                     type="password"
                     value={regPassword}
@@ -388,7 +395,7 @@ export default function Login() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm text-gray-400 mb-1">確認密碼 / Confirm</label>
+                  <label className="block text-base font-bold text-slate-700 mb-2">確認密碼 / Confirm</label>
                   <input
                     type="password"
                     value={regPassword2}
@@ -406,10 +413,12 @@ export default function Login() {
         )}
 
         {/* Security notice */}
-        <p className="text-center text-gray-600 text-xs mt-6 leading-5">
-          本系統僅限誠港金融員工使用<br />
-          This system is for CMF employees only
-        </p>
+        <div className="mt-6 bg-yellow-50 border border-yellow-300 rounded-xl p-4 text-center">
+          <p className="text-yellow-800 text-sm font-semibold leading-6">
+            本系統僅限誠港金融員工使用<br />
+            This system is for CMF employees only
+          </p>
+        </div>
       </div>
     </div>
   )

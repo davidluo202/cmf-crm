@@ -18,34 +18,34 @@ const monthlyData = [
 
 export default function Revenue() {
   return (
-    <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-bold text-white">Revenue Overview / 收入概览</h1>
+    <div className="space-y-6">
+      <h1 className="text-2xl font-bold text-slate-900">Revenue Overview / 收入概览</h1>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {summaryCards.map((card) => (
           <div
             key={card.title}
-            className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-5 border border-gray-800"
+            className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm"
           >
-            <div className="text-sm text-gray-400">{card.title}</div>
-            <div className="text-2xl font-bold text-white mt-2">{card.value}</div>
-            <div className="text-xs text-gray-500 mt-1">{card.sub}</div>
+            <div className="text-sm text-slate-500">{card.title}</div>
+            <div className="text-2xl font-bold text-slate-900 mt-2">{card.value}</div>
+            <div className="text-xs text-slate-400 mt-1">{card.sub}</div>
           </div>
         ))}
       </div>
 
       {/* Revenue Chart */}
-      <div className="bg-gray-900 rounded-2xl p-5 border border-gray-800">
-        <h2 className="text-lg font-semibold text-white mb-4">Revenue by Product (HK$ '000) / 产品收入</h2>
+      <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+        <h2 className="text-lg font-semibold text-slate-900 mb-4">Revenue by Product (HK$ '000) / 产品收入</h2>
         <ResponsiveContainer width="100%" height={350}>
           <BarChart data={monthlyData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-            <XAxis dataKey="month" stroke="#9ca3af" />
-            <YAxis stroke="#9ca3af" />
+            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+            <XAxis dataKey="month" stroke="#64748b" />
+            <YAxis stroke="#64748b" />
             <Tooltip
-              contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px' }}
-              labelStyle={{ color: '#fff' }}
+              contentStyle={{ backgroundColor: '#fff', border: '1px solid #e2e8f0', borderRadius: '8px' }}
+              labelStyle={{ color: '#1e293b' }}
             />
             <Bar dataKey="otc" name="OTC Products" fill="#3b82f6" radius={[4, 4, 0, 0]} />
             <Bar dataKey="securities" name="Securities" fill="#10b981" radius={[4, 4, 0, 0]} />
