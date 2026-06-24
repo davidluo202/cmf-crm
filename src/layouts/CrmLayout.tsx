@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import dayjs from 'dayjs'
 
+const VERSION = '260624.001'
+
 const navItems = [
   { path: '/crm/dashboard', label: 'Dashboard', labelZh: '仪表盘', icon: '📊' },
   { path: '/crm/clients', label: 'Clients', labelZh: '客户', icon: '👥' },
@@ -12,13 +14,36 @@ const navItems = [
   { path: '/crm/settings', label: 'Settings', labelZh: '设置', icon: '⚙️' },
 ]
 
+function getGreeting(hour: number) {
+  if (hour < 12) return '早上好'
+  if (hour < 14) return '午安'
+  if (hour < 18) return '下午好'
+  return '晚上好'
+}
+
 export default function CrmLayout() {
   const navigate = useNavigate()
   const [clock, setClock] = useState(dayjs().format('HH:mm:ss'))
+  const [date, setDate] = useState(dayjs().format('YYYY-MM-DD dddd'))
+  const [greeting, setGreeting] = useState(getGreeting(dayjs().hour()))
+  const [weather, setWeather] = useState({ icon: '🌤️', temp: '--°C' })
+  const [userName] = useState(() => localStorage.getItem('userName') || 'David先生')
 
   useEffect(() => {
-    const timer = setInterval(() => setClock(dayjs().format('HH:mm:ss')), 1000)
+    const timer = setInterval(() => {
+      const now = dayjs()
+      setClock(now.format('HH:mm:ss'))
+      setDate(now.format('YYYY-MM-DD dddd'))
+      setGreeting(getGreeting(now.hour()))
+    }, 1000)
     return () => clearInterval(timer)
+  }, [])
+
+  useEffect(() => {
+    fetch('/api/weather')
+      .then(r => r.json())
+      .then(data => setWeather({ icon: data.icon || '🌤️', temp: data.temp || '--°C' }))
+      .catch(() => {})
   }, [])
 
   const handleLogout = () => {
@@ -29,11 +54,19 @@ export default function CrmLayout() {
   return (
     <div className="flex h-screen bg-gray-950 text-white">
       {/* Sidebar */}
-      <aside className="w-64 flex flex-col" style={{ backgroundColor: '#0f172a' }}>
+      <aside className="w-72 flex flex-col" style={{ backgroundColor: '#0f172a' }}>
         {/* Logo */}
-        <div className="p-4 border-b border-gray-800">
-          <img src="/logo-zh.jpg" alt="CMF" className="h-10 object-contain" />
-          <div className="text-xs text-gray-400 mt-1">CRM System</div>
+        <div className="mx-3 mt-3 mb-1 bg-white rounded-xl p-3">
+          <img src="/logo-zh.jpg" alt="CMF" className="w-full h-auto" />
+        </div>
+
+        {/* Clock + Greeting + Weather */}
+        <div className="px-4 py-3 text-center">
+          <div className="text-2xl font-mono font-bold text-white">{clock}</div>
+          <div className="text-sm text-gray-400 mt-1">{date}</div>
+          <div className="text-base text-gray-200 mt-2">
+            {weather.icon} {greeting}，{userName}！ {weather.temp}
+          </div>
         </div>
 
         {/* Navigation */}
@@ -43,37 +76,38 @@ export default function CrmLayout() {
               key={item.path}
               to={item.path}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-4 py-3 mx-2 rounded-lg text-sm transition-colors ${
+                `flex items-center gap-3 px-4 py-3 mx-2 rounded-lg transition-colors ${
                   isActive
                     ? 'bg-blue-600/20 text-blue-400 border-l-2 border-blue-400'
                     : 'text-gray-400 hover:bg-gray-800 hover:text-white'
                 }`
               }
             >
-              <span>{item.icon}</span>
+              <span className="text-xl">{item.icon}</span>
               <div>
-                <div>{item.label}</div>
-                <div className="text-xs text-gray-500">{item.labelZh}</div>
+                <div className="text-lg font-semibold">{item.labelZh}</div>
+                <div className="text-sm text-gray-500">{item.label}</div>
               </div>
             </NavLink>
           ))}
         </nav>
 
-        {/* User / Clock / Logout */}
+        {/* Version + Logout */}
         <div className="p-4 border-t border-gray-800">
-          <div className="text-sm text-gray-300">Welcome, RM</div>
-          <div className="text-xs text-gray-500 font-mono mt-1">{clock}</div>
+          <div className="text-center mb-3">
+            <span className="text-yellow-400 font-bold text-sm">v{VERSION}</span>
+          </div>
           <button
             onClick={handleLogout}
-            className="mt-3 w-full py-2 text-sm rounded-lg bg-gray-800 hover:bg-red-600/30 text-gray-400 hover:text-red-400 transition-colors"
+            className="w-full py-3 text-base font-bold rounded-lg border border-gray-600 text-white hover:bg-red-600 hover:border-red-600 hover:text-white transition-colors"
           >
-            Logout / 登出
+            🚪 Logout / 登出
           </button>
         </div>
       </aside>
 
       {/* Main content */}
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto text-base" style={{ fontSize: '16px' }}>
         <Outlet />
       </main>
     </div>
