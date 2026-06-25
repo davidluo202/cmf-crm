@@ -1,59 +1,82 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+const API_BASE = import.meta.env.VITE_API_URL || ''
+
 interface Client {
-  id: string
-  ref: string
-  name: string
-  segment: 'HNWI' | 'Corporate' | 'Institutional'
+  id: number
+  code: string
+  nameCn: string
+  nameEn: string
+  email: string
+  phone: string
+  segment: string
+  tier: string
   rm: string
-  aum: string
-  status: 'Active' | 'Prospect' | 'Dormant'
-  lastContact: string
+  aum: number
+  status: string
+  lastContact: string | null
+  createdAt: string
 }
 
-const mockClients: Client[] = [
-  { id: '1', ref: 'CL-001', name: 'Chen Wei Holdings', segment: 'Corporate', rm: 'Alice Wong', aum: 'HK$ 85M', status: 'Active', lastContact: '2026-06-18' },
-  { id: '2', ref: 'CL-002', name: 'Pacific Dragon Ltd', segment: 'Institutional', rm: 'Alice Wong', aum: 'HK$ 120M', status: 'Active', lastContact: '2026-06-15' },
-  { id: '3', ref: 'CL-003', name: 'Golden Harvest Corp', segment: 'Corporate', rm: 'Bob Chen', aum: 'HK$ 45M', status: 'Active', lastContact: '2026-06-20' },
-  { id: '4', ref: 'CL-004', name: 'Jade Mountain Capital', segment: 'HNWI', rm: 'Alice Wong', aum: 'HK$ 30M', status: 'Prospect', lastContact: '2026-06-10' },
-  { id: '5', ref: 'CL-005', name: 'Silver Wave Trading', segment: 'Corporate', rm: 'Bob Chen', aum: 'HK$ 0', status: 'Dormant', lastContact: '2026-03-01' },
-]
-
-const tabs = ['All', 'Active', 'Prospect', 'Dormant'] as const
+const tabs = ['All', '活跃', '冻结'] as const
 
 const segmentColor: Record<string, string> = {
-  HNWI: 'bg-purple-500/20 text-purple-400',
-  Corporate: 'bg-blue-500/20 text-blue-400',
-  Institutional: 'bg-emerald-500/20 text-emerald-400',
+  Individual: 'bg-blue-500/20 text-blue-600',
+  HNWI: 'bg-purple-500/20 text-purple-600',
+  Corporate: 'bg-emerald-500/20 text-emerald-600',
+  Institutional: 'bg-amber-500/20 text-amber-600',
 }
 
-const statusColor: Record<string, string> = {
-  Active: 'bg-green-500/20 text-green-400',
-  Prospect: 'bg-yellow-500/20 text-yellow-400',
-  Dormant: 'bg-gray-500/20 text-gray-400',
+const tierColor: Record<string, string> = {
+  Platinum: 'bg-slate-200 text-slate-700',
+  Gold: 'bg-yellow-100 text-yellow-700',
+  Silver: 'bg-gray-100 text-gray-600',
+  Bronze: 'bg-orange-100 text-orange-700',
 }
 
 export default function ClientList() {
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
   const [tab, setTab] = useState<typeof tabs[number]>('All')
+  const [clients, setClients] = useState<Client[]>([])
+  const [loading, setLoading] = useState(true)
 
-  const filtered = mockClients.filter((c) => {
+  useEffect(() => { loadClients() }, [])
+
+  const loadClients = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/api/clients`)
+      const data = await res.json()
+      if (data.success) setClients(data.data || [])
+    } catch (err) {
+      console.error('Failed to load clients:', err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const filtered = clients.filter((c) => {
     if (tab !== 'All' && c.status !== tab) return false
-    if (search && !c.name.toLowerCase().includes(search.toLowerCase()) && !c.ref.toLowerCase().includes(search.toLowerCase())) return false
+    if (search) {
+      const q = search.toLowerCase()
+      if (!c.nameCn.toLowerCase().includes(q) && !c.nameEn.toLowerCase().includes(q) && !c.code.toLowerCase().includes(q) && !c.email.toLowerCase().includes(q)) return false
+    }
     return true
   })
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-slate-900">Clients / 客户列表</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-slate-900">Clients / 客户列表</h1>
+        <span className="text-sm text-slate-500">{clients.length} 位客户</span>
+      </div>
 
       {/* Search + Filters */}
       <div className="flex flex-col sm:flex-row gap-4">
         <input
           type="text"
-          placeholder="Search by name or ref..."
+          placeholder="搜索客户名称、编号或邮箱..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="flex-1 px-4 py-2.5 bg-white border border-slate-300 rounded-lg text-slate-800 text-sm focus:outline-none focus:border-blue-500"
@@ -67,7 +90,7 @@ export default function ClientList() {
                 tab === t ? 'bg-blue-600 text-white' : 'bg-white text-slate-600 border border-slate-300 hover:text-slate-900'
               }`}
             >
-              {t}
+              {t === 'All' ? '全部' : t}
             </button>
           ))}
         </div>
@@ -75,16 +98,20 @@ export default function ClientList() {
 
       {/* Table */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        {loading ? (
+          <div className="p-12 text-center text-slate-500">加载中...</div>
+        ) : (
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-slate-200 bg-slate-50">
-              <th className="text-left p-4 text-slate-600 font-medium">Ref</th>
-              <th className="text-left p-4 text-slate-600 font-medium">Name / 名称</th>
-              <th className="text-left p-4 text-slate-600 font-medium">Segment</th>
-              <th className="text-left p-4 text-slate-600 font-medium">RM</th>
-              <th className="text-left p-4 text-slate-600 font-medium">AUM</th>
-              <th className="text-left p-4 text-slate-600 font-medium">Status</th>
-              <th className="text-left p-4 text-slate-600 font-medium">Last Contact</th>
+              <th className="text-left p-4 text-slate-600 font-medium">编号</th>
+              <th className="text-left p-4 text-slate-600 font-medium">客户名称</th>
+              <th className="text-left p-4 text-slate-600 font-medium">联系方式</th>
+              <th className="text-left p-4 text-slate-600 font-medium">分类</th>
+              <th className="text-left p-4 text-slate-600 font-medium">等级</th>
+              <th className="text-left p-4 text-slate-600 font-medium">客户经理</th>
+              <th className="text-right p-4 text-slate-600 font-medium">AUM</th>
+              <th className="text-left p-4 text-slate-600 font-medium">状态</th>
             </tr>
           </thead>
           <tbody>
@@ -94,27 +121,41 @@ export default function ClientList() {
                 onClick={() => navigate(`/crm/clients/${client.id}`)}
                 className="border-b border-slate-100 hover:bg-slate-50 cursor-pointer transition-colors"
               >
-                <td className="p-4 text-slate-500 font-mono">{client.ref}</td>
-                <td className="p-4 text-slate-900 font-medium">{client.name}</td>
+                <td className="p-4 text-slate-500 font-mono text-xs">{client.code}</td>
                 <td className="p-4">
-                  <span className={`text-xs px-2 py-1 rounded-full ${segmentColor[client.segment]}`}>
+                  <div className="text-slate-900 font-medium">{client.nameCn}</div>
+                  {client.nameEn && <div className="text-xs text-slate-400">{client.nameEn}</div>}
+                </td>
+                <td className="p-4">
+                  <div className="text-slate-700 text-xs">{client.email}</div>
+                  {client.phone && <div className="text-xs text-slate-400">{client.phone}</div>}
+                </td>
+                <td className="p-4">
+                  <span className={`text-xs px-2 py-1 rounded-full ${segmentColor[client.segment] || 'bg-gray-100 text-gray-600'}`}>
                     {client.segment}
                   </span>
                 </td>
-                <td className="p-4 text-slate-700">{client.rm}</td>
-                <td className="p-4 text-slate-700">{client.aum}</td>
                 <td className="p-4">
-                  <span className={`text-xs px-2 py-1 rounded-full ${statusColor[client.status]}`}>
+                  <span className={`text-xs px-2 py-1 rounded-full ${tierColor[client.tier] || 'bg-gray-100 text-gray-600'}`}>
+                    {client.tier}
+                  </span>
+                </td>
+                <td className="p-4 text-slate-700 text-xs">{client.rm || '—'}</td>
+                <td className="p-4 text-right text-slate-700 font-mono text-xs">
+                  {client.aum > 0 ? `HK$ ${(client.aum / 1000000).toFixed(1)}M` : '—'}
+                </td>
+                <td className="p-4">
+                  <span className={`text-xs px-2 py-1 rounded-full ${client.status === '活跃' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'}`}>
                     {client.status}
                   </span>
                 </td>
-                <td className="p-4 text-slate-500">{client.lastContact}</td>
               </tr>
             ))}
           </tbody>
         </table>
-        {filtered.length === 0 && (
-          <div className="p-8 text-center text-slate-500">No clients found</div>
+        )}
+        {!loading && filtered.length === 0 && (
+          <div className="p-8 text-center text-slate-500">暂无符合条件的客户</div>
         )}
       </div>
     </div>
