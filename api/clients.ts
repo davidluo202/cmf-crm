@@ -37,11 +37,41 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // POST /api/clients — create new client (CRM is the single source of client codes)
+    // 支持两种模式：
+    //   1. 自动生成编号（默认）：不传 code/accountNumber
+    //   2. 手工补录（已有客户）：传入 code 和/或 accountNumber，系统直接使用
     if (req.method === 'POST') {
       const b = req.body || {};
-      const clientType = b.clientType || '10'; // 10=零售, 20=企业, 30=机构
-      const channel = b.channel || '0'; // 0=线上, 1=线下
-      const { accountNumber, bcan, code } = await generateAccountNumber(pool, clientType, channel);
+      const clientType = b.clientType || '10';
+      const channel = b.channel || '0';
+
+      let code: string;
+      let accountNumber: string;
+
+      if (b.code || b.accountNumber) {
+        // 手工补录模式：使用传入的编号
+        code = b.code || '';
+        accountNumber = b.accountNumber || '';
+        // 检查编号是否已存在
+        if (code) {
+          const dup = await pool.query('SELECT id FROM clients WHERE code = $1', [code]);
+          if (dup.rows.length > 0) {
+            return res.status(400).json({ success: false, error: `客户编号 ${code} 已存在` });
+          }
+        }
+        if (accountNumber) {
+          const dup2 = await pool.query('SELECT id FROM clients WHERE account_number = $1', [accountNumber]);
+          if (dup2.rows.length > 0) {
+            return res.status(400).json({ success: false, error: `账户号 ${accountNumber} 已存在` });
+          }
+        }
+      } else {
+        // 自动生成编号
+        const gen = await generateAccountNumber(pool, clientType as any, channel as any);
+        code = gen.code;
+        accountNumber = gen.accountNumber;
+      }
+
       const r = await pool.query(
         `INSERT INTO clients (code, account_number, client_type, channel, name, name_en, phone, email, address, bank_name, bank_account, bank_account_type, bank_currency, markup_percent, status, segment, tier, rm, aum, onboarded_date, created_at, updated_at)
          VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,NOW(),NOW()) RETURNING *`,

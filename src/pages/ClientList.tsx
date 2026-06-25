@@ -41,6 +41,12 @@ export default function ClientList() {
   const [tab, setTab] = useState<typeof tabs[number]>('All')
   const [clients, setClients] = useState<Client[]>([])
   const [loading, setLoading] = useState(true)
+  const [showAdd, setShowAdd] = useState(false)
+  const [addForm, setAddForm] = useState({
+    code: '', accountNumber: '', nameCn: '', nameEn: '', phone: '', email: '',
+    clientType: '10', channel: '1', segment: 'Individual', isManual: true,
+  })
+  const [adding, setAdding] = useState(false)
 
   useEffect(() => { loadClients() }, [])
 
@@ -56,6 +62,34 @@ export default function ClientList() {
     }
   }
 
+  const handleAddClient = async () => {
+    setAdding(true)
+    try {
+      const body: any = {
+        nameCn: addForm.nameCn, nameEn: addForm.nameEn,
+        phone: addForm.phone, email: addForm.email,
+        clientType: addForm.clientType, channel: addForm.channel,
+        segment: addForm.segment, status: '活跃',
+      }
+      if (addForm.isManual && addForm.code) {
+        body.code = addForm.code
+        if (addForm.accountNumber) body.accountNumber = addForm.accountNumber
+      }
+      const res = await fetch(`${API_BASE}/api/clients`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
+      })
+      const data = await res.json()
+      if (data.success) {
+        setShowAdd(false)
+        setAddForm({ code: '', accountNumber: '', nameCn: '', nameEn: '', phone: '', email: '', clientType: '10', channel: '1', segment: 'Individual', isManual: true })
+        loadClients()
+      } else {
+        alert(data.error || '创建失败')
+      }
+    } catch (err) { alert('创建失败') }
+    finally { setAdding(false) }
+  }
+
   const filtered = clients.filter((c) => {
     if (tab !== 'All' && c.status !== tab) return false
     if (search) {
@@ -69,7 +103,12 @@ export default function ClientList() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-slate-900">Clients / 客户列表</h1>
-        <span className="text-sm text-slate-500">{clients.length} 位客户</span>
+        <div className="flex items-center gap-3">
+          <span className="text-sm text-slate-500">{clients.length} 位客户</span>
+          <button onClick={() => setShowAdd(true)} className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700">
+            + 手工补录客户
+          </button>
+        </div>
       </div>
 
       {/* Search + Filters */}
@@ -158,6 +197,85 @@ export default function ClientList() {
           <div className="p-8 text-center text-slate-500">暂无符合条件的客户</div>
         )}
       </div>
+
+      {/* 手工补录弹窗 */}
+      {showAdd && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
+          <div className="bg-white w-full max-w-lg rounded-2xl shadow-xl p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-bold text-slate-900">手工补录客户</h2>
+              <button onClick={() => setShowAdd(false)} className="text-slate-400 hover:text-slate-700 text-xl">&times;</button>
+            </div>
+            <p className="text-xs text-slate-500">用于补录线下已开户且已分配编号的存量客户。</p>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs text-slate-500 block mb-1">客户编号（已有）</label>
+                <input value={addForm.code} onChange={e => setAddForm({...addForm, code: e.target.value})} placeholder="如 C0001" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+              </div>
+              <div>
+                <label className="text-xs text-slate-500 block mb-1">14位账户号（如有）</label>
+                <input value={addForm.accountNumber} onChange={e => setAddForm({...addForm, accountNumber: e.target.value})} placeholder="如 10012026000001" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs text-slate-500 block mb-1">客户类型</label>
+                <select value={addForm.clientType} onChange={e => setAddForm({...addForm, clientType: e.target.value})} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm">
+                  <option value="10">10 - 零售个人</option>
+                  <option value="20">20 - 企业</option>
+                  <option value="30">30 - 机构</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-xs text-slate-500 block mb-1">开户渠道</label>
+                <select value={addForm.channel} onChange={e => setAddForm({...addForm, channel: e.target.value})} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm">
+                  <option value="1">1 - 线下</option>
+                  <option value="0">0 - 线上</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label className="text-xs text-slate-500 block mb-1">中文名称 *</label>
+              <input value={addForm.nameCn} onChange={e => setAddForm({...addForm, nameCn: e.target.value})} placeholder="客户中文名" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+            </div>
+            <div>
+              <label className="text-xs text-slate-500 block mb-1">英文名称</label>
+              <input value={addForm.nameEn} onChange={e => setAddForm({...addForm, nameEn: e.target.value})} placeholder="Client English Name" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs text-slate-500 block mb-1">电话</label>
+                <input value={addForm.phone} onChange={e => setAddForm({...addForm, phone: e.target.value})} placeholder="+852 ..." className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+              </div>
+              <div>
+                <label className="text-xs text-slate-500 block mb-1">邮箱</label>
+                <input value={addForm.email} onChange={e => setAddForm({...addForm, email: e.target.value})} placeholder="email@..." className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+              </div>
+            </div>
+            <div>
+              <label className="text-xs text-slate-500 block mb-1">分类</label>
+              <select value={addForm.segment} onChange={e => setAddForm({...addForm, segment: e.target.value})} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm">
+                <option value="Individual">Individual (个人)</option>
+                <option value="HNWI">HNWI (高净值)</option>
+                <option value="Corporate">Corporate (企业)</option>
+                <option value="Institutional">Institutional (机构)</option>
+              </select>
+            </div>
+
+            <div className="flex gap-2 pt-2">
+              <button onClick={handleAddClient} disabled={adding || !addForm.nameCn} className="flex-1 px-4 py-2.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 disabled:opacity-50">
+                {adding ? '创建中...' : '创建客户'}
+              </button>
+              <button onClick={() => setShowAdd(false)} className="px-4 py-2.5 bg-white text-slate-600 text-sm rounded-lg border border-slate-300 hover:bg-slate-50">
+                取消
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
