@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getPool, ensureCrmColumns, nextClientCode } from './db';
+import { getPool, ensureCrmColumns, generateAccountNumber } from './db';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -13,10 +13,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     const { id, action } = req.query;
 
-    // GET /api/clients?action=next-code — return next available client code
+    // GET /api/clients?action=next-code — return next available client code + account number
     if (req.method === 'GET' && action === 'next-code') {
-      const code = await nextClientCode(pool);
-      return res.json({ success: true, code });
+      const clientType = (req.query.clientType as string) || '10';
+      const channel = (req.query.channel as string) || '0';
+      const result = await generateAccountNumber(pool, clientType as any, channel as any);
+      return res.json({ success: true, ...result });
     }
 
     // GET /api/clients?id=X — single client
@@ -37,12 +39,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // POST /api/clients — create new client (CRM is the single source of client codes)
     if (req.method === 'POST') {
       const b = req.body || {};
-      const code = await nextClientCode(pool);
+      const clientType = b.clientType || '10'; // 10=零售, 20=企业, 30=机构
+      const channel = b.channel || '0'; // 0=线上, 1=线下
+      const { accountNumber, bcan, code } = await generateAccountNumber(pool, clientType, channel);
       const r = await pool.query(
-        `INSERT INTO clients (code, name, name_en, phone, email, address, bank_name, bank_account, bank_account_type, bank_currency, markup_percent, status, segment, tier, rm, aum, onboarded_date, created_at, updated_at)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,NOW(),NOW()) RETURNING *`,
+        `INSERT INTO clients (code, account_number, client_type, channel, name, name_en, phone, email, address, bank_name, bank_account, bank_account_type, bank_currency, markup_percent, status, segment, tier, rm, aum, onboarded_date, created_at, updated_at)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,NOW(),NOW()) RETURNING *`,
         [
           code,
+          accountNumber,
+          clientType,
+          channel,
           b.nameCn || b.name || '',
           b.nameEn || '',
           b.phone || '',
@@ -117,6 +124,10 @@ function mapRow(r: any) {
   return {
     id: r.id,
     code: r.code,
+    accountNumber: r.account_number || '',
+    bcan: r.account_number ? r.account_number.slice(-6) : '',
+    clientType: r.client_type || '10',
+    channel: r.channel || '0',
     nameCn: r.name,
     nameEn: r.name_en || '',
     phone: r.phone || '',
