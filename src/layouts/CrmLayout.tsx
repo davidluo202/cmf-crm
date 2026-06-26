@@ -10,6 +10,7 @@ const navItems = [
   { path: '/crm/revenue', label: 'Revenue', labelZh: '收入', icon: '💰' },
   { path: '/crm/credit', label: 'Credit', labelZh: '信贷', icon: '🏦' },
   { path: '/crm/interactions', label: 'Interactions', labelZh: '互动', icon: '💬' },
+  { path: '/crm/fee-schedule', label: 'Fee Schedule', labelZh: '收费表', icon: '💲' },
   { path: '/crm/reports', label: 'Reports', labelZh: '报告', icon: '📄' },
   { path: '/crm/settings', label: 'Settings', labelZh: '设置', icon: '⚙️' },
 ]
