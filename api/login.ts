@@ -1,8 +1,38 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import crypto from 'crypto';
+import { Pool } from 'pg';
+
+const DATABASE_URL = process.env.SSO_DATABASE_URL || 'postgresql://postgres:XCBgJFsPbtJgiaCGaKgQXxnnhTJzyusL@switchyard.proxy.rlwy.net:45054/railway';
+
+let pool: Pool;
+function getPool(): Pool {
+  if (!pool) {
+    pool = new Pool({ connectionString: DATABASE_URL, ssl: false });
+  }
+  return pool;
+}
+
+async function ensureAdminUsersTable(): Promise<void> {
+  const p = getPool();
+  await p.query(`
+    CREATE TABLE IF NOT EXISTS admin_users (
+      id SERIAL PRIMARY KEY,
+      email VARCHAR(200) UNIQUE NOT NULL,
+      name VARCHAR(100),
+      password_hash VARCHAR(200) NOT NULL,
+      role VARCHAR(50) DEFAULT 'staff',
+      created_at TIMESTAMP DEFAULT NOW(),
+      last_login TIMESTAMP
+    )
+  `);
+}
 
 function getSecret(): string {
   return process.env.VERIFY_SECRET || 'cmf-crm-verify-secret';
+}
+
+function hashPassword(password: string): string {
+  return crypto.createHash('sha256').update(password).digest('hex');
 }
 
 function generateJWT(payload: object): string {
@@ -54,12 +84,34 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: '請輸入密碼（至少8位）' });
   }
 
-  // DB integration later - for now accept any valid-format login
-  const token = generateJWT({ email: email.toLowerCase(), role: 'user' });
+  try {
+    await ensureAdminUsersTable();
+    const p = getPool();
+    const result = await p.query('SELECT * FROM admin_users WHERE email = $1', [email.toLowerCase()]);
 
-  return res.status(200).json({
-    success: true,
-    token,
-    user: { email: email.toLowerCase() },
-  });
+    if (result.rows.length === 0) {
+      return res.status(401).json({ error: '賬號不存在，請先註冊' });
+    }
+
+    const user = result.rows[0];
+    const inputHash = hashPassword(password);
+
+    if (inputHash !== user.password_hash) {
+      return res.status(401).json({ error: '郵箱或密碼錯誤' });
+    }
+
+    // Update last_login
+    await p.query('UPDATE admin_users SET last_login = NOW() WHERE id = $1', [user.id]);
+
+    const token = generateJWT({ email: user.email, name: user.name, role: user.role });
+
+    return res.status(200).json({
+      success: true,
+      token,
+      user: { email: user.email, name: user.name, role: user.role },
+    });
+  } catch (err) {
+    console.error('[SSO Login] DB error:', err);
+    return res.status(500).json({ error: '服務器錯誤，請稍後重試' });
+  }
 }
