@@ -7,6 +7,7 @@ import ClientDetail from './pages/ClientDetail'
 import Revenue from './pages/Revenue'
 import Settings from './pages/Settings'
 import FeeSchedule from './pages/FeeSchedule'
+import AdminUsersPage from './pages/AdminUsersPage'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const token = localStorage.getItem('token')
@@ -35,6 +36,7 @@ export default function App() {
         <Route path="interactions" element={<div className="p-8 text-gray-400">Interactions - Coming Soon</div>} />
         <Route path="reports" element={<div className="p-8 text-gray-400">Reports - Coming Soon</div>} />
         <Route path="fee-schedule" element={<FeeSchedule />} />
+        <Route path="admin-users" element={<AdminUsersPage />} />
         <Route path="settings" element={<Settings />} />
       </Route>
       <Route path="*" element={<Navigate to="/crm" replace />} />

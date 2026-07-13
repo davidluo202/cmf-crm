@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 
 const API_BASE = import.meta.env.VITE_API_URL || ''
 
@@ -17,7 +17,7 @@ function formatRate(rate: number): string {
   return `${(rate * 100).toFixed(4)}%`
 }
 
-function renderFeeItem(key: string, item: any): JSX.Element {
+function renderFeeItem(key: string, item: any): React.ReactElement {
   const label = item.label || key
   let value = ''
   if (item.rate !== undefined) {
@@ -39,7 +39,7 @@ function renderFeeItem(key: string, item: any): JSX.Element {
   )
 }
 
-function renderSection(sectionKey: string, section: any): JSX.Element | null {
+function renderSection(sectionKey: string, section: any): React.ReactElement | null {
   if (!section || typeof section !== 'object') return null
   const title = section.title || sectionLabels[sectionKey] || sectionKey
 
