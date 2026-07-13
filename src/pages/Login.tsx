@@ -30,7 +30,7 @@ export default function Login() {
 
   const fetchCaptcha = useCallback(async () => {
     try {
-      const res = await fetch('/api/captcha')
+      const res = await fetch(`/api/captcha?t=${Date.now()}`)
       const data = await res.json()
       setCaptchaImage(data.image)
       setCaptchaToken(data.captchaToken)
