@@ -4,8 +4,9 @@ let pool: Pool | null = null;
 
 export function getPool(): Pool {
   if (!pool) {
+    const url = process.env.DATABASE_URL || 'postgresql://postgres:XCBgJFsPbtJgiaCGaKgQXxnnhTJzyusL@switchyard.proxy.rlwy.net:45054/railway';
     pool = new Pool({
-      connectionString: process.env.DATABASE_URL,
+      connectionString: url,
       ssl: { rejectUnauthorized: false },
       max: 5,
     });
