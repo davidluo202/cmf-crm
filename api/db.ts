@@ -1,18 +1,20 @@
-import mysql from 'mysql2/promise';
+import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-let pool: mysql.Pool | null = null;
+const mysql = require('mysql2/promise');
 
-export function getPool(): mysql.Pool {
+let pool: any = null;
+
+export function getPool(): any {
   if (!pool) {
     const url = process.env.DATABASE_URL;
     if (!url) throw new Error('DATABASE_URL not configured');
-    pool = mysql.createPool(url + '?connectionLimit=5&waitForConnections=true');
+    pool = mysql.createPool(url);
   }
   return pool;
 }
 
 /** Ensure CRM-specific tables/columns exist */
-export async function ensureCrmTables(p: mysql.Pool) {
+export async function ensureCrmTables(p: any) {
   // Create crm_clients table if not exists (CRM's own client records for manual entry)
   try {
     await p.query(`
@@ -52,7 +54,7 @@ export async function ensureCrmTables(p: mysql.Pool) {
  * 1. Approved applications from account opening system (applications + personal_basic_info)
  * 2. Manually created CRM clients (crm_clients)
  */
-export async function getAllClients(p: mysql.Pool) {
+export async function getAllClients(p: any) {
   await ensureCrmTables(p);
 
   // Get approved applications with basic info
@@ -114,7 +116,7 @@ export async function getAllClients(p: mysql.Pool) {
 }
 
 /** Create a manual CRM client */
-export async function createCrmClient(p: mysql.Pool, data: any) {
+export async function createCrmClient(p: any, data: any) {
   await ensureCrmTables(p);
 
   // Check duplicate code
