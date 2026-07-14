@@ -6,12 +6,7 @@ export function getPool(): mysql.Pool {
   if (!pool) {
     const url = process.env.DATABASE_URL;
     if (!url) throw new Error('DATABASE_URL not configured');
-    pool = mysql.createPool({
-      uri: url,
-      waitForConnections: true,
-      connectionLimit: 5,
-      queueLimit: 0,
-    });
+    pool = mysql.createPool(url + '?connectionLimit=5&waitForConnections=true');
   }
   return pool;
 }
