@@ -245,28 +245,26 @@ export default function ClientList() {
               <label className="text-xs text-slate-500 block mb-1">英文名称</label>
               <input value={addForm.nameEn} onChange={e => setAddForm({...addForm, nameEn: e.target.value})} placeholder="Client English Name" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-xs text-slate-500 block mb-1">电话</label>
-                <div className="flex gap-1">
-                  <select value={addForm.phoneCode || '+852'} onChange={e => setAddForm({...addForm, phoneCode: e.target.value})} className="w-24 px-2 py-2 border border-slate-300 rounded-lg text-sm shrink-0">
-                    <option value="+852">+852</option>
-                    <option value="+86">+86</option>
-                    <option value="+853">+853</option>
-                    <option value="+886">+886</option>
-                    <option value="+65">+65</option>
-                    <option value="+1">+1</option>
-                    <option value="+44">+44</option>
-                    <option value="+81">+81</option>
-                    <option value="+61">+61</option>
-                  </select>
-                  <input value={addForm.phone} onChange={e => setAddForm({...addForm, phone: e.target.value})} placeholder="电话号码" className="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm" />
-                </div>
+            <div>
+              <label className="text-xs text-slate-500 block mb-1">电话</label>
+              <div className="flex gap-1">
+                <select value={addForm.phoneCode || '+852'} onChange={e => setAddForm({...addForm, phoneCode: e.target.value})} className="w-20 px-1 py-2 border border-slate-300 rounded-lg text-sm shrink-0">
+                  <option value="+852">+852</option>
+                  <option value="+86">+86</option>
+                  <option value="+853">+853</option>
+                  <option value="+886">+886</option>
+                  <option value="+65">+65</option>
+                  <option value="+1">+1</option>
+                  <option value="+44">+44</option>
+                  <option value="+81">+81</option>
+                  <option value="+61">+61</option>
+                </select>
+                <input value={addForm.phone} onChange={e => setAddForm({...addForm, phone: e.target.value})} placeholder="电话号码" className="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm" />
               </div>
-              <div>
-                <label className="text-xs text-slate-500 block mb-1">邮箱</label>
-                <input value={addForm.email} onChange={e => setAddForm({...addForm, email: e.target.value})} placeholder="email@..." className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
-              </div>
+            </div>
+            <div>
+              <label className="text-xs text-slate-500 block mb-1">邮箱</label>
+              <input value={addForm.email} onChange={e => setAddForm({...addForm, email: e.target.value})} placeholder="email@..." className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
             </div>
             <div>
               <label className="text-xs text-slate-500 block mb-1">分类</label>
