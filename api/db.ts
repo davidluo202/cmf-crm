@@ -1,5 +1,3 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
-
 const mysql = require('mysql2/promise');
 
 let pool: any = null;
