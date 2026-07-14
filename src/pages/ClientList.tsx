@@ -43,7 +43,7 @@ export default function ClientList() {
   const [loading, setLoading] = useState(true)
   const [showAdd, setShowAdd] = useState(false)
   const [addForm, setAddForm] = useState({
-    code: '', accountNumber: '', nameCn: '', nameEn: '', phone: '', email: '',
+    code: '', accountNumber: '', nameCn: '', nameEn: '', phone: '', phoneCode: '+852', email: '',
     clientType: '10', channel: '1', segment: 'Individual', isManual: true,
   })
   const [adding, setAdding] = useState(false)
@@ -67,7 +67,7 @@ export default function ClientList() {
     try {
       const body: any = {
         nameCn: addForm.nameCn, nameEn: addForm.nameEn,
-        phone: addForm.phone, email: addForm.email,
+        phone: addForm.phone ? `${addForm.phoneCode || '+852'} ${addForm.phone}` : '', email: addForm.email,
         clientType: addForm.clientType, channel: addForm.channel,
         segment: addForm.segment, status: '活跃',
       }
@@ -81,7 +81,7 @@ export default function ClientList() {
       const data = await res.json()
       if (data.success) {
         setShowAdd(false)
-        setAddForm({ code: '', accountNumber: '', nameCn: '', nameEn: '', phone: '', email: '', clientType: '10', channel: '1', segment: 'Individual', isManual: true })
+        setAddForm({ code: '', accountNumber: '', nameCn: '', nameEn: '', phone: '', phoneCode: '+852', email: '', clientType: '10', channel: '1', segment: 'Individual', isManual: true })
         loadClients()
       } else {
         alert(data.error || '创建失败')
@@ -248,7 +248,20 @@ export default function ClientList() {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="text-xs text-slate-500 block mb-1">电话</label>
-                <input value={addForm.phone} onChange={e => setAddForm({...addForm, phone: e.target.value})} placeholder="+852 ..." className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+                <div className="flex gap-1">
+                  <select value={addForm.phoneCode || '+852'} onChange={e => setAddForm({...addForm, phoneCode: e.target.value})} className="w-24 px-2 py-2 border border-slate-300 rounded-lg text-sm shrink-0">
+                    <option value="+852">+852</option>
+                    <option value="+86">+86</option>
+                    <option value="+853">+853</option>
+                    <option value="+886">+886</option>
+                    <option value="+65">+65</option>
+                    <option value="+1">+1</option>
+                    <option value="+44">+44</option>
+                    <option value="+81">+81</option>
+                    <option value="+61">+61</option>
+                  </select>
+                  <input value={addForm.phone} onChange={e => setAddForm({...addForm, phone: e.target.value})} placeholder="电话号码" className="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+                </div>
               </div>
               <div>
                 <label className="text-xs text-slate-500 block mb-1">邮箱</label>
