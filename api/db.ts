@@ -1,76 +1,154 @@
-import { Pool } from 'pg';
+import mysql from 'mysql2/promise';
 
-let pool: Pool | null = null;
+let pool: mysql.Pool | null = null;
 
-export function getPool(): Pool {
+export function getPool(): mysql.Pool {
   if (!pool) {
-    const url = process.env.DATABASE_URL || 'postgresql://postgres:XCBgJFsPbtJgiaCGaKgQXxnnhTJzyusL@switchyard.proxy.rlwy.net:45054/railway';
-    pool = new Pool({
-      connectionString: url,
-      ssl: url.includes('railway') ? false : { rejectUnauthorized: false },
-      max: 5,
-      connectionTimeoutMillis: 5000,
+    const url = process.env.DATABASE_URL;
+    if (!url) throw new Error('DATABASE_URL not configured');
+    pool = mysql.createPool({
+      uri: url,
+      waitForConnections: true,
+      connectionLimit: 5,
+      queueLimit: 0,
     });
   }
   return pool;
 }
 
-/** Ensure CRM-specific columns exist on the clients table */
-export async function ensureCrmColumns(p: Pool) {
-  const additions = [
-    "ALTER TABLE clients ADD COLUMN IF NOT EXISTS segment VARCHAR(50) DEFAULT 'Individual'",
-    "ALTER TABLE clients ADD COLUMN IF NOT EXISTS tier VARCHAR(20) DEFAULT 'Bronze'",
-    "ALTER TABLE clients ADD COLUMN IF NOT EXISTS rm VARCHAR(100)",
-    "ALTER TABLE clients ADD COLUMN IF NOT EXISTS aum NUMERIC DEFAULT 0",
-    "ALTER TABLE clients ADD COLUMN IF NOT EXISTS last_contact TIMESTAMP",
-    "ALTER TABLE clients ADD COLUMN IF NOT EXISTS onboarded_date DATE",
-    "ALTER TABLE clients ADD COLUMN IF NOT EXISTS account_number VARCHAR(20)",
-    "ALTER TABLE clients ADD COLUMN IF NOT EXISTS client_type VARCHAR(10) DEFAULT '10'",
-    "ALTER TABLE clients ADD COLUMN IF NOT EXISTS channel VARCHAR(2) DEFAULT '0'",
-  ];
-  for (const sql of additions) {
-    try { await p.query(sql); } catch { /* column may already exist */ }
-  }
+/** Ensure CRM-specific tables/columns exist */
+export async function ensureCrmTables(p: mysql.Pool) {
+  // Create crm_clients table if not exists (CRM's own client records for manual entry)
+  try {
+    await p.query(`
+      CREATE TABLE IF NOT EXISTS crm_clients (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        code VARCHAR(20) UNIQUE,
+        account_number VARCHAR(20),
+        client_type VARCHAR(10) DEFAULT '10',
+        channel VARCHAR(2) DEFAULT '0',
+        name VARCHAR(200),
+        name_en VARCHAR(200),
+        phone VARCHAR(50),
+        email VARCHAR(200),
+        address TEXT,
+        bank_name VARCHAR(200),
+        bank_account VARCHAR(100),
+        bank_account_type VARCHAR(20) DEFAULT 'checking',
+        bank_currency VARCHAR(10) DEFAULT 'HKD',
+        markup_percent DECIMAL(5,2) DEFAULT 0.30,
+        status VARCHAR(20) DEFAULT '活跃',
+        segment VARCHAR(50) DEFAULT 'Individual',
+        tier VARCHAR(20) DEFAULT 'Bronze',
+        rm VARCHAR(100),
+        aum DECIMAL(20,2) DEFAULT 0,
+        last_contact DATETIME,
+        onboarded_date DATE,
+        application_id INT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      )
+    `);
+  } catch { /* table may already exist */ }
 }
 
 /**
- * 客户统一账户编号规则（14位）
- *
- * 结构：AA-B-C-YYYY-SSSSSS
- *   AA = 客户类型（10=零售, 20=企业, 30=机构）
- *   B  = 账户类型（暂统一设为0）
- *   C  = 渠道（0=线上, 1=线下）
- *   YYYY = 开户年份
- *   SSSSSS = 全局递增流水号（同时即BCAN号码）
- *
- * 示例：10102026000001（第1位零售线上客户）
- * BCAN = 最后6位 = 000001
- * 港交所标识 = BSU667-000001
+ * Get all clients - combines:
+ * 1. Approved applications from account opening system (applications + personal_basic_info)
+ * 2. Manually created CRM clients (crm_clients)
  */
-export async function generateAccountNumber(
-  p: Pool,
-  clientType: '10' | '20' | '30' = '10',
-  channel: '0' | '1' = '0',
-): Promise<{ accountNumber: string; bcan: string; code: string }> {
-  // 全局递增流水号：取所有account_number最后6位的最大值+1
-  const res = await p.query(
-    "SELECT COALESCE(MAX(CAST(RIGHT(account_number, 6) AS INTEGER)), 0) + 1 AS next_seq FROM clients WHERE account_number IS NOT NULL AND LENGTH(account_number) = 14"
+export async function getAllClients(p: mysql.Pool) {
+  await ensureCrmTables(p);
+
+  // Get approved applications with basic info
+  let appClients: any[] = [];
+  try {
+    const [rows] = await p.query(`
+      SELECT a.id, a.applicationNumber as code, a.applicationCode, a.status,
+             a.submittedAt as created_at, a.updatedAt as updated_at,
+             b.chineseName as name, b.englishName as name_en,
+             d.email, d.mobileNumber as phone, d.mobileCountryCode as phone_code,
+             d.residentialAddress as address
+      FROM applications a
+      LEFT JOIN personal_basic_info b ON a.id = b.applicationId
+      LEFT JOIN personal_detailed_info d ON a.id = d.applicationId
+      WHERE a.status IN ('approved', 'submitted', 'under_review')
+      ORDER BY a.id DESC
+    `);
+    appClients = (rows as any[]).map(r => ({
+      id: r.id,
+      code: r.code || r.applicationCode || `APP-${r.id}`,
+      nameCn: r.name || '',
+      nameEn: r.name_en || '',
+      email: r.email || '',
+      phone: r.phone_code ? `${r.phone_code} ${r.phone}` : (r.phone || ''),
+      segment: 'Individual',
+      tier: 'Bronze',
+      rm: '',
+      aum: 0,
+      status: r.status === 'approved' ? '活跃' : '审核中',
+      lastContact: null,
+      createdAt: r.created_at,
+      source: 'account_opening',
+    }));
+  } catch { /* tables may not exist yet */ }
+
+  // Get manually created CRM clients
+  let crmClients: any[] = [];
+  try {
+    const [rows] = await p.query(`SELECT * FROM crm_clients ORDER BY id DESC`);
+    crmClients = (rows as any[]).map(r => ({
+      id: 10000 + r.id, // offset to avoid ID collision
+      code: r.code || '',
+      nameCn: r.name || '',
+      nameEn: r.name_en || '',
+      email: r.email || '',
+      phone: r.phone || '',
+      segment: r.segment || 'Individual',
+      tier: r.tier || 'Bronze',
+      rm: r.rm || '',
+      aum: Number(r.aum) || 0,
+      status: r.status || '活跃',
+      lastContact: r.last_contact,
+      createdAt: r.created_at,
+      source: 'manual',
+    }));
+  } catch { /* table may not exist */ }
+
+  return [...appClients, ...crmClients];
+}
+
+/** Create a manual CRM client */
+export async function createCrmClient(p: mysql.Pool, data: any) {
+  await ensureCrmTables(p);
+
+  // Check duplicate code
+  if (data.code) {
+    const [existing] = await p.query('SELECT id FROM crm_clients WHERE code = ?', [data.code]);
+    if ((existing as any[]).length > 0) {
+      throw new Error(`客户编号 ${data.code} 已存在`);
+    }
+  }
+
+  const [result] = await p.query(
+    `INSERT INTO crm_clients (code, account_number, client_type, channel, name, name_en, phone, email, address, status, segment, tier, rm, aum)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      data.code || null,
+      data.accountNumber || null,
+      data.clientType || '10',
+      data.channel || '0',
+      data.nameCn || data.name || '',
+      data.nameEn || '',
+      data.phone || '',
+      data.email || '',
+      data.address || '',
+      data.status || '活跃',
+      data.segment || 'Individual',
+      data.tier || 'Bronze',
+      data.rm || null,
+      data.aum || 0,
+    ]
   );
-  let nextSeq = res.rows[0]?.next_seq || 1;
-
-  // 同时检查旧格式 C0001 的最大编号，确保流水号不低于已有客户数
-  const oldRes = await p.query(
-    "SELECT COALESCE(MAX(CAST(SUBSTRING(code FROM 2) AS INTEGER)), 0) AS max_old FROM clients WHERE code ~ '^C[0-9]+$'"
-  );
-  const maxOld = oldRes.rows[0]?.max_old || 0;
-  if (nextSeq <= maxOld) nextSeq = maxOld + 1;
-
-  const year = new Date().getFullYear().toString();
-  const seqStr = String(nextSeq).padStart(6, '0');
-  const accountNumber = `${clientType}0${channel}${year}${seqStr}`;
-  const bcan = seqStr;
-  // 兼容旧格式：同时生成C0001格式的code供现有系统使用
-  const code = `C${String(nextSeq).padStart(4, '0')}`;
-
-  return { accountNumber, bcan, code };
+  return result;
 }
