@@ -7,8 +7,9 @@ export function getPool(): Pool {
     const url = process.env.DATABASE_URL || 'postgresql://postgres:XCBgJFsPbtJgiaCGaKgQXxnnhTJzyusL@switchyard.proxy.rlwy.net:45054/railway';
     pool = new Pool({
       connectionString: url,
-      ssl: { rejectUnauthorized: false },
+      ssl: url.includes('railway') ? false : { rejectUnauthorized: false },
       max: 5,
+      connectionTimeoutMillis: 5000,
     });
   }
   return pool;
