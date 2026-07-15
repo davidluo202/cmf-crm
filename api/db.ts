@@ -45,6 +45,47 @@ export async function ensureCrmTables(p: any) {
       )
     `);
   } catch { /* table may already exist */ }
+
+  // Create client_balances table
+  try {
+    await p.query(`
+      CREATE TABLE IF NOT EXISTS client_balances (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        client_id INT NOT NULL UNIQUE,
+        balance_hkd DECIMAL(20,2) DEFAULT 0,
+        balance_usd DECIMAL(20,2) DEFAULT 0,
+        balance_cny DECIMAL(20,2) DEFAULT 0,
+        frozen_hkd DECIMAL(20,2) DEFAULT 0,
+        frozen_usd DECIMAL(20,2) DEFAULT 0,
+        frozen_cny DECIMAL(20,2) DEFAULT 0,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      )
+    `);
+  } catch {}
+
+  // Create fund_transactions table
+  try {
+    await p.query(`
+      CREATE TABLE IF NOT EXISTS fund_transactions (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        tx_code VARCHAR(50) UNIQUE,
+        client_id INT NOT NULL,
+        type VARCHAR(20) NOT NULL,
+        amount DECIMAL(20,2) NOT NULL,
+        currency VARCHAR(10) NOT NULL,
+        bank_name VARCHAR(200),
+        bank_account VARCHAR(100),
+        receipt_url TEXT,
+        status VARCHAR(20) DEFAULT 'pending',
+        remarks TEXT,
+        source_system VARCHAR(50),
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        confirmed_at DATETIME,
+        confirmed_by VARCHAR(100),
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      )
+    `);
+  } catch {}
 }
 
 /**
