@@ -1,5 +1,4 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getPool, ensureCrmTables } from './db';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -7,8 +6,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  const pool = getPool();
-  await ensureCrmTables(pool);
+  let pool: any;
+  try {
+    const { getPool, ensureCrmTables } = await import('./db.js');
+    pool = getPool();
+    await ensureCrmTables(pool);
+  } catch (err: any) {
+    return res.status(500).json({ success: false, error: 'DB init: ' + err.message });
+  }
 
   const { action, clientId } = req.query;
 
