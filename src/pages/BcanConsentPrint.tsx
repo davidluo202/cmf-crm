@@ -6,6 +6,7 @@ const API_BASE = import.meta.env.VITE_API_URL || ''
 interface ClientData {
   id: number; code: string; nameCn: string; nameEn: string
   email: string; phone: string; onboardedDate: string | null; createdAt: string
+  idType: string; idNumber: string
 }
 
 export default function BcanConsentPrint() {
@@ -180,7 +181,7 @@ export default function BcanConsentPrint() {
           <div className="field"><span className="label">Date:</span> <span className="value">{today}</span></div>
           <div className="field"><span className="label">客戶姓名（中文）:</span> <span className="value">{client.nameCn}</span></div>
           <div className="field"><span className="label">Account No.:</span> <span className="value">{client.code}</span></div>
-          <div className="field"><span className="label">ID/Passport No.:</span> <span className="value">________________</span></div>
+          <div className="field"><span className="label">ID/Passport No.:</span> <span className="value">{client.idNumber || '________________'}</span></div>
           <div className="field"><span className="label">BCAN:</span> <span className="value">{bcan}</span></div>
         </div>
 

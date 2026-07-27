@@ -8,6 +8,8 @@ interface ClientData {
   status: string; rm: string; email: string; phone: string; address: string
   bankName: string; bankAccount: string; bankAccountType: string; bankCurrency: string
   markupPercent: number; aum: number; onboardedDate: string | null; createdAt: string
+  idType: string; idNumber: string; idExpiry: string; idIssuingCountry: string
+  dateOfBirth: string; gender: string
 }
 
 const tabList = ['Profile', 'Accounts', 'Revenue', 'Credit', 'Interactions'] as const
@@ -134,10 +136,16 @@ export default function ClientDetail() {
               ['客户编号', client.code],
               ['中文名', client.nameCn],
               ['英文名', client.nameEn || '—'],
+              ['证件类型', client.idType || '—'],
+              ['证件号码', client.idNumber || '—'],
+              ['证件有效期', client.idExpiry?.slice(0, 10) || '—'],
+              ['签发国家/地区', client.idIssuingCountry || '—'],
+              ['出生日期', client.dateOfBirth?.slice(0, 10) || '—'],
+              ['性别', client.gender === 'male' ? '男' : client.gender === 'female' ? '女' : (client.gender || '—')],
               ['邮箱', client.email || '—'],
               ['电话', client.phone || '—'],
               ['地址', client.address || '—'],
-              ['银行', `${client.bankName || '—'} (${client.bankCurrency})`],
+              ['银行', `${client.bankName || '—'} (${client.bankCurrency || ''})`],
               ['银行账号', client.bankAccount || '—'],
               ['分类', client.segment],
               ['等级', client.tier],

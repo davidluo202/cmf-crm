@@ -46,6 +46,19 @@ export async function ensureCrmTables(p: any) {
     `);
   } catch { /* table may already exist */ }
 
+  // Add identity document columns if missing
+  const idCols = [
+    ['id_type', "VARCHAR(50)"],
+    ['id_number', "VARCHAR(100)"],
+    ['id_expiry', "DATE"],
+    ['id_issuing_country', "VARCHAR(100)"],
+    ['date_of_birth', "DATE"],
+    ['gender', "VARCHAR(10)"],
+  ] as const;
+  for (const [col, def] of idCols) {
+    try { await p.query(`ALTER TABLE crm_clients ADD COLUMN ${col} ${def}`); } catch { /* already exists */ }
+  }
+
   // Create client_balances table
   try {
     await p.query(`
@@ -103,6 +116,9 @@ export async function getAllClients(p: any) {
       SELECT a.id, a.applicationNumber as code, a.applicationCode, a.status,
              a.submittedAt as created_at, a.updatedAt as updated_at,
              b.chineseName as name, b.englishName as name_en,
+             b.idType as id_type, b.idNumber as id_number, b.idExpiry as id_expiry,
+             b.idIssuingCountry as id_issuing_country, b.dateOfBirth as date_of_birth,
+             b.gender,
              d.email, d.mobileNumber as phone, d.mobileCountryCode as phone_code,
              d.residentialAddress as address
       FROM applications a
@@ -118,6 +134,12 @@ export async function getAllClients(p: any) {
       nameEn: r.name_en || '',
       email: r.email || '',
       phone: r.phone_code ? `${r.phone_code} ${r.phone}` : (r.phone || ''),
+      idType: r.id_type || '',
+      idNumber: r.id_number || '',
+      idExpiry: r.id_expiry || '',
+      idIssuingCountry: r.id_issuing_country || '',
+      dateOfBirth: r.date_of_birth || '',
+      gender: r.gender || '',
       segment: 'Individual',
       tier: 'Bronze',
       rm: '',
@@ -140,6 +162,12 @@ export async function getAllClients(p: any) {
       nameEn: r.name_en || '',
       email: r.email || '',
       phone: r.phone || '',
+      idType: r.id_type || '',
+      idNumber: r.id_number || '',
+      idExpiry: r.id_expiry || '',
+      idIssuingCountry: r.id_issuing_country || '',
+      dateOfBirth: r.date_of_birth || '',
+      gender: r.gender || '',
       segment: r.segment || 'Individual',
       tier: r.tier || 'Bronze',
       rm: r.rm || '',
