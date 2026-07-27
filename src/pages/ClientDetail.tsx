@@ -120,7 +120,13 @@ export default function ClientDetail() {
       {/* Profile Tab */}
       {activeTab === 'Profile' && !editing && (
         <div>
-          <div className="flex justify-end mb-4">
+          <div className="flex justify-end mb-4 gap-2">
+            <button
+              onClick={() => window.open(`/crm/clients/${id}/bcan-consent`, '_blank')}
+              className="px-4 py-2 bg-emerald-600 text-white text-sm rounded-lg hover:bg-emerald-700"
+            >
+              BCAN同意书
+            </button>
             <button onClick={() => setEditing(true)} className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700">编辑</button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
