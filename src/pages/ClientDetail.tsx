@@ -145,11 +145,11 @@ export default function ClientDetail() {
               ['邮箱', client.email || '—'],
               ['电话', client.phone || '—'],
               ['地址', client.address || '—'],
-              ['银行', `${client.bankName || '—'} (${client.bankCurrency || ''})`],
+              ['银行', client.bankName ? `${client.bankName}${client.bankCurrency ? ` (${client.bankCurrency})` : ''}` : '—'],
               ['银行账号', client.bankAccount || '—'],
               ['分类', client.segment],
               ['等级', client.tier],
-              ['加点(%)', `${client.markupPercent}%`],
+              ['加点(%)', client.markupPercent != null ? `${client.markupPercent}%` : '—'],
               ['开户日期', client.onboardedDate || client.createdAt?.slice(0, 10) || '—'],
             ] as const).map(([label, value]) => (
               <div key={label} className="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm">
