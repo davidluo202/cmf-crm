@@ -166,11 +166,23 @@ export default function ClientDetail() {
         <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {[
+              { key: 'nameCn', label: '中文名', type: 'text' },
+              { key: 'nameEn', label: '英文名', type: 'text' },
+              { key: 'idType', label: '证件类型', type: 'select', options: ['', 'HKID', 'Mainland ID', 'Passport', 'Home Return Permit'] },
+              { key: 'idNumber', label: '证件号码', type: 'text' },
+              { key: 'idExpiry', label: '证件有效期', type: 'date' },
+              { key: 'idIssuingCountry', label: '签发国家/地区', type: 'text' },
+              { key: 'dateOfBirth', label: '出生日期', type: 'date' },
+              { key: 'gender', label: '性别', type: 'select', options: ['', 'male', 'female'] },
+              { key: 'email', label: '邮箱', type: 'text' },
+              { key: 'phone', label: '电话', type: 'text' },
+              { key: 'address', label: '地址', type: 'text' },
               { key: 'segment', label: '分类', type: 'select', options: ['Individual', 'HNWI', 'Corporate', 'Institutional'] },
               { key: 'tier', label: '等级', type: 'select', options: ['Platinum', 'Gold', 'Silver', 'Bronze'] },
               { key: 'rm', label: '客户经理(RM)', type: 'text' },
               { key: 'aum', label: 'AUM (HKD)', type: 'number' },
               { key: 'markupPercent', label: '加点(%)', type: 'number' },
+              { key: 'status', label: '状态', type: 'select', options: ['活跃', '活躍', '冻结', '注销'] },
             ].map((field) => (
               <div key={field.key}>
                 <label className="text-xs text-slate-500 block mb-1">{field.label}</label>
@@ -179,7 +191,7 @@ export default function ClientDetail() {
                     {field.options!.map(o => <option key={o} value={o}>{o}</option>)}
                   </select>
                 ) : (
-                  <input type={field.type} value={(form as any)[field.key] || ''} onChange={e => setForm({ ...form, [field.key]: field.type === 'number' ? Number(e.target.value) : e.target.value })} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+                  <input type={field.type} value={field.type === 'date' ? ((form as any)[field.key] || '').slice(0, 10) : ((form as any)[field.key] ?? '')} onChange={e => setForm({ ...form, [field.key]: field.type === 'number' ? Number(e.target.value) : e.target.value })} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
                 )}
               </div>
             ))}
