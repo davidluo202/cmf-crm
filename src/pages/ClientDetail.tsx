@@ -166,6 +166,7 @@ export default function ClientDetail() {
         <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {[
+              { key: 'code', label: '客户账户号', type: 'text' },
               { key: 'nameCn', label: '中文名', type: 'text' },
               { key: 'nameEn', label: '英文名', type: 'text' },
               { key: 'idType', label: '证件类型', type: 'select', options: ['', 'HKID', 'Mainland ID', 'Passport', 'Home Return Permit'] },
