@@ -100,7 +100,7 @@ export default function ClientDetail() {
           <span className={`text-xs px-2 py-1 rounded-full ${client.status === '活跃' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'}`}>{client.status}</span>
         </div>
         <div className="text-sm text-slate-500 mt-2">
-          RM: {client.rm || '未分配'} · 编号: {client.code} · AUM: {client.aum > 0 ? `HK$ ${(client.aum / 1000000).toFixed(1)}M` : '—'}
+          RM: {client.rm || '未分配'} · 账户号: {client.code} · AUM: {client.aum > 0 ? `HK$ ${(client.aum / 1000000).toFixed(1)}M` : '—'}
         </div>
       </div>
 
@@ -133,7 +133,7 @@ export default function ClientDetail() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {([
-              ['客户编号', client.code],
+              ['客户账户号', client.code],
               ['中文名', client.nameCn],
               ['英文名', client.nameEn || '—'],
               ['证件类型', client.idType || '—'],

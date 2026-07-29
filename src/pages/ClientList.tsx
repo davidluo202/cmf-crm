@@ -115,7 +115,7 @@ export default function ClientList() {
       <div className="flex flex-col sm:flex-row gap-4">
         <input
           type="text"
-          placeholder="搜索客户名称、编号或邮箱..."
+          placeholder="搜索客户名称、账户号或邮箱..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="flex-1 px-4 py-2.5 bg-white border border-slate-300 rounded-lg text-slate-800 text-sm focus:outline-none focus:border-blue-500"
@@ -143,7 +143,7 @@ export default function ClientList() {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-slate-200 bg-slate-50">
-              <th className="text-left p-4 text-slate-600 font-medium">编号</th>
+              <th className="text-left p-4 text-slate-600 font-medium">客户账户号</th>
               <th className="text-left p-4 text-slate-600 font-medium">客户名称</th>
               <th className="text-left p-4 text-slate-600 font-medium">联系方式</th>
               <th className="text-left p-4 text-slate-600 font-medium">分类</th>
