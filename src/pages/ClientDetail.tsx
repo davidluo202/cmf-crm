@@ -65,9 +65,14 @@ export default function ClientDetail() {
         body: JSON.stringify(form),
       })
       const data = await res.json()
-      if (data.success) {
+      if (data.success && data.data) {
         setClient(data.data)
+        setForm(data.data)
         setEditing(false)
+        // If code changed, update URL
+        if (data.data.code && String(data.data.code) !== String(id)) {
+          navigate(`/crm/clients/${data.data.code}`, { replace: true })
+        }
       }
     } catch (err) {
       console.error('Failed to save:', err)

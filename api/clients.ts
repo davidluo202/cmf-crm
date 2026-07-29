@@ -55,7 +55,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           await pool.query(`UPDATE crm_clients SET ${fields.join(', ')} WHERE id = ?`, vals);
         }
         const clients = await getAllClients(pool);
-        const updated = clients.find((c: any) => String(c.code) === String(clientId) || String(c.id) === String(clientId));
+        const updatedId = 10000 + row.id; // crm_clients offset
+        const updated = clients.find((c: any) => c.id === updatedId || String(c.code) === String(b.code || clientId));
         return res.json({ success: true, data: updated || null });
       }
 
