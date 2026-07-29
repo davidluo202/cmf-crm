@@ -208,15 +208,19 @@ export default function ClientList() {
             </div>
             <p className="text-xs text-slate-500">用于补录线下已开户且已分配编号的存量客户。</p>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-xs text-slate-500 block mb-1">客户编号（已有）</label>
-                <input value={addForm.code} onChange={e => setAddForm({...addForm, code: e.target.value})} placeholder="如 C0001" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
-              </div>
-              <div>
-                <label className="text-xs text-slate-500 block mb-1">14位账户号（如有）</label>
-                <input value={addForm.accountNumber} onChange={e => setAddForm({...addForm, accountNumber: e.target.value})} placeholder="如 10012026000001" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
-              </div>
+            <div>
+              <label className="text-xs text-slate-500 block mb-1">客户账户号 *</label>
+              <input
+                value={addForm.code}
+                onChange={e => {
+                  const v = e.target.value.replace(/[^0-9A-Za-z]/g, '').slice(0, 14);
+                  setAddForm({...addForm, code: v, accountNumber: v});
+                }}
+                placeholder="14位账户号，如 10012026000001"
+                maxLength={14}
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm font-mono"
+              />
+              <p className="text-xs text-slate-400 mt-1">请输入14位客户账户号</p>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
