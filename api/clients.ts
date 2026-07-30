@@ -35,10 +35,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const { ensureCrmTables } = await import('./db.js');
       await ensureCrmTables(pool);
 
-      // Try updating crm_clients first (check raw id, offset id, or code)
-      const parsedId = parseInt(clientId);
-      const rawId = parsedId >= 10000 ? parsedId - 10000 : parsedId;
-      const [existing] = await pool.query('SELECT id FROM crm_clients WHERE id = ? OR id = ? OR code = ?', [clientId, rawId, clientId]);
+      // Try updating crm_clients first (prefer code match over id to avoid mismatches)
+      let [existing] = await pool.query('SELECT id FROM crm_clients WHERE code = ?', [clientId]);
+      if ((existing as any[]).length === 0) {
+        const parsedId = parseInt(clientId);
+        const rawId = parsedId >= 10000 ? parsedId - 10000 : parsedId;
+        [existing] = await pool.query('SELECT id FROM crm_clients WHERE id = ? OR id = ?', [parsedId, rawId]);
+      }
       if ((existing as any[]).length > 0) {
         const row = (existing as any[])[0];
         const fields: string[] = [];
