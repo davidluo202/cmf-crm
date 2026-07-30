@@ -150,7 +150,7 @@ export default function ClientDetail() {
               ['英文名', client.nameEn || '—'],
               ['证件类型', client.idType || '—'],
               ['证件号码', client.idNumber || '—'],
-              ['证件有效期', client.idExpiry?.slice(0, 10) || '—'],
+              ['证件有效期', client.idExpiry === '9999-12-31' ? '长期有效' : (client.idExpiry?.slice(0, 10) || '—')],
               ['签发国家/地区', client.idIssuingCountry || '—'],
               ['出生日期', client.dateOfBirth?.slice(0, 10) || '—'],
               ['性别', client.gender === 'male' ? '男' : client.gender === 'female' ? '女' : (client.gender || '—')],
@@ -183,7 +183,7 @@ export default function ClientDetail() {
               { key: 'nameEn', label: '英文名', type: 'text' },
               { key: 'idType', label: '证件类型', type: 'select', options: ['', 'HKID', 'Mainland ID', 'Passport', 'Home Return Permit'] },
               { key: 'idNumber', label: '证件号码', type: 'text' },
-              { key: 'idExpiry', label: '证件有效期', type: 'date' },
+              { key: 'idExpiry', label: '证件有效期', type: 'date_or_permanent' },
               { key: 'idIssuingCountry', label: '签发国家/地区', type: 'text' },
               { key: 'dateOfBirth', label: '出生日期', type: 'date' },
               { key: 'gender', label: '性别', type: 'select', options: ['', 'male', 'female'] },
@@ -203,8 +203,18 @@ export default function ClientDetail() {
                   <select value={(form as any)[field.key] || ''} onChange={e => setForm({ ...form, [field.key]: e.target.value })} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm">
                     {field.options!.map(o => <option key={o} value={o}>{o}</option>)}
                   </select>
+                ) : field.type === 'date_or_permanent' ? (
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <input type="checkbox" id="idExpiry_permanent" checked={(form as any)[field.key] === '9999-12-31'} onChange={e => setForm({ ...form, [field.key]: e.target.checked ? '9999-12-31' : '' })} />
+                      <label htmlFor="idExpiry_permanent" className="text-xs text-slate-600 cursor-pointer">长期有效</label>
+                    </div>
+                    {(form as any)[field.key] !== '9999-12-31' && (
+                      <input type="date" value={((form as any)[field.key] || '').slice(0, 10)} onChange={e => setForm({ ...form, [field.key]: e.target.value })} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+                    )}
+                  </div>
                 ) : (
-                  <input type={field.type} value={field.type === 'date' ? ((form as any)[field.key] || '').slice(0, 10) : ((form as any)[field.key] ?? '')} onChange={e => setForm({ ...form, [field.key]: field.type === 'number' ? Number(e.target.value) : e.target.value })} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+                  <input type={field.type === 'date' ? 'date' : field.type} value={field.type === 'date' ? ((form as any)[field.key] || '').slice(0, 10) : ((form as any)[field.key] ?? '')} onChange={e => setForm({ ...form, [field.key]: field.type === 'number' ? Number(e.target.value) : e.target.value })} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
                 )}
               </div>
             ))}
