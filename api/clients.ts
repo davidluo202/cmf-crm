@@ -54,10 +54,37 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           vals.push(row.id);
           await pool.query(`UPDATE crm_clients SET ${fields.join(', ')} WHERE id = ?`, vals);
         }
-        const clients = await getAllClients(pool);
-        const updatedId = 10000 + row.id; // crm_clients offset
-        const updated = clients.find((c: any) => c.id === updatedId || String(c.code) === String(b.code || clientId));
-        return res.json({ success: true, data: updated || null });
+        // Read back the full updated record
+        const [updatedRows] = await pool.query('SELECT * FROM crm_clients WHERE id = ?', [row.id]);
+        const r = (updatedRows as any[])[0];
+        const updated = r ? {
+          id: 10000 + r.id,
+          code: r.code || '',
+          nameCn: r.name || '',
+          nameEn: r.name_en || '',
+          email: r.email || '',
+          phone: r.phone || '',
+          address: r.address || '',
+          idType: r.id_type || '',
+          idNumber: r.id_number || '',
+          idExpiry: r.id_expiry || '',
+          idIssuingCountry: r.id_issuing_country || '',
+          dateOfBirth: r.date_of_birth || '',
+          gender: r.gender || '',
+          bankName: r.bank_name || '',
+          bankAccount: r.bank_account || '',
+          bankAccountType: r.bank_account_type || '',
+          bankCurrency: r.bank_currency || '',
+          segment: r.segment || 'Individual',
+          tier: r.tier || 'Bronze',
+          rm: r.rm || '',
+          aum: Number(r.aum) || 0,
+          markupPercent: r.markup_percent != null ? Number(r.markup_percent) : null,
+          status: r.status || '活跃',
+          onboardedDate: r.onboarded_date || null,
+          createdAt: r.created_at,
+        } : null;
+        return res.json({ success: true, data: updated });
       }
 
       // For account_opening clients, update personal_basic_info
