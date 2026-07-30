@@ -51,8 +51,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         for (const [k, col] of Object.entries(map)) {
           if (b[k] !== undefined) {
             fields.push(`${col} = ?`);
-            // Convert empty strings to null for DATE columns
-            vals.push(dateCols.has(col) && !b[k] ? null : b[k]);
+            let val = b[k];
+            if (dateCols.has(col)) {
+              // Convert empty strings to null, strip time from ISO dates for MySQL DATE
+              val = val ? String(val).slice(0, 10) : null;
+              if (val && !/^\d{4}-\d{2}-\d{2}$/.test(val)) val = null;
+            }
+            vals.push(val);
           }
         }
         if (fields.length > 0) {
