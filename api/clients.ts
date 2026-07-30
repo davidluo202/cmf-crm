@@ -47,8 +47,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           status: 'status', idType: 'id_type', idNumber: 'id_number', gender: 'gender',
           dateOfBirth: 'date_of_birth', idExpiry: 'id_expiry', idIssuingCountry: 'id_issuing_country',
         };
+        const dateCols = new Set(['date_of_birth', 'id_expiry']);
         for (const [k, col] of Object.entries(map)) {
-          if (b[k] !== undefined) { fields.push(`${col} = ?`); vals.push(b[k]); }
+          if (b[k] !== undefined) {
+            fields.push(`${col} = ?`);
+            // Convert empty strings to null for DATE columns
+            vals.push(dateCols.has(col) && !b[k] ? null : b[k]);
+          }
         }
         if (fields.length > 0) {
           vals.push(row.id);
