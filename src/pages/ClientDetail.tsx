@@ -56,8 +56,11 @@ export default function ClientDetail() {
     }
   }
 
+  const [saving, setSaving] = useState(false)
+
   const handleSave = async () => {
-    if (!id) return
+    if (!id || saving) return
+    setSaving(true)
     try {
       const res = await fetch(`${API_BASE}/api/clients?id=${id}`, {
         method: 'PUT',
@@ -69,13 +72,17 @@ export default function ClientDetail() {
         setClient(data.data)
         setForm(data.data)
         setEditing(false)
-        // If code changed, update URL
         if (data.data.code && String(data.data.code) !== String(id)) {
           navigate(`/crm/clients/${data.data.code}`, { replace: true })
         }
+      } else {
+        alert('保存失败: ' + (data.error || '未知错误'))
       }
-    } catch (err) {
+    } catch (err: any) {
+      alert('保存失败: ' + (err.message || '网络错误'))
       console.error('Failed to save:', err)
+    } finally {
+      setSaving(false)
     }
   }
 
@@ -203,7 +210,7 @@ export default function ClientDetail() {
             ))}
           </div>
           <div className="flex gap-2 pt-4">
-            <button onClick={handleSave} className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700">保存</button>
+            <button onClick={handleSave} disabled={saving} className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 disabled:opacity-50">{saving ? '保存中...' : '保存'}</button>
             <button onClick={() => { setEditing(false); setForm(client); }} className="px-4 py-2 bg-white text-slate-600 text-sm rounded-lg border border-slate-300 hover:bg-slate-50">取消</button>
           </div>
         </div>
