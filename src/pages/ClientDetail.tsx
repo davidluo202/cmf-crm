@@ -258,19 +258,28 @@ export default function ClientDetail() {
             {bankAccounts.length > 0 && (
               <div className="space-y-2">
                 {bankAccounts.map((b) => (
-                  <div key={b.id} className="flex items-center justify-between py-2 border-b border-slate-100 last:border-0">
-                    <div className="text-sm text-slate-800">
-                      <span className="font-medium">{b.bank_name || '—'}</span>
-                      {b.bank_account && <span className="ml-2 text-slate-500">{b.bank_account}</span>}
-                      <span className="ml-2 text-xs text-slate-400">{b.bank_currency} · {b.bank_account_type}</span>
-                      {b.is_primary && <span className="ml-2 text-xs bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded">主账户</span>}
+                  <div key={b.id} className="py-3 border-b border-slate-100 last:border-0">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                      <div>
+                        <div className="text-xs text-slate-400">银行名称</div>
+                        <div className="text-slate-800 font-medium mt-0.5">{b.bank_name || '—'}</div>
+                      </div>
+                      <div>
+                        <div className="text-xs text-slate-400">账号</div>
+                        <div className="text-slate-800 font-mono mt-0.5">{b.bank_account || '—'}</div>
+                      </div>
+                      <div>
+                        <div className="text-xs text-slate-400">币种</div>
+                        <div className="text-slate-800 mt-0.5">{b.bank_currency || '—'}</div>
+                      </div>
+                      <div className="flex items-end justify-between">
+                        <div>
+                          <div className="text-xs text-slate-400">账户类型</div>
+                          <div className="text-slate-800 mt-0.5">{b.bank_account_type || '—'}{b.is_primary && <span className="ml-2 text-xs bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded">主账户</span>}</div>
+                        </div>
+                        <button onClick={() => handleDeleteBank(b.id)} className="text-xs text-red-500 hover:text-red-700 px-2 py-1">删除</button>
+                      </div>
                     </div>
-                    <button
-                      onClick={() => handleDeleteBank(b.id)}
-                      className="text-xs text-red-500 hover:text-red-700 px-2 py-1"
-                    >
-                      删除
-                    </button>
                   </div>
                 ))}
               </div>
