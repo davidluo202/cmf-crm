@@ -12,6 +12,18 @@ interface ClientData {
   dateOfBirth: string; gender: string
 }
 
+interface BankAccount {
+  id: number
+  client_id: number
+  bank_name: string
+  bank_account: string
+  bank_currency: string
+  bank_account_type: string
+  is_primary: boolean
+}
+
+const EMPTY_BANK = { bankName: '', bankAccount: '', bankCurrency: 'HKD', bankAccountType: 'saving' }
+
 const tabList = ['Profile', 'Accounts', 'Revenue', 'Credit', 'Interactions'] as const
 
 const segmentColor: Record<string, string> = {
@@ -36,9 +48,16 @@ export default function ClientDetail() {
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState(false)
   const [form, setForm] = useState<Partial<ClientData>>({})
+  const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([])
+  const [showAddBank, setShowAddBank] = useState(false)
+  const [newBank, setNewBank] = useState(EMPTY_BANK)
+  const [bankSaving, setBankSaving] = useState(false)
 
   useEffect(() => {
-    if (id) loadClient(id)
+    if (id) {
+      loadClient(id)
+      loadBankAccounts(id)
+    }
   }, [id])
 
   const loadClient = async (clientId: string) => {
@@ -53,6 +72,53 @@ export default function ClientDetail() {
       console.error('Failed to load client:', err)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const loadBankAccounts = async (clientId: string) => {
+    try {
+      const res = await fetch(`${API_BASE}/api/client-banks?clientId=${clientId}`)
+      const data = await res.json()
+      if (data.success) setBankAccounts(data.data || [])
+    } catch { /* non-critical */ }
+  }
+
+  const handleAddBank = async () => {
+    if (!id || bankSaving) return
+    if (!newBank.bankName && !newBank.bankAccount) {
+      alert('请填写银行名称或账号')
+      return
+    }
+    setBankSaving(true)
+    try {
+      const res = await fetch(`${API_BASE}/api/client-banks`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ clientId: id, ...newBank }),
+      })
+      const data = await res.json()
+      if (data.success) {
+        setNewBank(EMPTY_BANK)
+        setShowAddBank(false)
+        loadBankAccounts(id)
+      } else {
+        alert('添加失败: ' + (data.error || '未知错误'))
+      }
+    } catch (err: any) {
+      alert('添加失败: ' + err.message)
+    } finally {
+      setBankSaving(false)
+    }
+  }
+
+  const handleDeleteBank = async (bankId: number) => {
+    if (!confirm('确认删除此银行账户？')) return
+    try {
+      const res = await fetch(`${API_BASE}/api/client-banks?id=${bankId}`, { method: 'DELETE' })
+      const data = await res.json()
+      if (data.success && id) loadBankAccounts(id)
+    } catch (err: any) {
+      alert('删除失败: ' + err.message)
     }
   }
 
@@ -133,7 +199,7 @@ export default function ClientDetail() {
 
       {/* Profile Tab */}
       {activeTab === 'Profile' && !editing && (
-        <div>
+        <div className="space-y-6">
           <div className="flex justify-end mb-4 gap-2">
             <button
               onClick={() => window.open(`/crm/clients/${id}/bcan-consent`, '_blank')}
@@ -157,8 +223,6 @@ export default function ClientDetail() {
               ['邮箱', client.email || '—'],
               ['电话', client.phone || '—'],
               ['地址', client.address || '—'],
-              ['银行', client.bankName ? `${client.bankName}${client.bankCurrency ? ` (${client.bankCurrency})` : ''}` : '—'],
-              ['银行账号', client.bankAccount || '—'],
               ['分类', client.segment],
               ['等级', client.tier],
               ['加点(%)', client.markupPercent != null ? `${client.markupPercent}%` : '—'],
@@ -169,6 +233,113 @@ export default function ClientDetail() {
                 <div className="text-sm text-slate-900 mt-1">{value}</div>
               </div>
             ))}
+          </div>
+
+          {/* Bank Accounts Section */}
+          <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-semibold text-slate-700">银行账户</h3>
+              <button
+                onClick={() => setShowAddBank(v => !v)}
+                className="px-3 py-1.5 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700"
+              >
+                {showAddBank ? '取消' : '新增银行账户'}
+              </button>
+            </div>
+
+            {/* Existing bank accounts */}
+            {bankAccounts.length === 0 && !showAddBank && (
+              <div className="text-sm text-slate-400">
+                {(client.bankName || client.bankAccount)
+                  ? `${client.bankName || ''}${client.bankCurrency ? ` (${client.bankCurrency})` : ''} · ${client.bankAccount || ''}（旧数据）`
+                  : '暂无银行账户'}
+              </div>
+            )}
+            {bankAccounts.length > 0 && (
+              <div className="space-y-2">
+                {bankAccounts.map((b) => (
+                  <div key={b.id} className="flex items-center justify-between py-2 border-b border-slate-100 last:border-0">
+                    <div className="text-sm text-slate-800">
+                      <span className="font-medium">{b.bank_name || '—'}</span>
+                      {b.bank_account && <span className="ml-2 text-slate-500">{b.bank_account}</span>}
+                      <span className="ml-2 text-xs text-slate-400">{b.bank_currency} · {b.bank_account_type}</span>
+                      {b.is_primary && <span className="ml-2 text-xs bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded">主账户</span>}
+                    </div>
+                    <button
+                      onClick={() => handleDeleteBank(b.id)}
+                      className="text-xs text-red-500 hover:text-red-700 px-2 py-1"
+                    >
+                      删除
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Add bank form */}
+            {showAddBank && (
+              <div className="mt-3 pt-3 border-t border-slate-100 grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-slate-500 block mb-1">银行名称</label>
+                  <input
+                    type="text"
+                    value={newBank.bankName}
+                    onChange={e => setNewBank({ ...newBank, bankName: e.target.value })}
+                    placeholder="如：汇丰银行"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
+                    style={{ maxWidth: 320 }}
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-slate-500 block mb-1">银行账号</label>
+                  <input
+                    type="text"
+                    value={newBank.bankAccount}
+                    onChange={e => setNewBank({ ...newBank, bankAccount: e.target.value })}
+                    placeholder="账号"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
+                    style={{ maxWidth: 320 }}
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-slate-500 block mb-1">币种</label>
+                  <select
+                    value={newBank.bankCurrency}
+                    onChange={e => setNewBank({ ...newBank, bankCurrency: e.target.value })}
+                    className="px-3 py-2 border border-slate-300 rounded-lg text-sm"
+                    style={{ minWidth: 100 }}
+                  >
+                    {['HKD', 'USD', 'CNY', 'EUR', 'GBP'].map(c => <option key={c}>{c}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs text-slate-500 block mb-1">账户类型</label>
+                  <select
+                    value={newBank.bankAccountType}
+                    onChange={e => setNewBank({ ...newBank, bankAccountType: e.target.value })}
+                    className="px-3 py-2 border border-slate-300 rounded-lg text-sm"
+                    style={{ minWidth: 120 }}
+                  >
+                    {['saving', 'checking', 'current'].map(t => <option key={t}>{t}</option>)}
+                  </select>
+                </div>
+                <div className="col-span-2 flex gap-2">
+                  <button
+                    onClick={handleAddBank}
+                    disabled={bankSaving}
+                    className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                  >
+                    {bankSaving ? '保存中...' : '确认添加'}
+                  </button>
+                  <button
+                    onClick={() => { setShowAddBank(false); setNewBank(EMPTY_BANK) }}
+                    className="px-4 py-2 bg-white text-slate-600 text-sm rounded-lg border border-slate-300 hover:bg-slate-50"
+                  >
+                    取消
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -190,10 +361,6 @@ export default function ClientDetail() {
               { key: 'email', label: '邮箱', type: 'text' },
               { key: 'phone', label: '电话', type: 'text' },
               { key: 'address', label: '地址', type: 'text' },
-              { key: 'bankName', label: '银行名称', type: 'text' },
-              { key: 'bankAccount', label: '银行账号', type: 'text' },
-              { key: 'bankCurrency', label: '银行币种', type: 'select', options: ['', 'HKD', 'USD', 'CNY', 'EUR', 'GBP'] },
-              { key: 'bankAccountType', label: '账户类型', type: 'select', options: ['', 'checking', 'saving', 'current'] },
               { key: 'segment', label: '分类', type: 'select', options: ['Individual', 'HNWI', 'Corporate', 'Institutional'] },
               { key: 'tier', label: '等级', type: 'select', options: ['Platinum', 'Gold', 'Silver', 'Bronze'] },
               { key: 'rm', label: '客户经理(RM)', type: 'text' },

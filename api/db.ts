@@ -76,6 +76,22 @@ export async function ensureCrmTables(p: any) {
     `);
   } catch {}
 
+  // Create client_bank_accounts table
+  try {
+    await p.query(`
+      CREATE TABLE IF NOT EXISTS client_bank_accounts (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        client_id INT NOT NULL,
+        bank_name VARCHAR(200),
+        bank_account VARCHAR(100),
+        bank_currency VARCHAR(10) DEFAULT 'HKD',
+        bank_account_type VARCHAR(20) DEFAULT 'saving',
+        is_primary BOOLEAN DEFAULT FALSE,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+  } catch {}
+
   // Create fund_transactions table
   try {
     await p.query(`
