@@ -275,7 +275,7 @@ export default function ClientDetail() {
                       <div className="flex items-end justify-between">
                         <div>
                           <div className="text-xs text-slate-400">账户类型</div>
-                          <div className="text-slate-800 mt-0.5">{b.bank_account_type || '—'}{b.is_primary && <span className="ml-2 text-xs bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded">主账户</span>}</div>
+                          <div className="text-slate-800 mt-0.5">{b.bank_account_type || '—'}{b.is_primary ? <span className="ml-2 text-xs bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded">主账户</span> : null}</div>
                         </div>
                         <button onClick={() => handleDeleteBank(b.id)} className="text-xs text-red-500 hover:text-red-700 px-2 py-1">删除</button>
                       </div>
