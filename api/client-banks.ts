@@ -16,12 +16,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
+    // Helper: resolve clientId (code or offset id) to raw crm_clients.id
+    async function resolveClientId(clientId: string): Promise<number | null> {
+      // Try code match first
+      const [byCode] = await pool.query('SELECT id FROM crm_clients WHERE code = ?', [clientId]);
+      if ((byCode as any[]).length > 0) return (byCode as any[])[0].id;
+      // Fall back to numeric id
+      const parsed = parseInt(clientId);
+      if (!isNaN(parsed)) {
+        const rawId = parsed >= 10000 ? parsed - 10000 : parsed;
+        const [byId] = await pool.query('SELECT id FROM crm_clients WHERE id = ?', [rawId]);
+        if ((byId as any[]).length > 0) return (byId as any[])[0].id;
+      }
+      return null;
+    }
+
     // GET ?clientId=X — list bank accounts for a client
     if (req.method === 'GET') {
       const clientId = req.query.clientId as string;
       if (!clientId) return res.status(400).json({ success: false, error: 'Missing clientId' });
-      // Resolve raw DB id (crm_clients IDs are offset by 10000 on the frontend)
-      const rawId = parseInt(clientId) >= 10000 ? parseInt(clientId) - 10000 : parseInt(clientId);
+      const rawId = await resolveClientId(clientId);
+      if (rawId === null) return res.json({ success: true, data: [] });
       const [rows] = await pool.query(
         'SELECT * FROM client_bank_accounts WHERE client_id = ? ORDER BY is_primary DESC, id ASC',
         [rawId]
@@ -33,7 +48,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (req.method === 'POST') {
       const b = req.body || {};
       if (!b.clientId) return res.status(400).json({ success: false, error: 'Missing clientId' });
-      const rawId = parseInt(b.clientId) >= 10000 ? parseInt(b.clientId) - 10000 : parseInt(b.clientId);
+      const rawId = await resolveClientId(b.clientId);
+      if (rawId === null) return res.status(400).json({ success: false, error: 'Client not found' });
       const [result] = await pool.query(
         `INSERT INTO client_bank_accounts (client_id, bank_name, bank_account, bank_currency, bank_account_type, is_primary)
          VALUES (?, ?, ?, ?, ?, ?)`,
