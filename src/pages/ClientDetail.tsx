@@ -150,7 +150,7 @@ export default function ClientDetail() {
               ['英文名', client.nameEn || '—'],
               ['证件类型', client.idType || '—'],
               ['证件号码', client.idNumber || '—'],
-              ['证件有效期', client.idExpiry === '9999-12-31' ? '长期有效' : (client.idExpiry?.slice(0, 10) || '—')],
+              ['证件有效期', client.idExpiry?.startsWith('9999') ? '长期有效' : (client.idExpiry?.slice(0, 10) || '—')],
               ['签发国家/地区', client.idIssuingCountry || '—'],
               ['出生日期', client.dateOfBirth?.slice(0, 10) || '—'],
               ['性别', client.gender === 'male' ? '男' : client.gender === 'female' ? '女' : (client.gender || '—')],
@@ -206,7 +206,7 @@ export default function ClientDetail() {
                 ) : field.type === 'date_or_permanent' ? (
                   <div>
                     <div className="flex items-center gap-2 mb-1">
-                      <input type="checkbox" id="idExpiry_permanent" checked={(form as any)[field.key] === '9999-12-31'} onChange={e => setForm({ ...form, [field.key]: e.target.checked ? '9999-12-31' : '' })} />
+                      <input type="checkbox" id="idExpiry_permanent" checked={String((form as any)[field.key] || '').startsWith('9999')} onChange={e => setForm({ ...form, [field.key]: e.target.checked ? '9999-12-31' : '' })} />
                       <label htmlFor="idExpiry_permanent" className="text-xs text-slate-600 cursor-pointer">长期有效</label>
                     </div>
                     {(form as any)[field.key] !== '9999-12-31' && (
