@@ -52,8 +52,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           segment: 'segment', tier: 'tier', rm: 'rm', aum: 'aum', markupPercent: 'markup_percent',
           status: 'status', idType: 'id_type', idNumber: 'id_number', gender: 'gender',
           dateOfBirth: 'date_of_birth', idExpiry: 'id_expiry', idIssuingCountry: 'id_issuing_country',
+          entityType: 'entity_type', businessNature: 'business_nature',
+          countryOfIncorporation: 'country_of_incorporation', dateOfIncorporation: 'date_of_incorporation',
+          certOfIncorporationNo: 'cert_of_incorporation_no', businessRegistrationNo: 'business_registration_no',
+          registeredAddress: 'registered_address', businessAddress: 'business_address',
+          officePhone: 'office_phone', fax: 'fax', website: 'website',
+          contactName: 'contact_name', contactTitle: 'contact_title',
+          contactPhone: 'contact_phone', contactEmail: 'contact_email',
         };
-        const dateCols = new Set(['date_of_birth', 'id_expiry']);
+        const dateCols = new Set(['date_of_birth', 'id_expiry', 'date_of_incorporation']);
         for (const [k, col] of Object.entries(map)) {
           if (b[k] !== undefined) {
             fields.push(`${col} = ?`);
@@ -91,6 +98,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           bankAccount: r.bank_account || '',
           bankAccountType: r.bank_account_type || '',
           bankCurrency: r.bank_currency || '',
+          entityType: r.entity_type || '',
+          businessNature: r.business_nature || '',
+          countryOfIncorporation: r.country_of_incorporation || '',
+          dateOfIncorporation: r.date_of_incorporation || '',
+          certOfIncorporationNo: r.cert_of_incorporation_no || '',
+          businessRegistrationNo: r.business_registration_no || '',
+          registeredAddress: r.registered_address || '',
+          businessAddress: r.business_address || '',
+          officePhone: r.office_phone || '',
+          fax: r.fax || '',
+          website: r.website || '',
+          contactName: r.contact_name || '',
+          contactTitle: r.contact_title || '',
+          contactPhone: r.contact_phone || '',
+          contactEmail: r.contact_email || '',
           segment: r.segment || 'Individual',
           tier: r.tier || 'Bronze',
           rm: r.rm || '',

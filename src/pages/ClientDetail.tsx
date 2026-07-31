@@ -214,12 +214,30 @@ export default function ClientDetail() {
               ['客户账户号', client.code],
               ['中文名', client.nameCn],
               ['英文名', client.nameEn || '—'],
-              ['证件类型', client.idType || '—'],
-              ['证件号码', client.idNumber || '—'],
-              ['证件有效期', client.idExpiry?.startsWith('9999') ? '长期有效' : (client.idExpiry?.slice(0, 10) || '—')],
-              ['签发国家/地区', client.idIssuingCountry || '—'],
-              ['出生日期', client.dateOfBirth?.slice(0, 10) || '—'],
-              ['性别', client.gender === 'male' ? '男' : client.gender === 'female' ? '女' : (client.gender || '—')],
+              ...(client.segment === 'Corporate' || client.segment === 'Institutional' ? [
+                ['公司类型', (client as any).entityType || '—'],
+                ['业务性质', (client as any).businessNature || '—'],
+                ['注册国家', (client as any).countryOfIncorporation || '—'],
+                ['注册日期', (client as any).dateOfIncorporation?.slice(0, 10) || '—'],
+                ['注册证书号', (client as any).certOfIncorporationNo || '—'],
+                ['商业登记号', (client as any).businessRegistrationNo || '—'],
+                ['注册地址', (client as any).registeredAddress || '—'],
+                ['营业地址', (client as any).businessAddress || '—'],
+                ['办公电话', (client as any).officePhone || '—'],
+                ['传真', (client as any).fax || '—'],
+                ['网站', (client as any).website || '—'],
+                ['联系人', (client as any).contactName || '—'],
+                ['联系人职位', (client as any).contactTitle || '—'],
+                ['联系人电话', (client as any).contactPhone || '—'],
+                ['联系人邮箱', (client as any).contactEmail || '—'],
+              ] as [string, string][] : [
+                ['证件类型', client.idType || '—'],
+                ['证件号码', client.idNumber || '—'],
+                ['证件有效期', client.idExpiry?.startsWith('9999') ? '长期有效' : (client.idExpiry?.slice(0, 10) || '—')],
+                ['签发国家/地区', client.idIssuingCountry || '—'],
+                ['出生日期', client.dateOfBirth?.slice(0, 10) || '—'],
+                ['性别', client.gender === 'male' ? '男' : client.gender === 'female' ? '女' : (client.gender || '—')],
+              ] as [string, string][]),
               ['邮箱', client.email || '—'],
               ['电话', client.phone || '—'],
               ['地址', client.address || '—'],
@@ -227,7 +245,7 @@ export default function ClientDetail() {
               ['等级', client.tier],
               ['加点(%)', client.markupPercent != null ? `${client.markupPercent}%` : '—'],
               ['开户日期', client.onboardedDate || client.createdAt?.slice(0, 10) || '—'],
-            ] as const).map(([label, value]) => (
+            ] as [string, string][]).map(([label, value]) => (
               <div key={label} className="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm">
                 <div className="text-xs text-slate-500">{label}</div>
                 <div className="text-sm text-slate-900 mt-1">{value}</div>
@@ -357,26 +375,44 @@ export default function ClientDetail() {
       {activeTab === 'Profile' && editing && (
         <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {[
+            {([
               { key: 'code', label: '客户账户号', type: 'text' },
               { key: 'nameCn', label: '中文名', type: 'text' },
               { key: 'nameEn', label: '英文名', type: 'text' },
-              { key: 'idType', label: '证件类型', type: 'select', options: ['', 'HKID', 'Mainland ID', 'Passport', 'Home Return Permit'] },
-              { key: 'idNumber', label: '证件号码', type: 'text' },
-              { key: 'idExpiry', label: '证件有效期', type: 'date_or_permanent' },
-              { key: 'idIssuingCountry', label: '签发国家/地区', type: 'text' },
-              { key: 'dateOfBirth', label: '出生日期', type: 'date' },
-              { key: 'gender', label: '性别', type: 'select', options: ['', 'male', 'female'] },
+              { key: 'segment', label: '分类', type: 'select', options: ['Individual', 'HNWI', 'Corporate', 'Institutional'] },
+              ...((form.segment === 'Corporate' || form.segment === 'Institutional') ? [
+                { key: 'entityType', label: '公司类型', type: 'select', options: ['', 'Limited', 'Unlimited', 'Sole Proprietorship', 'Partnership', 'Trust', 'Other'] },
+                { key: 'businessNature', label: '业务性质', type: 'text' },
+                { key: 'countryOfIncorporation', label: '注册国家', type: 'text' },
+                { key: 'dateOfIncorporation', label: '注册日期', type: 'date' },
+                { key: 'certOfIncorporationNo', label: '注册证书号', type: 'text' },
+                { key: 'businessRegistrationNo', label: '商业登记号', type: 'text' },
+                { key: 'registeredAddress', label: '注册地址', type: 'text' },
+                { key: 'businessAddress', label: '营业地址', type: 'text' },
+                { key: 'officePhone', label: '办公电话', type: 'text' },
+                { key: 'fax', label: '传真', type: 'text' },
+                { key: 'website', label: '网站', type: 'text' },
+                { key: 'contactName', label: '联系人', type: 'text' },
+                { key: 'contactTitle', label: '联系人职位', type: 'text' },
+                { key: 'contactPhone', label: '联系人电话', type: 'text' },
+                { key: 'contactEmail', label: '联系人邮箱', type: 'text' },
+              ] : [
+                { key: 'idType', label: '证件类型', type: 'select', options: ['', 'HKID', 'Mainland ID', 'Passport', 'Home Return Permit'] },
+                { key: 'idNumber', label: '证件号码', type: 'text' },
+                { key: 'idExpiry', label: '证件有效期', type: 'date_or_permanent' },
+                { key: 'idIssuingCountry', label: '签发国家/地区', type: 'text' },
+                { key: 'dateOfBirth', label: '出生日期', type: 'date' },
+                { key: 'gender', label: '性别', type: 'select', options: ['', 'male', 'female'] },
+              ]),
               { key: 'email', label: '邮箱', type: 'text' },
               { key: 'phone', label: '电话', type: 'text' },
               { key: 'address', label: '地址', type: 'text' },
-              { key: 'segment', label: '分类', type: 'select', options: ['Individual', 'HNWI', 'Corporate', 'Institutional'] },
               { key: 'tier', label: '等级', type: 'select', options: ['Platinum', 'Gold', 'Silver', 'Bronze'] },
               { key: 'rm', label: '客户经理(RM)', type: 'text' },
               { key: 'aum', label: 'AUM (HKD)', type: 'number' },
               { key: 'markupPercent', label: '加点(%)', type: 'number' },
               { key: 'status', label: '状态', type: 'select', options: ['活跃', '活躍', '冻结', '注销'] },
-            ].map((field) => (
+            ] as { key: string; label: string; type: string; options?: string[] }[]).map((field) => (
               <div key={field.key}>
                 <label className="text-xs text-slate-500 block mb-1">{field.label}</label>
                 {field.type === 'select' ? (
