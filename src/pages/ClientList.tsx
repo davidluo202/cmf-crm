@@ -217,7 +217,7 @@ export default function ClientList() {
                   setAddForm({...addForm, code: v, accountNumber: v});
                 }}
                 placeholder="如 10-1-1-2026-000001"
-                maxLength={14}
+                maxLength={20}
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm font-mono"
               />
               <p className="text-xs text-slate-400 mt-1">格式：10-1-1-2026-000001</p>
