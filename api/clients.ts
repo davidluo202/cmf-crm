@@ -48,6 +48,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const vals: any[] = [];
         const map: Record<string, string> = {
           code: 'code', nameCn: 'name', nameEn: 'name_en', phone: 'phone', email: 'email', address: 'address',
+          bankName: 'bank_name', bankAccount: 'bank_account', bankCurrency: 'bank_currency', bankAccountType: 'bank_account_type',
           segment: 'segment', tier: 'tier', rm: 'rm', aum: 'aum', markupPercent: 'markup_percent',
           status: 'status', idType: 'id_type', idNumber: 'id_number', gender: 'gender',
           dateOfBirth: 'date_of_birth', idExpiry: 'id_expiry', idIssuingCountry: 'id_issuing_country',
