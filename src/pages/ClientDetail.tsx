@@ -22,7 +22,7 @@ interface BankAccount {
   is_primary: boolean
 }
 
-const EMPTY_BANK = { bankName: '', bankAccount: '', bankCurrency: 'HKD', bankAccountType: 'saving' }
+const EMPTY_BANK = { bankName: '', bankAccount: '', branchCode: '', bankCurrency: 'HKD', bankAccountType: 'saving' }
 
 const tabList = ['Profile', 'Accounts', 'Revenue', 'Credit', 'Interactions'] as const
 
@@ -277,10 +277,14 @@ export default function ClientDetail() {
               <div className="space-y-2">
                 {bankAccounts.map((b) => (
                   <div key={b.id} className="py-3 border-b border-slate-100 last:border-0">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                    <div className="grid grid-cols-2 md:grid-cols-5 gap-3 text-sm">
                       <div>
                         <div className="text-xs text-slate-400">银行名称</div>
                         <div className="text-slate-800 font-medium mt-0.5">{b.bank_name || '—'}</div>
+                      </div>
+                      <div>
+                        <div className="text-xs text-slate-400">分行代码</div>
+                        <div className="text-slate-800 font-mono mt-0.5">{(b as any).branch_code || '—'}</div>
                       </div>
                       <div>
                         <div className="text-xs text-slate-400">账号</div>
@@ -315,6 +319,18 @@ export default function ClientDetail() {
                     placeholder="如：汇丰银行"
                     className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
                     style={{ maxWidth: 320 }}
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-slate-500 block mb-1">分行代码（3位）</label>
+                  <input
+                    type="text"
+                    value={newBank.branchCode}
+                    onChange={e => setNewBank({ ...newBank, branchCode: e.target.value.replace(/[^0-9]/g, '').slice(0, 3) })}
+                    placeholder="如：024"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
+                    style={{ maxWidth: 100 }}
+                    maxLength={3}
                   />
                 </div>
                 <div>

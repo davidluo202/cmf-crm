@@ -51,14 +51,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const rawId = await resolveClientId(b.clientId);
       if (rawId === null) return res.status(400).json({ success: false, error: 'Client not found' });
       const [result] = await pool.query(
-        `INSERT INTO client_bank_accounts (client_id, bank_name, bank_account, bank_currency, bank_account_type, is_primary)
-         VALUES (?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO client_bank_accounts (client_id, bank_name, bank_account, bank_currency, bank_account_type, branch_code, is_primary)
+         VALUES (?, ?, ?, ?, ?, ?, ?)`,
         [
           rawId,
           b.bankName || '',
           b.bankAccount || '',
           b.bankCurrency || 'HKD',
           b.bankAccountType || 'saving',
+          b.branchCode || '',
           b.isPrimary ? 1 : 0,
         ]
       );

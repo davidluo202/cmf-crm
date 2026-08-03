@@ -102,11 +102,15 @@ export async function ensureCrmTables(p: any) {
         bank_account VARCHAR(100),
         bank_currency VARCHAR(10) DEFAULT 'HKD',
         bank_account_type VARCHAR(20) DEFAULT 'saving',
+        branch_code VARCHAR(10),
         is_primary BOOLEAN DEFAULT FALSE,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )
     `);
   } catch {}
+
+  // Add branch_code if missing
+  try { await p.query(`ALTER TABLE client_bank_accounts ADD COLUMN branch_code VARCHAR(10)`); } catch {}
 
   // Create fund_transactions table
   try {
