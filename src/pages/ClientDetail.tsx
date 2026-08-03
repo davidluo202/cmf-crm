@@ -22,7 +22,22 @@ interface BankAccount {
   is_primary: boolean
 }
 
+interface FundTransaction {
+  id: number
+  tx_code: string
+  client_id: number
+  type: string
+  amount: string
+  currency: string
+  bank_name: string
+  bank_account: string
+  status: string
+  remarks: string
+  created_at: string
+}
+
 const EMPTY_BANK = { bankName: '', bankAccount: '', branchCode: '', bankCurrency: 'HKD', bankAccountType: 'saving' }
+const EMPTY_TX = { type: 'deposit', amount: '', currency: 'HKD', bankName: '', bankAccount: '', remarks: '' }
 
 const tabList = ['Profile', 'Accounts', 'Revenue', 'Credit', 'Interactions'] as const
 
@@ -52,11 +67,16 @@ export default function ClientDetail() {
   const [showAddBank, setShowAddBank] = useState(false)
   const [newBank, setNewBank] = useState(EMPTY_BANK)
   const [bankSaving, setBankSaving] = useState(false)
+  const [fundTxs, setFundTxs] = useState<FundTransaction[]>([])
+  const [showAddTx, setShowAddTx] = useState(false)
+  const [newTx, setNewTx] = useState(EMPTY_TX)
+  const [txSaving, setTxSaving] = useState(false)
 
   useEffect(() => {
     if (id) {
       loadClient(id)
       loadBankAccounts(id)
+      loadFundTxs(id)
     }
   }, [id])
 
@@ -81,6 +101,54 @@ export default function ClientDetail() {
       const data = await res.json()
       if (data.success) setBankAccounts(data.data || [])
     } catch { /* non-critical */ }
+  }
+
+  const loadFundTxs = async (clientId: string) => {
+    try {
+      const res = await fetch(`${API_BASE}/api/fund-transactions?clientId=${clientId}`)
+      const data = await res.json()
+      if (data.success) setFundTxs(data.data || [])
+    } catch { /* non-critical */ }
+  }
+
+  const handleAddTx = async () => {
+    if (!id || txSaving) return
+    if (!newTx.amount || Number(newTx.amount) <= 0) { alert('请填写有效金额'); return }
+    setTxSaving(true)
+    try {
+      const res = await fetch(`${API_BASE}/api/fund-transactions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ clientId: id, ...newTx }),
+      })
+      const data = await res.json()
+      if (data.success) {
+        setNewTx(EMPTY_TX)
+        setShowAddTx(false)
+        loadFundTxs(id)
+      } else {
+        alert('添加失败: ' + (data.error || '未知错误'))
+      }
+    } catch (err: any) {
+      alert('添加失败: ' + err.message)
+    } finally {
+      setTxSaving(false)
+    }
+  }
+
+  const handleUpdateTxStatus = async (txId: number, status: string) => {
+    try {
+      const res = await fetch(`${API_BASE}/api/fund-transactions?id=${txId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status }),
+      })
+      const data = await res.json()
+      if (data.success && id) loadFundTxs(id)
+      else alert('更新失败: ' + (data.error || '未知错误'))
+    } catch (err: any) {
+      alert('更新失败: ' + err.message)
+    }
   }
 
   const handleAddBank = async () => {
@@ -458,7 +526,199 @@ export default function ClientDetail() {
         </div>
       )}
 
-      {activeTab !== 'Profile' && (
+      {activeTab === 'Accounts' && (
+        <div className="space-y-4">
+          {/* Balance Summary */}
+          {(() => {
+            const totalIn: Record<string, number> = {}
+            const totalOut: Record<string, number> = {}
+            for (const tx of fundTxs) {
+              const cur = tx.currency || 'HKD'
+              if (tx.type === 'deposit') totalIn[cur] = (totalIn[cur] || 0) + Number(tx.amount)
+              else if (tx.type === 'withdrawal') totalOut[cur] = (totalOut[cur] || 0) + Number(tx.amount)
+            }
+            const currencies = [...new Set([...Object.keys(totalIn), ...Object.keys(totalOut)])]
+            if (currencies.length === 0) return null
+            return (
+              <div className="grid grid-cols-3 gap-4">
+                {currencies.map(cur => (
+                  <div key={cur} className="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm">
+                    <div className="text-xs text-slate-500 mb-2">{cur} 资金汇总</div>
+                    <div className="text-sm text-green-600">总入金：{(totalIn[cur] || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
+                    <div className="text-sm text-red-500">总出金：{(totalOut[cur] || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
+                    <div className="text-base font-semibold text-slate-800 mt-1">
+                      当前结余：{((totalIn[cur] || 0) - (totalOut[cur] || 0)).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )
+          })()}
+
+          {/* Transaction List */}
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm">
+            <div className="flex items-center justify-between p-4 border-b border-slate-100">
+              <h3 className="text-sm font-semibold text-slate-700">资金流水</h3>
+              <button
+                onClick={() => setShowAddTx(v => !v)}
+                className="px-3 py-1.5 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700"
+              >
+                {showAddTx ? '取消' : '新增交易'}
+              </button>
+            </div>
+
+            {/* Add Transaction Form */}
+            {showAddTx && (
+              <div className="p-4 border-b border-slate-100 bg-slate-50 grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-slate-500 block mb-1">类型</label>
+                  <select
+                    value={newTx.type}
+                    onChange={e => setNewTx({ ...newTx, type: e.target.value })}
+                    className="px-3 py-2 border border-slate-300 rounded-lg text-sm"
+                    style={{ minWidth: 150 }}
+                  >
+                    <option value="deposit">入金 (Deposit)</option>
+                    <option value="withdrawal">出金 (Withdrawal)</option>
+                    <option value="transfer_otc">划转OTC (Transfer)</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs text-slate-500 block mb-1">币种</label>
+                  <select
+                    value={newTx.currency}
+                    onChange={e => setNewTx({ ...newTx, currency: e.target.value })}
+                    className="px-3 py-2 border border-slate-300 rounded-lg text-sm"
+                    style={{ minWidth: 100 }}
+                  >
+                    {['HKD', 'USD', 'CNY', 'EUR', 'GBP'].map(c => <option key={c}>{c}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs text-slate-500 block mb-1">金额</label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={newTx.amount}
+                    onChange={e => setNewTx({ ...newTx, amount: e.target.value })}
+                    placeholder="0.00"
+                    className="px-3 py-2 border border-slate-300 rounded-lg text-sm"
+                    style={{ maxWidth: 180 }}
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-slate-500 block mb-1">银行名称</label>
+                  <input
+                    type="text"
+                    value={newTx.bankName}
+                    onChange={e => setNewTx({ ...newTx, bankName: e.target.value })}
+                    placeholder="如：汇丰银行"
+                    className="px-3 py-2 border border-slate-300 rounded-lg text-sm"
+                    style={{ maxWidth: 260 }}
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-slate-500 block mb-1">银行账号</label>
+                  <input
+                    type="text"
+                    value={newTx.bankAccount}
+                    onChange={e => setNewTx({ ...newTx, bankAccount: e.target.value })}
+                    placeholder="账号"
+                    className="px-3 py-2 border border-slate-300 rounded-lg text-sm"
+                    style={{ maxWidth: 260 }}
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-slate-500 block mb-1">备注</label>
+                  <input
+                    type="text"
+                    value={newTx.remarks}
+                    onChange={e => setNewTx({ ...newTx, remarks: e.target.value })}
+                    placeholder="选填"
+                    className="px-3 py-2 border border-slate-300 rounded-lg text-sm"
+                    style={{ maxWidth: 320 }}
+                  />
+                </div>
+                <div className="col-span-2 flex gap-2">
+                  <button
+                    onClick={handleAddTx}
+                    disabled={txSaving}
+                    className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                  >
+                    {txSaving ? '提交中...' : '确认提交'}
+                  </button>
+                  <button
+                    onClick={() => { setShowAddTx(false); setNewTx(EMPTY_TX) }}
+                    className="px-4 py-2 bg-white text-slate-600 text-sm rounded-lg border border-slate-300 hover:bg-slate-50"
+                  >
+                    取消
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Table */}
+            {fundTxs.length === 0 ? (
+              <div className="p-8 text-center text-slate-400 text-sm">暂无资金记录</div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="text-xs text-slate-500 border-b border-slate-100">
+                      <th className="px-4 py-3 text-left font-medium">日期</th>
+                      <th className="px-4 py-3 text-left font-medium">参考编号</th>
+                      <th className="px-4 py-3 text-left font-medium">类型</th>
+                      <th className="px-4 py-3 text-right font-medium">金额</th>
+                      <th className="px-4 py-3 text-left font-medium">币种</th>
+                      <th className="px-4 py-3 text-left font-medium">状态</th>
+                      <th className="px-4 py-3 text-left font-medium">备注</th>
+                      <th className="px-4 py-3 text-left font-medium">操作</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {fundTxs.map(tx => {
+                      const typeLabel = tx.type === 'deposit' ? '入金' : tx.type === 'withdrawal' ? '出金' : '划转OTC'
+                      const typeColor = tx.type === 'deposit' ? 'text-green-600' : tx.type === 'withdrawal' ? 'text-red-500' : 'text-blue-600'
+                      const statusColor = tx.status === 'completed' ? 'bg-green-100 text-green-700' : tx.status === 'confirmed' ? 'bg-blue-100 text-blue-700' : 'bg-yellow-100 text-yellow-700'
+                      const statusLabel = tx.status === 'completed' ? '已完成' : tx.status === 'confirmed' ? '已确认' : '待处理'
+                      const nextStatus = tx.status === 'pending' ? 'confirmed' : tx.status === 'confirmed' ? 'completed' : null
+                      const nextLabel = tx.status === 'pending' ? '确认' : tx.status === 'confirmed' ? '完成' : null
+                      return (
+                        <tr key={tx.id} className="border-b border-slate-50 hover:bg-slate-50">
+                          <td className="px-4 py-3 text-slate-600 whitespace-nowrap">{tx.created_at?.slice(0, 10)}</td>
+                          <td className="px-4 py-3 font-mono text-xs text-slate-700">{tx.tx_code}</td>
+                          <td className={`px-4 py-3 font-medium ${typeColor}`}>{typeLabel}</td>
+                          <td className={`px-4 py-3 text-right font-mono font-medium ${typeColor}`}>
+                            {tx.type === 'withdrawal' ? '-' : ''}{Number(tx.amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                          </td>
+                          <td className="px-4 py-3 text-slate-600">{tx.currency}</td>
+                          <td className="px-4 py-3">
+                            <span className={`text-xs px-2 py-0.5 rounded-full ${statusColor}`}>{statusLabel}</span>
+                          </td>
+                          <td className="px-4 py-3 text-slate-500 max-w-[180px] truncate">{tx.remarks || '—'}</td>
+                          <td className="px-4 py-3">
+                            {nextStatus && (
+                              <button
+                                onClick={() => handleUpdateTxStatus(tx.id, nextStatus)}
+                                className="text-xs text-blue-600 hover:text-blue-800 underline"
+                              >
+                                {nextLabel}
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {(activeTab === 'Revenue' || activeTab === 'Credit' || activeTab === 'Interactions') && (
         <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm text-center text-slate-500">
           {activeTab} - Coming Soon
         </div>
