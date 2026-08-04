@@ -547,9 +547,18 @@ export default function ClientStatement() {
                   ) : txRows.map(({ tx, credit, debit, balance }) => {
                     const tradeDate = tx.created_at?.slice(0, 10) || '—'
                     const settleDate = tx.settle_date?.slice(0, 10) || tradeDate
-                    const typeMap: Record<string, string> = { deposit: '入金 Deposit', withdrawal: '出金 Withdrawal', transfer_otc: '劃轉 OTC Transfer' }
-                    const desc = typeMap[tx.type] || tx.type
-                    const fullDesc = tx.remarks ? `${desc} — ${tx.remarks}` : desc
+                    const typeMap: Record<string, string> = {
+                      deposit: '客戶入金 Client Deposit',
+                      withdrawal: '客戶出金 Client Withdrawal',
+                      transfer_otc: 'Fund Deposit-Collateral-LONGTREND',
+                      deposit_and_transfer: '客戶入金 Client Deposit',
+                    }
+                    let desc = typeMap[tx.type] || tx.type
+                    if (tx.remarks?.includes('全额划转')) desc = 'Fund Deposit-Collateral-LONGTREND'
+                    if (tx.remarks?.includes('Option Premium')) desc = 'Fund Deposit-Option Premium-LONGTREND-OPT'
+                    if (tx.remarks?.includes('本地汇款') || tx.type === 'deposit') desc = tx.bank_name ? `存款 - 本地匯款 ${tx.bank_name}` : '客戶入金 Client Deposit'
+                    if (tx.type === 'transfer_otc') desc = 'Fund Deposit-Collateral-LONGTREND'
+                    const fullDesc = tx.remarks && !tx.remarks.includes('客户入金') && !tx.remarks.includes('全额划转') ? `${desc} — ${tx.remarks}` : desc
                     const statusPending = tx.status === 'pending' ? ' (待確認)' : ''
                     return (
                       <tr key={tx.id}>
