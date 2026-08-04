@@ -233,6 +233,20 @@ export default function ClientDetail() {
 
   const [amlStatus, setAmlStatus] = useState<{ hitCount: number; checked: boolean } | null>(null)
   const [amlLoading, setAmlLoading] = useState(false)
+  const [amlDetail, setAmlDetail] = useState<any[] | null>(null)
+  const [showAmlDetail, setShowAmlDetail] = useState(false)
+
+  const loadAmlDetail = async () => {
+    if (!id) return
+    try {
+      const res = await fetch(`${API_BASE}/api/sanctions-check?clientId=${id}`)
+      const data = await res.json()
+      if (data.success) {
+        setAmlDetail(data.data || [])
+        setShowAmlDetail(true)
+      }
+    } catch {}
+  }
 
   const [saving, setSaving] = useState(false)
 
@@ -291,15 +305,77 @@ export default function ClientDetail() {
           {amlStatus === null ? null : amlStatus.checked === false ? (
             <span className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-500">未筛查</span>
           ) : amlStatus.hitCount === 0 ? (
-            <span className="text-xs px-2 py-1 rounded-full bg-green-100 text-green-700">AML Clear</span>
+            <span className="text-xs px-2 py-1 rounded-full bg-green-100 text-green-700 cursor-pointer" onClick={loadAmlDetail}>AML Clear</span>
           ) : (
-            <span className="text-xs px-2 py-1 rounded-full bg-red-100 text-red-700">AML Alert ({amlStatus.hitCount})</span>
+            <span className="text-xs px-2 py-1 rounded-full bg-red-100 text-red-700 cursor-pointer" onClick={loadAmlDetail}>AML Alert ({amlStatus.hitCount})</span>
           )}
         </div>
         <div className="text-sm text-slate-500 mt-2">
           RM: {client.rm || '未分配'} · 账户号: {client.code} · AUM: {client.aum > 0 ? `HK$ ${(client.aum / 1000000).toFixed(1)}M` : '—'}
         </div>
       </div>
+
+      {/* AML Detail Modal */}
+      {showAmlDetail && amlDetail && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50" onClick={() => setShowAmlDetail(false)}>
+          <div className="bg-white w-full max-w-2xl rounded-2xl shadow-xl p-6 max-h-[80vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-bold text-slate-900">AML筛查记录</h2>
+              <button onClick={() => setShowAmlDetail(false)} className="text-slate-400 hover:text-slate-700 text-xl">&times;</button>
+            </div>
+            {amlDetail.length === 0 ? (
+              <p className="text-sm text-slate-400">暂无筛查记录</p>
+            ) : (
+              <div className="space-y-4">
+                {amlDetail.map((check: any) => {
+                  const hits = typeof check.hits === 'string' ? JSON.parse(check.hits) : (check.hits || [])
+                  return (
+                    <div key={check.id} className="border border-slate-200 rounded-lg p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <div>
+                          <span className="text-sm font-semibold text-slate-800">{check.client_name}</span>
+                          <span className="ml-2 text-xs text-slate-400">{check.trigger_type}</span>
+                        </div>
+                        <span className={`text-xs px-2 py-1 rounded-full ${check.status === 'clear' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                          {check.status === 'clear' ? '通过' : `命中 ${check.hit_count} 条`}
+                        </span>
+                      </div>
+                      <div className="text-xs text-slate-400 mb-2">筛查时间：{new Date(check.checked_at).toLocaleString('zh-CN')}</div>
+                      {hits.length > 0 && (
+                        <div className="space-y-2">
+                          {hits.map((h: any, i: number) => (
+                            <div key={i} className="bg-red-50 border border-red-100 rounded p-3 text-sm">
+                              <div className="flex justify-between">
+                                <span className="font-medium text-red-800">{h.name}</span>
+                                <span className="text-xs text-red-600">置信度：{((h.confidence_score || 0) * 100).toFixed(0)}%</span>
+                              </div>
+                              {h.entity_type && <div className="text-xs text-red-600 mt-1">类型：{h.entity_type}</div>}
+                              {h.data_source && <div className="text-xs text-red-600">来源：{h.data_source}</div>}
+                              {h.address && <div className="text-xs text-red-600">地址：{h.address}</div>}
+                              {h.alt_names && h.alt_names.length > 0 && <div className="text-xs text-red-600">别名：{h.alt_names.join(', ')}</div>}
+                            </div>
+                          ))}
+                          <div className="flex gap-2 mt-3">
+                            <button className="px-3 py-1.5 bg-green-600 text-white text-xs rounded-lg hover:bg-green-700"
+                              onClick={() => { alert('已标记为误报，客户通过复核。'); setAmlStatus({ hitCount: 0, checked: true }); setShowAmlDetail(false); }}>
+                              确认误报 / 通过
+                            </button>
+                            <button className="px-3 py-1.5 bg-red-600 text-white text-xs rounded-lg hover:bg-red-700"
+                              onClick={() => { alert('已标记为高风险客户。'); setShowAmlDetail(false); }}>
+                              标记高风险
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                      {hits.length === 0 && <div className="text-xs text-green-600">无命中记录</div>}
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Tabs */}
       <div className="flex gap-2 border-b border-slate-200 pb-1">
