@@ -104,9 +104,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const finalRemarks = remarksExtra ? `${remarksExtra} ${b.remarks || ''}`.trim() : (b.remarks || '');
 
       const [result] = await pool.query(
-        `INSERT INTO fund_transactions (tx_code, client_id, type, amount, currency, bank_name, bank_account, remarks, status)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [txCode, rawId, b.type, b.amount, b.currency, b.bankName || '', b.bankAccount || '', finalRemarks, txStatus]
+        `INSERT INTO fund_transactions (tx_code, client_id, type, amount, currency, bank_name, bank_account, remarks, status, created_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [txCode, rawId, b.type, b.amount, b.currency, b.bankName || '', b.bankAccount || '', finalRemarks, txStatus, b.tradeDate ? new Date(b.tradeDate) : new Date()]
       );
       return res.json({ success: true, id: (result as any).insertId, txCode, amlStatus: txStatus === 'pending_review' ? 'alert' : 'clear' });
     }

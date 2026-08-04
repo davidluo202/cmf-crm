@@ -37,7 +37,7 @@ interface FundTransaction {
 }
 
 const EMPTY_BANK = { bankName: '', bankAccount: '', branchCode: '', bankCurrency: 'HKD', bankAccountType: 'saving' }
-const EMPTY_TX = { type: 'deposit', amount: '', currency: 'HKD', bankName: '', bankAccount: '', remarks: '' }
+const EMPTY_TX = { type: 'deposit', amount: '', currency: 'HKD', bankName: '', bankAccount: '', remarks: '', tradeDate: new Date().toISOString().slice(0, 10), authType: 'written_direction', authRef: '' }
 
 const tabList = ['Profile', 'Accounts', 'Revenue', 'Credit', 'Interactions'] as const
 
@@ -205,20 +205,50 @@ export default function ClientDetail() {
   const handleAddTx = async () => {
     if (!id || txSaving) return
     if (!newTx.amount || Number(newTx.amount) <= 0) { alert('请填写有效金额'); return }
+    if ((newTx.type === 'transfer_otc' || newTx.type === 'deposit_and_transfer') && !newTx.authRef) {
+      if (!confirm('未填写授权编号，确认继续？')) return
+    }
     setTxSaving(true)
     try {
-      const res = await fetch(`${API_BASE}/api/fund-transactions`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ clientId: id, ...newTx }),
-      })
-      const data = await res.json()
-      if (data.success) {
-        setNewTx(EMPTY_TX)
-        setShowAddTx(false)
-        loadFundTxs(id)
+      if (newTx.type === 'deposit_and_transfer') {
+        // Create two transactions: deposit + transfer_otc
+        const authInfo = newTx.authType ? ` [授权:${newTx.authType}${newTx.authRef ? ' ' + newTx.authRef : ''}]` : ''
+        const depRes = await fetch(`${API_BASE}/api/fund-transactions`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ clientId: id, type: 'deposit', amount: newTx.amount, currency: newTx.currency, bankName: newTx.bankName, bankAccount: newTx.bankAccount, tradeDate: newTx.tradeDate, remarks: '客户入金' + (newTx.remarks ? ' - ' + newTx.remarks : '') }),
+        })
+        const depData = await depRes.json()
+        if (!depData.success) { alert('入金失败: ' + (depData.error || '')); return }
+
+        const trfRes = await fetch(`${API_BASE}/api/fund-transactions`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ clientId: id, type: 'transfer_otc', amount: newTx.amount, currency: newTx.currency, bankName: '', bankAccount: '', tradeDate: newTx.tradeDate, remarks: '全额划转OTC保证金' + authInfo }),
+        })
+        const trfData = await trfRes.json()
+        if (trfData.success) {
+          setNewTx({ ...EMPTY_TX, tradeDate: newTx.tradeDate })
+          setShowAddTx(false)
+          loadFundTxs(id)
+        } else {
+          alert('划转失败: ' + (trfData.error || ''))
+        }
       } else {
-        alert('添加失败: ' + (data.error || '未知错误'))
+        const authInfo = (newTx.type === 'transfer_otc' && newTx.authType) ? ` [授权:${newTx.authType}${newTx.authRef ? ' ' + newTx.authRef : ''}]` : ''
+        const res = await fetch(`${API_BASE}/api/fund-transactions`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ clientId: id, ...newTx, remarks: (newTx.remarks || '') + authInfo }),
+        })
+        const data = await res.json()
+        if (data.success) {
+          setNewTx({ ...EMPTY_TX, tradeDate: newTx.tradeDate })
+          setShowAddTx(false)
+          loadFundTxs(id)
+        } else {
+          alert('添加失败: ' + (data.error || '未知错误'))
+        }
       }
     } catch (err: any) {
       alert('添加失败: ' + err.message)
@@ -758,74 +788,83 @@ export default function ClientDetail() {
 
             {/* Add Transaction Form */}
             {showAddTx && (
-              <div className="p-4 border-b border-slate-100 bg-slate-50 grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs text-slate-500 block mb-1">类型</label>
-                  <select
-                    value={newTx.type}
-                    onChange={e => setNewTx({ ...newTx, type: e.target.value })}
-                    className="px-3 py-2 border border-slate-300 rounded-lg text-sm"
-                    style={{ minWidth: 150 }}
-                  >
-                    <option value="deposit">入金 (Deposit)</option>
-                    <option value="withdrawal">出金 (Withdrawal)</option>
-                    <option value="transfer_otc">划转OTC (Transfer)</option>
-                  </select>
+              <div className="p-4 border-b border-slate-100 bg-slate-50 space-y-3">
+                <div className="grid grid-cols-3 gap-3">
+                  <div>
+                    <label className="text-xs text-slate-500 block mb-1">类型</label>
+                    <select
+                      value={newTx.type}
+                      onChange={e => setNewTx({ ...newTx, type: e.target.value })}
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
+                    >
+                      <option value="deposit">入金 (Deposit)</option>
+                      <option value="withdrawal">出金 (Withdrawal)</option>
+                      <option value="transfer_otc">划转OTC (Transfer)</option>
+                      <option value="deposit_and_transfer">入金并划转OTC</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs text-slate-500 block mb-1">交易日期</label>
+                    <input type="date" value={newTx.tradeDate} onChange={e => setNewTx({ ...newTx, tradeDate: e.target.value })}
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+                  </div>
+                  <div>
+                    <label className="text-xs text-slate-500 block mb-1">币种</label>
+                    <select value={newTx.currency} onChange={e => setNewTx({ ...newTx, currency: e.target.value })}
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm">
+                      {['HKD', 'USD', 'CNY', 'EUR', 'GBP'].map(c => <option key={c}>{c}</option>)}
+                    </select>
+                  </div>
                 </div>
-                <div>
-                  <label className="text-xs text-slate-500 block mb-1">币种</label>
-                  <select
-                    value={newTx.currency}
-                    onChange={e => setNewTx({ ...newTx, currency: e.target.value })}
-                    className="px-3 py-2 border border-slate-300 rounded-lg text-sm"
-                    style={{ minWidth: 100 }}
-                  >
-                    {['HKD', 'USD', 'CNY', 'EUR', 'GBP'].map(c => <option key={c}>{c}</option>)}
-                  </select>
+                <div className="grid grid-cols-3 gap-3">
+                  <div>
+                    <label className="text-xs text-slate-500 block mb-1">金额</label>
+                    <input type="number" min="0" step="0.01" value={newTx.amount}
+                      onChange={e => setNewTx({ ...newTx, amount: e.target.value })}
+                      placeholder="0.00" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+                  </div>
+                  <div>
+                    <label className="text-xs text-slate-500 block mb-1">银行名称</label>
+                    <input type="text" value={newTx.bankName}
+                      onChange={e => setNewTx({ ...newTx, bankName: e.target.value })}
+                      placeholder="如：汇丰银行" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+                  </div>
+                  <div>
+                    <label className="text-xs text-slate-500 block mb-1">银行账号</label>
+                    <input type="text" value={newTx.bankAccount}
+                      onChange={e => setNewTx({ ...newTx, bankAccount: e.target.value })}
+                      placeholder="账号" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+                  </div>
                 </div>
-                <div>
-                  <label className="text-xs text-slate-500 block mb-1">金额</label>
-                  <input
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={newTx.amount}
-                    onChange={e => setNewTx({ ...newTx, amount: e.target.value })}
-                    placeholder="0.00"
-                    className="px-3 py-2 border border-slate-300 rounded-lg text-sm"
-                    style={{ maxWidth: 180 }}
-                  />
-                </div>
-                <div>
-                  <label className="text-xs text-slate-500 block mb-1">银行名称</label>
-                  <input
-                    type="text"
-                    value={newTx.bankName}
-                    onChange={e => setNewTx({ ...newTx, bankName: e.target.value })}
-                    placeholder="如：汇丰银行"
-                    className="px-3 py-2 border border-slate-300 rounded-lg text-sm"
-                    style={{ maxWidth: 260 }}
-                  />
-                </div>
-                <div>
-                  <label className="text-xs text-slate-500 block mb-1">银行账号</label>
-                  <input
-                    type="text"
-                    value={newTx.bankAccount}
-                    onChange={e => setNewTx({ ...newTx, bankAccount: e.target.value })}
-                    placeholder="账号"
-                    className="px-3 py-2 border border-slate-300 rounded-lg text-sm"
-                    style={{ maxWidth: 260 }}
-                  />
-                </div>
-                <div>
-                  <label className="text-xs text-slate-500 block mb-1">备注</label>
-                  <input
-                    type="text"
-                    value={newTx.remarks}
-                    onChange={e => setNewTx({ ...newTx, remarks: e.target.value })}
-                    placeholder="选填"
-                    className="px-3 py-2 border border-slate-300 rounded-lg text-sm"
+                {/* Authorization fields for transfer_otc */}
+                {(newTx.type === 'transfer_otc' || newTx.type === 'deposit_and_transfer') && (
+                  <div className="grid grid-cols-3 gap-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                    <div>
+                      <label className="text-xs text-amber-700 block mb-1">授权类型 *</label>
+                      <select value={newTx.authType} onChange={e => setNewTx({ ...newTx, authType: e.target.value })}
+                        className="w-full px-3 py-2 border border-amber-300 rounded-lg text-sm">
+                        <option value="written_direction">Written Direction (书面指示)</option>
+                        <option value="standing_authority">Standing Authority (常设授权)</option>
+                        <option value="client_agreement">Client Agreement (客户协议)</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-xs text-amber-700 block mb-1">授权编号/参考</label>
+                      <input type="text" value={newTx.authRef}
+                        onChange={e => setNewTx({ ...newTx, authRef: e.target.value })}
+                        placeholder="WD-20260804-001" className="w-full px-3 py-2 border border-amber-300 rounded-lg text-sm" />
+                    </div>
+                    <div className="flex items-end">
+                      <p className="text-xs text-amber-600">划转OTC需要客户授权指令</p>
+                    </div>
+                  </div>
+                )}
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="col-span-2">
+                    <label className="text-xs text-slate-500 block mb-1">备注</label>
+                    <input type="text" value={newTx.remarks}
+                      onChange={e => setNewTx({ ...newTx, remarks: e.target.value })}
+                      placeholder="选填" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
                     style={{ maxWidth: 320 }}
                   />
                 </div>
