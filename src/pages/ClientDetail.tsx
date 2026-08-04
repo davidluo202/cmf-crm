@@ -865,23 +865,24 @@ export default function ClientDetail() {
                     <input type="text" value={newTx.remarks}
                       onChange={e => setNewTx({ ...newTx, remarks: e.target.value })}
                       placeholder="选填" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
-                    style={{ maxWidth: 320 }}
-                  />
-                </div>
-                <div className="col-span-2 flex gap-2">
-                  <button
-                    onClick={handleAddTx}
-                    disabled={txSaving}
-                    className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 disabled:opacity-50"
-                  >
-                    {txSaving ? '提交中...' : '确认提交'}
-                  </button>
-                  <button
-                    onClick={() => { setShowAddTx(false); setNewTx(EMPTY_TX) }}
-                    className="px-4 py-2 bg-white text-slate-600 text-sm rounded-lg border border-slate-300 hover:bg-slate-50"
-                  >
-                    取消
-                  </button>
+                      style={{ maxWidth: 320 }}
+                    />
+                  </div>
+                  <div className="flex items-end gap-2">
+                    <button
+                      onClick={handleAddTx}
+                      disabled={txSaving}
+                      className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                    >
+                      {txSaving ? '提交中...' : '确认提交'}
+                    </button>
+                    <button
+                      onClick={() => { setShowAddTx(false); setNewTx(EMPTY_TX) }}
+                      className="px-4 py-2 bg-white text-slate-600 text-sm rounded-lg border border-slate-300 hover:bg-slate-50"
+                    >
+                      取消
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
