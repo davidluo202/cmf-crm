@@ -112,6 +112,23 @@ export async function ensureCrmTables(p: any) {
   // Add branch_code if missing
   try { await p.query(`ALTER TABLE client_bank_accounts ADD COLUMN branch_code VARCHAR(10)`); } catch {}
 
+  // Create sanctions_checks table
+  try {
+    await p.query(`
+      CREATE TABLE IF NOT EXISTS sanctions_checks (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        client_id INT NOT NULL,
+        trigger_type VARCHAR(50),
+        client_name VARCHAR(200),
+        hit_count INT DEFAULT 0,
+        hits JSON,
+        status VARCHAR(20) DEFAULT 'clear',
+        checked_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        checked_by VARCHAR(100)
+      )
+    `);
+  } catch {}
+
   // Create fund_transactions table
   try {
     await p.query(`

@@ -77,8 +77,49 @@ export default function ClientDetail() {
       loadClient(id)
       loadBankAccounts(id)
       loadFundTxs(id)
+      loadAmlStatus(id)
     }
   }, [id])
+
+  const loadAmlStatus = async (clientId: string) => {
+    try {
+      const res = await fetch(`${API_BASE}/api/sanctions-check?clientId=${clientId}`)
+      const data = await res.json()
+      if (data.success && data.data && data.data.length > 0) {
+        const latest = data.data[0]
+        setAmlStatus({ hitCount: latest.hit_count, checked: true })
+      } else {
+        setAmlStatus({ hitCount: 0, checked: false })
+      }
+    } catch { /* non-critical */ }
+  }
+
+  const handleAmlCheck = async () => {
+    if (!id || amlLoading) return
+    setAmlLoading(true)
+    try {
+      const res = await fetch(`${API_BASE}/api/sanctions-check`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ clientId: id, trigger: 'onboarding' }),
+      })
+      const data = await res.json()
+      if (data.success) {
+        setAmlStatus({ hitCount: data.hitCount, checked: true })
+        if (data.clear) {
+          alert('AML筛查完成：无命中，客户通过制裁名单筛查。')
+        } else {
+          alert(`AML筛查警告：发现 ${data.hitCount} 个命中！请人工复核。`)
+        }
+      } else {
+        alert('AML筛查失败: ' + (data.error || '未知错误'))
+      }
+    } catch (err: any) {
+      alert('AML筛查失败: ' + err.message)
+    } finally {
+      setAmlLoading(false)
+    }
+  }
 
   const loadClient = async (clientId: string) => {
     try {
@@ -190,6 +231,9 @@ export default function ClientDetail() {
     }
   }
 
+  const [amlStatus, setAmlStatus] = useState<{ hitCount: number; checked: boolean } | null>(null)
+  const [amlLoading, setAmlLoading] = useState(false)
+
   const [saving, setSaving] = useState(false)
 
   const handleSave = async () => {
@@ -244,6 +288,13 @@ export default function ClientDetail() {
           <span className={`text-xs px-2 py-1 rounded-full ${segmentColor[client.segment] || 'bg-slate-200 text-slate-600'}`}>{client.segment}</span>
           <span className={`text-xs px-2 py-1 rounded-full ${tierColor[client.tier] || ''}`}>{client.tier}</span>
           <span className={`text-xs px-2 py-1 rounded-full ${client.status === '活跃' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'}`}>{client.status}</span>
+          {amlStatus === null ? null : amlStatus.checked === false ? (
+            <span className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-500">未筛查</span>
+          ) : amlStatus.hitCount === 0 ? (
+            <span className="text-xs px-2 py-1 rounded-full bg-green-100 text-green-700">AML Clear</span>
+          ) : (
+            <span className="text-xs px-2 py-1 rounded-full bg-red-100 text-red-700">AML Alert ({amlStatus.hitCount})</span>
+          )}
         </div>
         <div className="text-sm text-slate-500 mt-2">
           RM: {client.rm || '未分配'} · 账户号: {client.code} · AUM: {client.aum > 0 ? `HK$ ${(client.aum / 1000000).toFixed(1)}M` : '—'}
@@ -269,6 +320,13 @@ export default function ClientDetail() {
       {activeTab === 'Profile' && !editing && (
         <div className="space-y-6">
           <div className="flex justify-end mb-4 gap-2">
+            <button
+              onClick={handleAmlCheck}
+              disabled={amlLoading}
+              className="px-4 py-2 bg-amber-500 text-white text-sm rounded-lg hover:bg-amber-600 disabled:opacity-50"
+            >
+              {amlLoading ? '筛查中...' : 'AML筛查'}
+            </button>
             <button
               onClick={() => window.open(`/crm/clients/${id}/bcan-consent`, '_blank')}
               className="px-4 py-2 bg-emerald-600 text-white text-sm rounded-lg hover:bg-emerald-700"

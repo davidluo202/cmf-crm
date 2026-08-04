@@ -66,12 +66,49 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         if ((exist as any[]).length > 0) txCode = generateTxCode(b.type);
       } catch {}
 
+      // Auto-run sanctions check before creating transaction
+      let txStatus = 'pending';
+      let remarksExtra = '';
+      try {
+        const [clientRows] = await pool.query('SELECT name, name_en FROM crm_clients WHERE id = ?', [rawId]);
+        const clientRow = (clientRows as any[])[0];
+        if (clientRow) {
+          const SANCTIONS_API_KEY = '60e75f2d08a24d98a967f6315f00b251';
+          const namesToScreen = [clientRow.name, clientRow.name_en].filter(Boolean);
+          let allHits: any[] = [];
+          for (const name of namesToScreen) {
+            const url = `https://api.sanctions.io/search/?min_score=0.80&name=${encodeURIComponent(name)}&data_source=all`;
+            const sr = await fetch(url, { headers: { 'Authorization': `Bearer ${SANCTIONS_API_KEY}`, 'Accept': 'application/json' } });
+            if (sr.ok) {
+              const sd = await sr.json();
+              for (const hit of (sd.results || [])) {
+                if (!allHits.some((h: any) => h.name === hit.name && h.data_source === hit.data_source)) {
+                  allHits.push(hit);
+                }
+              }
+            }
+          }
+          const displayName = [clientRow.name, clientRow.name_en].filter(Boolean).join(' / ');
+          const sanctionStatus = allHits.length > 0 ? 'alert' : 'clear';
+          await pool.query(
+            `INSERT INTO sanctions_checks (client_id, trigger_type, client_name, hit_count, hits, status) VALUES (?, 'transaction', ?, ?, ?, ?)`,
+            [rawId, displayName, allHits.length, JSON.stringify(allHits), sanctionStatus]
+          );
+          if (allHits.length > 0) {
+            txStatus = 'pending_review';
+            remarksExtra = `[AML Alert: ${allHits.length} hit(s)]`;
+          }
+        }
+      } catch { /* sanctions check failure should not block transaction */ }
+
+      const finalRemarks = remarksExtra ? `${remarksExtra} ${b.remarks || ''}`.trim() : (b.remarks || '');
+
       const [result] = await pool.query(
         `INSERT INTO fund_transactions (tx_code, client_id, type, amount, currency, bank_name, bank_account, remarks, status)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending')`,
-        [txCode, rawId, b.type, b.amount, b.currency, b.bankName || '', b.bankAccount || '', b.remarks || '']
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [txCode, rawId, b.type, b.amount, b.currency, b.bankName || '', b.bankAccount || '', finalRemarks, txStatus]
       );
-      return res.json({ success: true, id: (result as any).insertId, txCode });
+      return res.json({ success: true, id: (result as any).insertId, txCode, amlStatus: txStatus === 'pending_review' ? 'alert' : 'clear' });
     }
 
     // PUT ?id=X — update status
