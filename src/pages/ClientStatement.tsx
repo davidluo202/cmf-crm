@@ -115,8 +115,7 @@ export default function ClientStatement() {
   const clientName = clientExtra?.nameCn || data.client.name || '—'
   const clientNameEn = clientExtra?.nameEn || data.client.nameEn || '—'
   const clientRm = clientExtra?.rm || '—'
-  const clientSegment = clientExtra?.segment || '—'
-  const isProfessional = clientData?.isProfessionalInvestor === false ? '否 No' : '是 Yes'
+  const isProfessional = (clientExtra as any)?.isProfessionalInvestor === false ? '否 No' : '是 Yes'
   const accountType = clientExtra?.segment === 'Corporate' || clientExtra?.segment === 'Institutional' ? '機構賬戶 Corporate' : '個人賬戶 Individual'
 
   // Group transactions by currency
