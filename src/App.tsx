@@ -9,6 +9,7 @@ import Settings from './pages/Settings'
 import FeeSchedule from './pages/FeeSchedule'
 import AdminUsersPage from './pages/AdminUsersPage'
 import BcanConsentPrint from './pages/BcanConsentPrint'
+import ClientStatement from './pages/ClientStatement'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const token = localStorage.getItem('token')
@@ -33,6 +34,7 @@ export default function App() {
         <Route path="clients" element={<ClientList />} />
         <Route path="clients/:id" element={<ClientDetail />} />
         <Route path="clients/:id/bcan-consent" element={<BcanConsentPrint />} />
+        <Route path="clients/:id/statement" element={<ClientStatement />} />
         <Route path="revenue" element={<Revenue />} />
         <Route path="credit" element={<div className="p-8 text-gray-400">Credit - Coming Soon</div>} />
         <Route path="interactions" element={<div className="p-8 text-gray-400">Interactions - Coming Soon</div>} />

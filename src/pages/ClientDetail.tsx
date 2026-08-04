@@ -55,6 +55,56 @@ const tierColor: Record<string, string> = {
   Bronze: 'bg-orange-100 text-orange-700',
 }
 
+function AccountsStatementBar({ clientId }: { clientId: string }) {
+  const prevMonth = (() => {
+    const d = new Date()
+    d.setDate(1)
+    d.setMonth(d.getMonth() - 1)
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+  })()
+  const todayStr = new Date().toISOString().slice(0, 10)
+
+  const [stmtMonth, setStmtMonth] = useState(prevMonth)
+  const [stmtDate, setStmtDate] = useState(todayStr)
+
+  return (
+    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-wrap items-center gap-4">
+      <div className="flex items-center gap-2">
+        <input
+          type="month"
+          value={stmtMonth}
+          onChange={e => setStmtMonth(e.target.value)}
+          className="px-3 py-1.5 border border-slate-300 rounded-lg text-sm"
+          style={{ maxWidth: 160 }}
+        />
+        <button
+          onClick={() => window.open(`/crm/clients/${clientId}/statement?type=monthly&month=${stmtMonth}`, '_blank')}
+          disabled={!stmtMonth}
+          className="px-4 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 disabled:opacity-50 whitespace-nowrap"
+        >
+          生成月结单
+        </button>
+      </div>
+      <div className="flex items-center gap-2">
+        <input
+          type="date"
+          value={stmtDate}
+          onChange={e => setStmtDate(e.target.value)}
+          className="px-3 py-1.5 border border-slate-300 rounded-lg text-sm"
+          style={{ maxWidth: 160 }}
+        />
+        <button
+          onClick={() => window.open(`/crm/clients/${clientId}/statement?type=daily&date=${stmtDate}`, '_blank')}
+          disabled={!stmtDate}
+          className="px-4 py-1.5 bg-emerald-600 text-white text-sm rounded-lg hover:bg-emerald-700 disabled:opacity-50 whitespace-nowrap"
+        >
+          生成日结单
+        </button>
+      </div>
+    </div>
+  )
+}
+
 export default function ClientDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
@@ -662,6 +712,9 @@ export default function ClientDetail() {
 
       {activeTab === 'Accounts' && (
         <div className="space-y-4">
+          {/* Statement Buttons */}
+          <AccountsStatementBar clientId={id!} />
+
           {/* Balance Summary */}
           {(() => {
             const totalIn: Record<string, number> = {}
