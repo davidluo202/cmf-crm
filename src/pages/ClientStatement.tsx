@@ -116,7 +116,7 @@ export default function ClientStatement() {
   const clientNameEn = clientExtra?.nameEn || data.client.nameEn || '—'
   const clientRm = clientExtra?.rm || '—'
   const clientSegment = clientExtra?.segment || '—'
-  const isProfessional = ['HNWI', 'Institutional'].includes(clientSegment) ? '是 Yes' : '否 No'
+  const isProfessional = clientData?.isProfessionalInvestor === false ? '否 No' : '是 Yes'
   const accountType = clientExtra?.segment === 'Corporate' || clientExtra?.segment === 'Institutional' ? '機構賬戶 Corporate' : '個人賬戶 Individual'
 
   // Group transactions by currency

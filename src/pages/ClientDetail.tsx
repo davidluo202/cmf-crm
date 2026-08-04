@@ -495,6 +495,7 @@ export default function ClientDetail() {
               ['地址', client.address || '—'],
               ['分类', client.segment],
               ['等级', client.tier],
+              ['专业投资者', (client as any).isProfessionalInvestor === false ? '否' : '是'],
               ['加点(%)', client.markupPercent != null ? `${client.markupPercent}%` : '—'],
               ['开户日期', client.onboardedDate || client.createdAt?.slice(0, 10) || '—'],
             ] as [string, string][]).map(([label, value]) => (
@@ -678,6 +679,7 @@ export default function ClientDetail() {
               { key: 'tier', label: '等级', type: 'select', options: ['Platinum', 'Gold', 'Silver', 'Bronze'] },
               { key: 'rm', label: '客户经理(RM)', type: 'text' },
               { key: 'aum', label: 'AUM (HKD)', type: 'number' },
+              { key: 'isProfessionalInvestor', label: '专业投资者', type: 'select', options: ['true', 'false'] },
               { key: 'markupPercent', label: '加点(%)', type: 'number' },
               { key: 'status', label: '状态', type: 'select', options: ['活跃', '活躍', '冻结', '注销'] },
             ] as { key: string; label: string; type: string; options?: string[] }[]).map((field) => (

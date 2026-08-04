@@ -54,6 +54,7 @@ export async function ensureCrmTables(p: any) {
     ['id_issuing_country', "VARCHAR(100)"],
     ['date_of_birth', "DATE"],
     ['gender', "VARCHAR(10)"],
+    ['is_professional_investor', "BOOLEAN DEFAULT TRUE"],
     // Corporate-specific columns
     ['entity_type', "VARCHAR(50)"],
     ['business_nature', "VARCHAR(100)"],
@@ -227,6 +228,7 @@ export async function getAllClients(p: any) {
       bankAccountType: r.bank_account_type || '',
       bankCurrency: r.bank_currency || '',
       markupPercent: r.markup_percent != null ? Number(r.markup_percent) : null,
+      isProfessionalInvestor: r.is_professional_investor != null ? !!r.is_professional_investor : true,
       entityType: r.entity_type || '',
       businessNature: r.business_nature || '',
       countryOfIncorporation: r.country_of_incorporation || '',
