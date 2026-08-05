@@ -110,8 +110,9 @@ export async function ensureCrmTables(p: any) {
     `);
   } catch {}
 
-  // Add branch_code if missing
+  // Add missing columns
   try { await p.query(`ALTER TABLE client_bank_accounts ADD COLUMN branch_code VARCHAR(10)`); } catch {}
+  try { await p.query(`ALTER TABLE client_bank_accounts ADD COLUMN account_holder_name VARCHAR(200)`); } catch {}
 
   // Create sanctions_checks table
   try {

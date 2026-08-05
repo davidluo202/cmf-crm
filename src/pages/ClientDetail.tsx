@@ -36,7 +36,7 @@ interface FundTransaction {
   created_at: string
 }
 
-const EMPTY_BANK = { bankName: '', bankAccount: '', branchCode: '', bankCurrency: 'HKD', bankAccountType: 'saving' }
+const EMPTY_BANK = { bankName: '', bankAccount: '', branchCode: '', bankCurrency: 'HKD', bankAccountType: 'saving', accountHolderName: '' }
 
 // Hong Kong banks list (from account opening system)
 const HK_BANKS = [
@@ -592,7 +592,7 @@ export default function ClientDetail() {
                 {bankAccounts.map((b) => (
                   <div key={b.id} className="py-3 border-b border-slate-100 last:border-0">
                     {editingBankId === b.id ? (
-                      <div className="grid grid-cols-2 md:grid-cols-5 gap-3 text-sm">
+                      <div className="grid grid-cols-2 md:grid-cols-6 gap-3 text-sm">
                         <div>
                           <div className="text-xs text-slate-400">银行名称</div>
                           <select value={editBank.branchCode ? `${editBank.branchCode}|${editBank.bankName}` : ''} onChange={e => {
@@ -614,6 +614,10 @@ export default function ClientDetail() {
                           <input value={editBank.bankAccount} onChange={e => setEditBank({...editBank, bankAccount: e.target.value})} className="w-full px-2 py-1 border border-slate-300 rounded text-xs mt-0.5 font-mono" />
                         </div>
                         <div>
+                          <div className="text-xs text-slate-400">账户名称</div>
+                          <input value={editBank.accountHolderName} onChange={e => setEditBank({...editBank, accountHolderName: e.target.value})} placeholder="持有人姓名" className="w-full px-2 py-1 border border-slate-300 rounded text-xs mt-0.5" />
+                        </div>
+                        <div>
                           <div className="text-xs text-slate-400">币种</div>
                           <select value={editBank.bankCurrency} onChange={e => setEditBank({...editBank, bankCurrency: e.target.value})} className="w-full px-2 py-1 border border-slate-300 rounded text-xs mt-0.5">
                             {['HKD','USD','CNY','EUR','GBP'].map(c => <option key={c}>{c}</option>)}
@@ -631,7 +635,7 @@ export default function ClientDetail() {
                         </div>
                       </div>
                     ) : (
-                      <div className="grid grid-cols-2 md:grid-cols-5 gap-3 text-sm">
+                      <div className="grid grid-cols-2 md:grid-cols-6 gap-3 text-sm">
                         <div>
                           <div className="text-xs text-slate-400">银行名称</div>
                           <div className="text-slate-800 font-medium mt-0.5">{b.bank_name || '—'}</div>
@@ -645,6 +649,10 @@ export default function ClientDetail() {
                           <div className="text-slate-800 font-mono mt-0.5">{b.bank_account || '—'}</div>
                         </div>
                         <div>
+                          <div className="text-xs text-slate-400">账户名称</div>
+                          <div className="text-slate-800 mt-0.5">{(b as any).account_holder_name || '—'}</div>
+                        </div>
+                        <div>
                           <div className="text-xs text-slate-400">币种</div>
                           <div className="text-slate-800 mt-0.5">{b.bank_currency || '—'}</div>
                         </div>
@@ -654,7 +662,7 @@ export default function ClientDetail() {
                             <div className="text-slate-800 mt-0.5">{b.bank_account_type || '—'}{b.is_primary ? <span className="ml-2 text-xs bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded">主账户</span> : null}</div>
                           </div>
                           <div className="flex gap-1">
-                            <button onClick={() => { setEditingBankId(b.id); setEditBank({ bankName: b.bank_name, bankAccount: b.bank_account, branchCode: (b as any).branch_code || '', bankCurrency: b.bank_currency, bankAccountType: b.bank_account_type }) }} className="text-xs text-blue-500 hover:text-blue-700 px-2 py-1">编辑</button>
+                            <button onClick={() => { setEditingBankId(b.id); setEditBank({ bankName: b.bank_name, bankAccount: b.bank_account, branchCode: (b as any).branch_code || '', bankCurrency: b.bank_currency, bankAccountType: b.bank_account_type, accountHolderName: (b as any).account_holder_name || '' }) }} className="text-xs text-blue-500 hover:text-blue-700 px-2 py-1">编辑</button>
                             <button onClick={() => handleDeleteBank(b.id)} className="text-xs text-red-500 hover:text-red-700 px-2 py-1">删除</button>
                           </div>
                         </div>
@@ -712,6 +720,17 @@ export default function ClientDetail() {
                     value={newBank.bankAccount}
                     onChange={e => setNewBank({ ...newBank, bankAccount: e.target.value })}
                     placeholder="账号"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
+                    style={{ maxWidth: 320 }}
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-slate-500 block mb-1">账户名称</label>
+                  <input
+                    type="text"
+                    value={newBank.accountHolderName}
+                    onChange={e => setNewBank({ ...newBank, accountHolderName: e.target.value })}
+                    placeholder="账户持有人姓名"
                     className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
                     style={{ maxWidth: 320 }}
                   />
