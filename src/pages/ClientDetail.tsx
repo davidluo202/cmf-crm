@@ -146,6 +146,8 @@ export default function ClientDetail() {
   const [showAddBank, setShowAddBank] = useState(false)
   const [newBank, setNewBank] = useState(EMPTY_BANK)
   const [bankSaving, setBankSaving] = useState(false)
+  const [editingBankId, setEditingBankId] = useState<number | null>(null)
+  const [editBank, setEditBank] = useState(EMPTY_BANK)
   const [fundTxs, setFundTxs] = useState<FundTransaction[]>([])
   const [showAddTx, setShowAddTx] = useState(false)
   const [newTx, setNewTx] = useState(EMPTY_TX)
@@ -589,31 +591,75 @@ export default function ClientDetail() {
               <div className="space-y-2">
                 {bankAccounts.map((b) => (
                   <div key={b.id} className="py-3 border-b border-slate-100 last:border-0">
-                    <div className="grid grid-cols-2 md:grid-cols-5 gap-3 text-sm">
-                      <div>
-                        <div className="text-xs text-slate-400">银行名称</div>
-                        <div className="text-slate-800 font-medium mt-0.5">{b.bank_name || '—'}</div>
-                      </div>
-                      <div>
-                        <div className="text-xs text-slate-400">分行代码</div>
-                        <div className="text-slate-800 font-mono mt-0.5">{(b as any).branch_code || '—'}</div>
-                      </div>
-                      <div>
-                        <div className="text-xs text-slate-400">账号</div>
-                        <div className="text-slate-800 font-mono mt-0.5">{b.bank_account || '—'}</div>
-                      </div>
-                      <div>
-                        <div className="text-xs text-slate-400">币种</div>
-                        <div className="text-slate-800 mt-0.5">{b.bank_currency || '—'}</div>
-                      </div>
-                      <div className="flex items-end justify-between">
+                    {editingBankId === b.id ? (
+                      <div className="grid grid-cols-2 md:grid-cols-5 gap-3 text-sm">
                         <div>
-                          <div className="text-xs text-slate-400">账户类型</div>
-                          <div className="text-slate-800 mt-0.5">{b.bank_account_type || '—'}{b.is_primary ? <span className="ml-2 text-xs bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded">主账户</span> : null}</div>
+                          <div className="text-xs text-slate-400">银行名称</div>
+                          <select value={editBank.branchCode ? `${editBank.branchCode}|${editBank.bankName}` : ''} onChange={e => {
+                            if (e.target.value === '_custom') { const n = prompt('请输入银行名称：') || ''; setEditBank({...editBank, bankName: n, branchCode: ''}) }
+                            else if (e.target.value) { const [c,...np] = e.target.value.split('|'); setEditBank({...editBank, bankName: np.join('|'), branchCode: c}) }
+                            else setEditBank({...editBank, bankName: '', branchCode: ''})
+                          }} className="w-full px-2 py-1 border border-slate-300 rounded text-xs mt-0.5">
+                            <option value="">请选择</option>
+                            {HK_BANKS.map(bk => <option key={bk.code} value={`${bk.code}|${bk.name}`}>{bk.code} - {bk.name}</option>)}
+                            <option value="_custom">其他</option>
+                          </select>
                         </div>
-                        <button onClick={() => handleDeleteBank(b.id)} className="text-xs text-red-500 hover:text-red-700 px-2 py-1">删除</button>
+                        <div>
+                          <div className="text-xs text-slate-400">分行代码</div>
+                          <input value={editBank.branchCode} onChange={e => setEditBank({...editBank, branchCode: e.target.value.replace(/[^0-9]/g,'').slice(0,3)})} className="w-full px-2 py-1 border border-slate-300 rounded text-xs mt-0.5 font-mono" maxLength={3} />
+                        </div>
+                        <div>
+                          <div className="text-xs text-slate-400">账号</div>
+                          <input value={editBank.bankAccount} onChange={e => setEditBank({...editBank, bankAccount: e.target.value})} className="w-full px-2 py-1 border border-slate-300 rounded text-xs mt-0.5 font-mono" />
+                        </div>
+                        <div>
+                          <div className="text-xs text-slate-400">币种</div>
+                          <select value={editBank.bankCurrency} onChange={e => setEditBank({...editBank, bankCurrency: e.target.value})} className="w-full px-2 py-1 border border-slate-300 rounded text-xs mt-0.5">
+                            {['HKD','USD','CNY','EUR','GBP'].map(c => <option key={c}>{c}</option>)}
+                          </select>
+                        </div>
+                        <div className="flex items-end gap-1">
+                          <button onClick={async () => {
+                            try {
+                              await fetch(`${API_BASE}/api/client-banks?id=${b.id}`, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(editBank) })
+                              setEditingBankId(null)
+                              if (id) loadBankAccounts(id)
+                            } catch { alert('保存失败') }
+                          }} className="text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700">保存</button>
+                          <button onClick={() => setEditingBankId(null)} className="text-xs text-slate-500 px-2 py-1">取消</button>
+                        </div>
                       </div>
-                    </div>
+                    ) : (
+                      <div className="grid grid-cols-2 md:grid-cols-5 gap-3 text-sm">
+                        <div>
+                          <div className="text-xs text-slate-400">银行名称</div>
+                          <div className="text-slate-800 font-medium mt-0.5">{b.bank_name || '—'}</div>
+                        </div>
+                        <div>
+                          <div className="text-xs text-slate-400">分行代码</div>
+                          <div className="text-slate-800 font-mono mt-0.5">{(b as any).branch_code || '—'}</div>
+                        </div>
+                        <div>
+                          <div className="text-xs text-slate-400">账号</div>
+                          <div className="text-slate-800 font-mono mt-0.5">{b.bank_account || '—'}</div>
+                        </div>
+                        <div>
+                          <div className="text-xs text-slate-400">币种</div>
+                          <div className="text-slate-800 mt-0.5">{b.bank_currency || '—'}</div>
+                        </div>
+                        <div className="flex items-end justify-between">
+                          <div>
+                            <div className="text-xs text-slate-400">账户类型</div>
+                            <div className="text-slate-800 mt-0.5">{b.bank_account_type || '—'}{b.is_primary ? <span className="ml-2 text-xs bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded">主账户</span> : null}</div>
+                          </div>
+                          <div className="flex gap-1">
+                            <button onClick={() => { setEditingBankId(b.id); setEditBank({ bankName: b.bank_name, bankAccount: b.bank_account, branchCode: (b as any).branch_code || '', bankCurrency: b.bank_currency, bankAccountType: b.bank_account_type }) }} className="text-xs text-blue-500 hover:text-blue-700 px-2 py-1">编辑</button>
+                            <button onClick={() => handleDeleteBank(b.id)} className="text-xs text-red-500 hover:text-red-700 px-2 py-1">删除</button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

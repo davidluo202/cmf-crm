@@ -66,6 +66,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.json({ success: true, id: (result as any).insertId });
     }
 
+    // PUT ?id=X — update a bank account
+    if (req.method === 'PUT') {
+      const bankId = req.query.id as string;
+      if (!bankId) return res.status(400).json({ success: false, error: 'Missing id' });
+      const b = req.body || {};
+      const fields: string[] = [];
+      const vals: any[] = [];
+      const map: Record<string, string> = { bankName: 'bank_name', bankAccount: 'bank_account', bankCurrency: 'bank_currency', bankAccountType: 'bank_account_type', branchCode: 'branch_code' };
+      for (const [k, col] of Object.entries(map)) {
+        if (b[k] !== undefined) { fields.push(`${col} = ?`); vals.push(b[k]); }
+      }
+      if (fields.length > 0) {
+        vals.push(parseInt(bankId));
+        await pool.query(`UPDATE client_bank_accounts SET ${fields.join(', ')} WHERE id = ?`, vals);
+      }
+      return res.json({ success: true });
+    }
+
     // DELETE ?id=X — delete a bank account
     if (req.method === 'DELETE') {
       const id = req.query.id as string;
