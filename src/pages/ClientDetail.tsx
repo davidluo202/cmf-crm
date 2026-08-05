@@ -38,37 +38,34 @@ interface FundTransaction {
 
 const EMPTY_BANK = { bankName: '', bankAccount: '', branchCode: '', bankCurrency: 'HKD', bankAccountType: 'saving' }
 
-// Hong Kong bank codes (3-digit)
-const HK_BANK_CODES: Record<string, string> = {
-  '汇丰': '004', 'HSBC': '004', '匯豐': '004',
-  '恒生': '024', '恆生': '024', 'Hang Seng': '024',
-  '渣打': '003', 'Standard Chartered': '003',
-  '中银': '012', '中銀': '012', 'BOC': '012', 'Bank of China': '012',
-  '东亚': '015', '東亞': '015', 'BEA': '015', 'Bank of East Asia': '015',
-  '星展': '016', 'DBS': '016',
-  '花旗': '006', 'Citibank': '006', 'Citi': '006',
-  '大新': '040', 'Dah Sing': '040',
-  '招商永隆': '041', '永隆': '041', 'CMB Wing Lung': '041', 'Wing Lung': '041',
-  '工银亚洲': '072', 'ICBC Asia': '072', '工銀亞洲': '072',
-  '建银亚洲': '009', 'CCB Asia': '009', '建銀亞洲': '009',
-  '交银': '027', '交銀': '027', 'BOCOM': '027', 'Bank of Communications': '027',
-  '南洋商业': '025', '南洋商業': '025', 'Nanyang Commercial': '025', 'NCB': '025',
-  '中信银行': '018', '中信銀行': '018', 'CITIC': '018',
-  '招商银行': '238', '招商銀行': '238', 'CMB': '238', 'China Merchants': '238',
-  '民生银行': '353', '民生銀行': '353', 'CMBC': '353',
-  '信银国际': '039', '信銀國際': '039', 'CNCBI': '039',
-  '富邦银行': '128', '富邦銀行': '128', 'Fubon': '128',
-  '集友': '039', 'Chiyu': '039',
-  '上海商业': '025', '上海商業': '025',
-  '华侨永亨': '035', '華僑永亨': '035', 'OCBC Wing Hang': '035',
-}
-
-function autoDetectBankCode(name: string): string {
-  for (const [key, code] of Object.entries(HK_BANK_CODES)) {
-    if (name.includes(key)) return code
-  }
-  return ''
-}
+// Hong Kong banks list (from account opening system)
+const HK_BANKS = [
+  { code: "003", name: "渣打銀行（香港）有限公司" },
+  { code: "004", name: "香港上海滙豐銀行有限公司" },
+  { code: "006", name: "花旗銀行" },
+  { code: "009", name: "中國建設銀行（亞洲）股份有限公司" },
+  { code: "012", name: "中國銀行（香港）有限公司" },
+  { code: "015", name: "東亞銀行有限公司" },
+  { code: "016", name: "星展銀行（香港）有限公司" },
+  { code: "018", name: "中信銀行國際有限公司" },
+  { code: "020", name: "招商永隆銀行有限公司" },
+  { code: "024", name: "恒生銀行有限公司" },
+  { code: "025", name: "上海商業銀行有限公司" },
+  { code: "027", name: "交通銀行股份有限公司" },
+  { code: "035", name: "華僑銀行（香港）有限公司" },
+  { code: "039", name: "集友銀行有限公司" },
+  { code: "040", name: "大新銀行有限公司" },
+  { code: "041", name: "創興銀行有限公司" },
+  { code: "043", name: "南洋商業銀行有限公司" },
+  { code: "072", name: "中國工商銀行（亞洲）有限公司" },
+  { code: "128", name: "富邦銀行(香港)有限公司" },
+  { code: "185", name: "星展銀行香港分行" },
+  { code: "214", name: "中國工商銀行股份有限公司" },
+  { code: "221", name: "中國建設銀行股份有限公司" },
+  { code: "222", name: "中國農業銀行股份有限公司" },
+  { code: "238", name: "招商銀行股份有限公司" },
+  { code: "353", name: "中國民生銀行股份有限公司" },
+]
 const EMPTY_TX = { type: 'deposit', amount: '', currency: 'HKD', bankName: '', bankAccount: '', remarks: '', tradeDate: new Date().toISOString().slice(0, 10), authType: 'written_direction', authRef: '' }
 
 const tabList = ['Profile', 'Accounts', 'Revenue', 'Credit', 'Interactions'] as const
@@ -627,18 +624,28 @@ export default function ClientDetail() {
               <div className="mt-3 pt-3 border-t border-slate-100 grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs text-slate-500 block mb-1">银行名称</label>
-                  <input
-                    type="text"
-                    value={newBank.bankName}
+                  <select
+                    value={newBank.branchCode ? `${newBank.branchCode}|${newBank.bankName}` : ''}
                     onChange={e => {
-                      const name = e.target.value
-                      const code = autoDetectBankCode(name)
-                      setNewBank({ ...newBank, bankName: name, ...(code ? { branchCode: code } : {}) })
+                      if (e.target.value === '_custom') {
+                        const name = prompt('请输入银行名称：') || ''
+                        setNewBank({ ...newBank, bankName: name, branchCode: '' })
+                      } else if (e.target.value) {
+                        const [code, ...nameParts] = e.target.value.split('|')
+                        setNewBank({ ...newBank, bankName: nameParts.join('|'), branchCode: code })
+                      } else {
+                        setNewBank({ ...newBank, bankName: '', branchCode: '' })
+                      }
                     }}
-                    placeholder="如：汇丰银行"
                     className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
                     style={{ maxWidth: 320 }}
-                  />
+                  >
+                    <option value="">请选择银行</option>
+                    {HK_BANKS.map(b => (
+                      <option key={b.code} value={`${b.code}|${b.name}`}>{b.code} - {b.name}</option>
+                    ))}
+                    <option value="_custom">其他（手动输入）</option>
+                  </select>
                 </div>
                 <div>
                   <label className="text-xs text-slate-500 block mb-1">分行代码（3位）</label>
