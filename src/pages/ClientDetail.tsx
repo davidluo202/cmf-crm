@@ -37,6 +37,38 @@ interface FundTransaction {
 }
 
 const EMPTY_BANK = { bankName: '', bankAccount: '', branchCode: '', bankCurrency: 'HKD', bankAccountType: 'saving' }
+
+// Hong Kong bank codes (3-digit)
+const HK_BANK_CODES: Record<string, string> = {
+  '汇丰': '004', 'HSBC': '004', '匯豐': '004',
+  '恒生': '024', '恆生': '024', 'Hang Seng': '024',
+  '渣打': '003', 'Standard Chartered': '003',
+  '中银': '012', '中銀': '012', 'BOC': '012', 'Bank of China': '012',
+  '东亚': '015', '東亞': '015', 'BEA': '015', 'Bank of East Asia': '015',
+  '星展': '016', 'DBS': '016',
+  '花旗': '006', 'Citibank': '006', 'Citi': '006',
+  '大新': '040', 'Dah Sing': '040',
+  '招商永隆': '041', '永隆': '041', 'CMB Wing Lung': '041', 'Wing Lung': '041',
+  '工银亚洲': '072', 'ICBC Asia': '072', '工銀亞洲': '072',
+  '建银亚洲': '009', 'CCB Asia': '009', '建銀亞洲': '009',
+  '交银': '027', '交銀': '027', 'BOCOM': '027', 'Bank of Communications': '027',
+  '南洋商业': '025', '南洋商業': '025', 'Nanyang Commercial': '025', 'NCB': '025',
+  '中信银行': '018', '中信銀行': '018', 'CITIC': '018',
+  '招商银行': '238', '招商銀行': '238', 'CMB': '238', 'China Merchants': '238',
+  '民生银行': '353', '民生銀行': '353', 'CMBC': '353',
+  '信银国际': '039', '信銀國際': '039', 'CNCBI': '039',
+  '富邦银行': '128', '富邦銀行': '128', 'Fubon': '128',
+  '集友': '039', 'Chiyu': '039',
+  '上海商业': '025', '上海商業': '025',
+  '华侨永亨': '035', '華僑永亨': '035', 'OCBC Wing Hang': '035',
+}
+
+function autoDetectBankCode(name: string): string {
+  for (const [key, code] of Object.entries(HK_BANK_CODES)) {
+    if (name.includes(key)) return code
+  }
+  return ''
+}
 const EMPTY_TX = { type: 'deposit', amount: '', currency: 'HKD', bankName: '', bankAccount: '', remarks: '', tradeDate: new Date().toISOString().slice(0, 10), authType: 'written_direction', authRef: '' }
 
 const tabList = ['Profile', 'Accounts', 'Revenue', 'Credit', 'Interactions'] as const
@@ -598,7 +630,11 @@ export default function ClientDetail() {
                   <input
                     type="text"
                     value={newBank.bankName}
-                    onChange={e => setNewBank({ ...newBank, bankName: e.target.value })}
+                    onChange={e => {
+                      const name = e.target.value
+                      const code = autoDetectBankCode(name)
+                      setNewBank({ ...newBank, bankName: name, ...(code ? { branchCode: code } : {}) })
+                    }}
                     placeholder="如：汇丰银行"
                     className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
                     style={{ maxWidth: 320 }}
