@@ -53,6 +53,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           status: 'status', idType: 'id_type', idNumber: 'id_number', gender: 'gender',
           dateOfBirth: 'date_of_birth', idExpiry: 'id_expiry', idIssuingCountry: 'id_issuing_country',
           isProfessionalInvestor: 'is_professional_investor',
+          onboardedDate: 'onboarded_date',
           entityType: 'entity_type', businessNature: 'business_nature',
           countryOfIncorporation: 'country_of_incorporation', dateOfIncorporation: 'date_of_incorporation',
           certOfIncorporationNo: 'cert_of_incorporation_no', businessRegistrationNo: 'business_registration_no',
@@ -61,7 +62,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           contactName: 'contact_name', contactTitle: 'contact_title',
           contactPhone: 'contact_phone', contactEmail: 'contact_email',
         };
-        const dateCols = new Set(['date_of_birth', 'id_expiry', 'date_of_incorporation']);
+        const dateCols = new Set(['date_of_birth', 'id_expiry', 'date_of_incorporation', 'onboarded_date']);
         for (const [k, col] of Object.entries(map)) {
           if (b[k] !== undefined) {
             fields.push(`${col} = ?`);

@@ -712,6 +712,7 @@ export default function ClientDetail() {
               { key: 'isProfessionalInvestor', label: '专业投资者', type: 'select', options: ['true', 'false'] },
               { key: 'markupPercent', label: '加点(%)', type: 'number' },
               { key: 'status', label: '状态', type: 'select', options: ['活跃', '活躍', '冻结', '注销'] },
+              { key: 'onboardedDate', label: '开户日期', type: 'date' },
             ] as { key: string; label: string; type: string; options?: string[] }[]).map((field) => (
               <div key={field.key}>
                 <label className="text-xs text-slate-500 block mb-1">{field.label}</label>
