@@ -527,7 +527,7 @@ export default function ClientDetail() {
               ['等级', client.tier],
               ['专业投资者', (client as any).isProfessionalInvestor === false ? '否' : '是'],
               ['加点(%)', client.markupPercent != null ? `${client.markupPercent}%` : '—'],
-              ['开户日期', client.onboardedDate || client.createdAt?.slice(0, 10) || '—'],
+              ['开户日期', client.onboardedDate?.slice(0, 10) || client.createdAt?.slice(0, 10) || '—'],
             ] as [string, string][]).map(([label, value]) => (
               <div key={label} className="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm">
                 <div className="text-xs text-slate-500">{label}</div>
