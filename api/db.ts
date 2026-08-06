@@ -71,6 +71,7 @@ export async function ensureCrmTables(p: any) {
     ['contact_title', "VARCHAR(100)"],
     ['contact_phone', "VARCHAR(50)"],
     ['contact_email', "VARCHAR(200)"],
+    ['risk_level', "VARCHAR(20) DEFAULT 'medium'"],
   ] as const;
   for (const [col, def] of idCols) {
     try { await p.query(`ALTER TABLE crm_clients ADD COLUMN ${col} ${def}`); } catch { /* already exists */ }
@@ -245,6 +246,7 @@ export async function getAllClients(p: any) {
       contactTitle: r.contact_title || '',
       contactPhone: r.contact_phone || '',
       contactEmail: r.contact_email || '',
+      riskLevel: r.risk_level || 'medium',
       segment: r.segment || 'Individual',
       tier: r.tier || 'Bronze',
       rm: r.rm || '',

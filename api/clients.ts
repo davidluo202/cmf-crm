@@ -61,6 +61,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           officePhone: 'office_phone', fax: 'fax', website: 'website',
           contactName: 'contact_name', contactTitle: 'contact_title',
           contactPhone: 'contact_phone', contactEmail: 'contact_email',
+          riskLevel: 'risk_level',
         };
         const dateCols = new Set(['date_of_birth', 'id_expiry', 'date_of_incorporation', 'onboarded_date']);
         for (const [k, col] of Object.entries(map)) {
@@ -116,6 +117,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           contactTitle: r.contact_title || '',
           contactPhone: r.contact_phone || '',
           contactEmail: r.contact_email || '',
+          riskLevel: r.risk_level || 'medium',
           segment: r.segment || 'Individual',
           tier: r.tier || 'Bronze',
           rm: r.rm || '',
