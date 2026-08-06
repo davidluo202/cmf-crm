@@ -796,7 +796,7 @@ export default function ClientDetail() {
                 { key: 'businessRegistrationNo', label: '商业登记号', type: 'text' },
                 { key: 'registeredAddress', label: '注册地址', type: 'text' },
                 { key: 'businessAddress', label: '营业地址', type: 'text' },
-                { key: 'officePhone', label: '办公电话', type: 'text' },
+                { key: 'officePhone', label: '办公电话', type: 'phone' },
                 { key: 'fax', label: '传真', type: 'text' },
                 { key: 'website', label: '网站', type: 'text' },
                 { key: 'contactName', label: '联系人', type: 'text' },
@@ -812,7 +812,7 @@ export default function ClientDetail() {
                 { key: 'gender', label: '性别', type: 'select', options: ['', 'male', 'female'] },
               ]),
               { key: 'email', label: '邮箱', type: 'text' },
-              { key: 'phone', label: '电话', type: 'text' },
+              { key: 'phone', label: '电话', type: 'phone' },
               { key: 'address', label: '地址', type: 'text' },
               { key: 'tier', label: '等级', type: 'select', options: ['Platinum', 'Gold', 'Silver', 'Bronze'] },
               { key: 'rm', label: '客户经理(RM)', type: 'text' },
@@ -828,6 +828,38 @@ export default function ClientDetail() {
                   <select value={(form as any)[field.key] || ''} onChange={e => setForm({ ...form, [field.key]: e.target.value })} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm">
                     {field.options!.map(o => <option key={o} value={o}>{o}</option>)}
                   </select>
+                ) : field.type === 'phone' ? (
+                  <div className="flex gap-1">
+                    <select
+                      value={((form as any)[field.key] || '').match(/^\+\d+/)?.[0] || '+852'}
+                      onChange={e => {
+                        const cur = (form as any)[field.key] || ''
+                        const num = cur.replace(/^\+\d+\s*/, '')
+                        setForm({ ...form, [field.key]: e.target.value + ' ' + num })
+                      }}
+                      className="px-2 py-2 border border-slate-300 rounded-lg text-sm"
+                      style={{ width: 110 }}
+                    >
+                      <option value="+852">+852 (香港)</option>
+                      <option value="+86">+86 (中国)</option>
+                      <option value="+853">+853 (澳门)</option>
+                      <option value="+886">+886 (台湾)</option>
+                      <option value="+65">+65 (新加坡)</option>
+                      <option value="+1">+1 (美国)</option>
+                      <option value="+44">+44 (英国)</option>
+                      <option value="+81">+81 (日本)</option>
+                    </select>
+                    <input
+                      type="text"
+                      value={((form as any)[field.key] || '').replace(/^\+\d+\s*/, '')}
+                      onChange={e => {
+                        const code = ((form as any)[field.key] || '').match(/^\+\d+/)?.[0] || '+852'
+                        setForm({ ...form, [field.key]: code + ' ' + e.target.value })
+                      }}
+                      placeholder="电话号码"
+                      className="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm"
+                    />
+                  </div>
                 ) : field.type === 'date_or_permanent' ? (
                   <div>
                     <div className="flex items-center gap-2 mb-1">
