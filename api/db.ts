@@ -176,10 +176,12 @@ export async function getAllClients(p: any) {
              b.idIssuingCountry as id_issuing_country, b.dateOfBirth as date_of_birth,
              b.gender,
              d.email, d.mobileNumber as phone, d.mobileCountryCode as phone_code,
-             d.residentialAddress as address
+             d.residentialAddress as address,
+             rq.riskLevel as risk_level, rq.totalScore as risk_score
       FROM applications a
       LEFT JOIN personal_basic_info b ON a.id = b.applicationId
       LEFT JOIN personal_detailed_info d ON a.id = d.applicationId
+      LEFT JOIN risk_questionnaires rq ON a.id = rq.applicationId
       WHERE a.status IN ('approved', 'submitted', 'under_review')
       ORDER BY a.id DESC
     `);
@@ -196,6 +198,8 @@ export async function getAllClients(p: any) {
       idIssuingCountry: r.id_issuing_country || '',
       dateOfBirth: r.date_of_birth || '',
       gender: r.gender || '',
+      riskLevel: r.risk_level || '',
+      riskScore: r.risk_score || null,
       segment: 'Individual',
       tier: 'Bronze',
       rm: '',

@@ -413,9 +413,11 @@ export default function ClientDetail() {
           <span className={`text-xs px-2 py-1 rounded-full ${segmentColor[client.segment] || 'bg-slate-200 text-slate-600'}`}>{client.segment}</span>
           <span className={`text-xs px-2 py-1 rounded-full ${tierColor[client.tier] || ''}`}>{client.tier}</span>
           <span className={`text-xs px-2 py-1 rounded-full ${client.status === '活跃' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'}`}>{client.status}</span>
-          <span className={`text-xs px-2 py-1 rounded-full ${(client as any).riskLevel === 'high' ? 'bg-red-100 text-red-700' : (client as any).riskLevel === 'low' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
-            {(client as any).riskLevel === 'low' ? '低风险' : (client as any).riskLevel === 'high' ? '高风险' : '中风险'}
-          </span>
+          {(client as any).riskLevel && (
+            <span className={`text-xs px-2 py-1 rounded-full ${/高风险/.test((client as any).riskLevel) || (client as any).riskLevel === 'high' ? 'bg-red-100 text-red-700' : /低风险|最低/.test((client as any).riskLevel) || (client as any).riskLevel === 'low' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
+              {(client as any).riskLevel}
+            </span>
+          )}
           {amlStatus === null ? null : amlStatus.checked === false ? (
             <span className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-500">未筛查</span>
           ) : amlStatus.hitCount === 0 ? (
@@ -562,7 +564,7 @@ export default function ClientDetail() {
               ['分类', client.segment],
               ['等级', client.tier],
               ['专业投资者', (client as any).isProfessionalInvestor === false ? '否' : '是'],
-              ['风险评估等级', (client as any).riskLevel === 'low' ? '低风险' : (client as any).riskLevel === 'high' ? '高风险' : '中风险'],
+              ['风险评估等级', (client as any).riskLevel || '—'],
               ['加点(%)', client.markupPercent != null ? `${client.markupPercent}%` : '—'],
               ['开户日期', client.onboardedDate?.slice(0, 10) || client.createdAt?.slice(0, 10) || '—'],
             ] as [string, string][]).map(([label, value]) => (
@@ -826,14 +828,16 @@ export default function ClientDetail() {
               { key: 'rm', label: '客户经理(RM)', type: 'text' },
               { key: 'aum', label: 'AUM (HKD)', type: 'number' },
               { key: 'isProfessionalInvestor', label: '专业投资者', type: 'select', options: ['true', 'false'] },
-              { key: 'riskLevel', label: '风险评估等级', type: 'select', options: ['low', 'medium', 'high'] },
+              { key: 'riskLevel', label: '风险评估等级', type: (client as any).source === 'account_opening' ? 'readonly' : 'select', options: ['', '最低风险', '低风险', '低至中等风险', '中等风险', '中等至高风险', '高风险'] },
               { key: 'markupPercent', label: '加点(%)', type: 'number' },
               { key: 'status', label: '状态', type: 'select', options: ['活跃', '活躍', '冻结', '注销'] },
               { key: 'onboardedDate', label: '开户日期', type: 'date' },
             ] as { key: string; label: string; type: string; options?: string[] }[]).map((field) => (
               <div key={field.key}>
                 <label className="text-xs text-slate-500 block mb-1">{field.label}</label>
-                {field.type === 'select' ? (
+                {field.type === 'readonly' ? (
+                  <div className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-600">{(form as any)[field.key] || '—'}</div>
+                ) : field.type === 'select' ? (
                   <select value={(form as any)[field.key] || ''} onChange={e => setForm({ ...form, [field.key]: e.target.value })} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm">
                     {field.options!.map(o => <option key={o} value={o}>{o}</option>)}
                   </select>

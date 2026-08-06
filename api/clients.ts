@@ -126,6 +126,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           status: r.status || '活跃',
           onboardedDate: r.onboarded_date || null,
           createdAt: r.created_at,
+          source: 'manual',
         } : null;
         return res.json({ success: true, data: updated });
       }
