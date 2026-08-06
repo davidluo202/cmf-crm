@@ -412,11 +412,11 @@ export default function ClientStatement() {
         }
       `}</style>
 
-      {/* Print toolbar */}
-      <div className="no-print" style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, background: '#1a3a5c', padding: '10px 20px', display: 'flex', gap: 12, alignItems: 'center' }}>
+      {/* Floating action buttons */}
+      <div className="no-print" style={{ position: 'fixed', bottom: 24, right: 24, zIndex: 100, display: 'flex', gap: 10, alignItems: 'center' }}>
         <button
           onClick={() => window.print()}
-          style={{ background: '#fff', color: '#1a3a5c', border: 'none', padding: '8px 24px', borderRadius: 6, fontWeight: 'bold', cursor: 'pointer', fontSize: 14 }}
+          style={{ background: '#1a3a5c', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: 8, fontWeight: 'bold', cursor: 'pointer', fontSize: 14, boxShadow: '0 2px 8px rgba(0,0,0,0.3)' }}
         >
           列印
         </button>
@@ -433,22 +433,13 @@ export default function ClientStatement() {
               jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
             }).from(el).save()
           }}
-          style={{ background: '#4caf50', color: '#fff', border: 'none', padding: '8px 24px', borderRadius: 6, fontWeight: 'bold', cursor: 'pointer', fontSize: 14 }}
+          style={{ background: '#4caf50', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: 8, fontWeight: 'bold', cursor: 'pointer', fontSize: 14, boxShadow: '0 2px 8px rgba(0,0,0,0.3)' }}
         >
           下載PDF
         </button>
-        <button
-          onClick={() => window.close()}
-          style={{ background: 'transparent', color: '#fff', border: '1px solid rgba(255,255,255,0.3)', padding: '8px 16px', borderRadius: 6, cursor: 'pointer', fontSize: 13 }}
-        >
-          關閉
-        </button>
-        <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: 12, marginLeft: 12 }}>
-          {clientName} ({data.client.code}) — {stmtRef}
-        </span>
       </div>
 
-      <div className="stmt-page" style={{ marginTop: 56 }}>
+      <div className="stmt-page">
 
         {/* ── HEADER ── */}
         <div className="stmt-header">
