@@ -811,8 +811,8 @@ export default function ClientDetail() {
                 { key: 'dateOfBirth', label: '出生日期', type: 'date' },
                 { key: 'gender', label: '性别', type: 'select', options: ['', 'male', 'female'] },
               ]),
-              { key: 'email', label: '邮箱', type: 'text' },
               ...((form.segment === 'Corporate' || form.segment === 'Institutional') ? [] : [
+                { key: 'email', label: '邮箱', type: 'text' },
                 { key: 'phone', label: '电话', type: 'phone' },
                 { key: 'address', label: '地址', type: 'text' },
               ]),
