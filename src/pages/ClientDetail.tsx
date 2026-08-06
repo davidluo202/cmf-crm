@@ -812,8 +812,10 @@ export default function ClientDetail() {
                 { key: 'gender', label: '性别', type: 'select', options: ['', 'male', 'female'] },
               ]),
               { key: 'email', label: '邮箱', type: 'text' },
-              { key: 'phone', label: '电话', type: 'phone' },
-              { key: 'address', label: '地址', type: 'text' },
+              ...((form.segment === 'Corporate' || form.segment === 'Institutional') ? [] : [
+                { key: 'phone', label: '电话', type: 'phone' },
+                { key: 'address', label: '地址', type: 'text' },
+              ]),
               { key: 'tier', label: '等级', type: 'select', options: ['Platinum', 'Gold', 'Silver', 'Bronze'] },
               { key: 'rm', label: '客户经理(RM)', type: 'text' },
               { key: 'aum', label: 'AUM (HKD)', type: 'number' },
