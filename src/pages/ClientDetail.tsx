@@ -801,7 +801,7 @@ export default function ClientDetail() {
                 { key: 'website', label: '网站', type: 'text' },
                 { key: 'contactName', label: '联系人', type: 'text' },
                 { key: 'contactTitle', label: '联系人职位', type: 'text' },
-                { key: 'contactPhone', label: '联系人电话', type: 'text' },
+                { key: 'contactPhone', label: '联系人电话', type: 'phone' },
                 { key: 'contactEmail', label: '联系人邮箱', type: 'text' },
               ] : [
                 { key: 'idType', label: '证件类型', type: 'select', options: ['', 'HKID', 'Mainland ID', 'Passport', 'Home Return Permit'] },
