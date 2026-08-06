@@ -418,7 +418,24 @@ export default function ClientStatement() {
           onClick={() => window.print()}
           style={{ background: '#fff', color: '#1a3a5c', border: 'none', padding: '8px 24px', borderRadius: 6, fontWeight: 'bold', cursor: 'pointer', fontSize: 14 }}
         >
-          列印 / Save PDF
+          列印
+        </button>
+        <button
+          onClick={async () => {
+            const html2pdf = (await import('html2pdf.js')).default
+            const el = document.querySelector('.stmt-page')
+            if (!el) return
+            html2pdf().set({
+              margin: [10, 10, 10, 10],
+              filename: `${stmtRef}.pdf`,
+              image: { type: 'jpeg', quality: 0.98 },
+              html2canvas: { scale: 2, useCORS: true },
+              jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+            }).from(el).save()
+          }}
+          style={{ background: '#4caf50', color: '#fff', border: 'none', padding: '8px 24px', borderRadius: 6, fontWeight: 'bold', cursor: 'pointer', fontSize: 14 }}
+        >
+          下載PDF
         </button>
         <button
           onClick={() => window.close()}
