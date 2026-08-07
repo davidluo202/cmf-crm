@@ -423,7 +423,7 @@ export default function ClientStatement() {
         <button
           onClick={async () => {
             const html2pdf = (await import('html2pdf.js')).default
-            const el = document.querySelector('.stmt-page')
+            const el = document.querySelector('.stmt-page') as HTMLElement | null
             if (!el) return
             html2pdf().set({
               margin: [10, 10, 10, 10],
