@@ -415,6 +415,12 @@ export default function ClientStatement() {
       {/* Floating action buttons */}
       <div className="no-print" style={{ position: 'fixed', bottom: 24, right: 24, zIndex: 100, display: 'flex', gap: 10, alignItems: 'center' }}>
         <button
+          onClick={() => window.history.back()}
+          style={{ background: '#6b7280', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: 8, fontWeight: 'bold', cursor: 'pointer', fontSize: 14, boxShadow: '0 2px 8px rgba(0,0,0,0.3)' }}
+        >
+          返回
+        </button>
+        <button
           onClick={() => window.print()}
           style={{ background: '#1a3a5c', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: 8, fontWeight: 'bold', cursor: 'pointer', fontSize: 14, boxShadow: '0 2px 8px rgba(0,0,0,0.3)' }}
         >
