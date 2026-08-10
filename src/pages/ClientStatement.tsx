@@ -437,8 +437,7 @@ export default function ClientStatement() {
               image: { type: 'jpeg', quality: 0.95 },
               html2canvas: { scale: 1.5, useCORS: true },
               jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-              pagebreak: { mode: 'avoid-all' },
-            }).from(el).save()
+            } as any).from(el).save()
           }}
           style={{ background: '#4caf50', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: 8, fontWeight: 'bold', cursor: 'pointer', fontSize: 14, boxShadow: '0 2px 8px rgba(0,0,0,0.3)' }}
         >
