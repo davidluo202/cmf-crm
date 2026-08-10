@@ -360,6 +360,40 @@ export default function ClientDetail() {
   }
 
   const [saving, setSaving] = useState(false)
+  const [welcomeLetterSending, setWelcomeLetterSending] = useState(false)
+
+  const handleSendWelcomeLetter = async () => {
+    if (!client || welcomeLetterSending) return
+    const displayName = [client.nameCn, client.nameEn].filter(Boolean).join(' / ')
+    const confirmMsg = `確認發送歡迎信？\n\n客戶：${displayName}\n郵箱：${client.email || '未填寫'}\n賬戶號：${client.code}`
+    if (!client.email) { alert('此客户没有邮箱地址，无法发送欢迎信。'); return }
+    if (!confirm(confirmMsg)) return
+    setWelcomeLetterSending(true)
+    try {
+      const res = await fetch(`${API_BASE}/api/welcome-letter`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          clientId: String(client.id),
+          clientName: client.nameCn || '',
+          clientNameEn: client.nameEn || '',
+          accountNumber: client.code,
+          email: client.email,
+          onboardedDate: client.onboardedDate?.slice(0, 10) || client.createdAt?.slice(0, 10) || '',
+        }),
+      })
+      const data = await res.json()
+      if (data.success) {
+        alert('歡迎信已成功發送至 ' + client.email)
+      } else {
+        alert('發送失敗: ' + (data.error || '未知錯誤'))
+      }
+    } catch (err: any) {
+      alert('發送失敗: ' + err.message)
+    } finally {
+      setWelcomeLetterSending(false)
+    }
+  }
 
   const handleSave = async () => {
     if (!id || saving) return
@@ -524,6 +558,13 @@ export default function ClientDetail() {
               className="px-4 py-2 bg-emerald-600 text-white text-sm rounded-lg hover:bg-emerald-700"
             >
               BCAN同意书
+            </button>
+            <button
+              onClick={handleSendWelcomeLetter}
+              disabled={welcomeLetterSending}
+              className="px-4 py-2 bg-purple-600 text-white text-sm rounded-lg hover:bg-purple-700 disabled:opacity-50"
+            >
+              {welcomeLetterSending ? '發送中...' : '發送歡迎信'}
             </button>
             <button onClick={() => setEditing(true)} className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700">编辑</button>
           </div>
