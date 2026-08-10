@@ -162,10 +162,10 @@ export default function ClientStatement() {
         .stmt-page {
           max-width: 210mm;
           margin: 0 auto;
-          padding: 24px 28px;
+          padding: 16px 20px;
           font-family: "Arial", "PingFang TC", "Microsoft JhengHei", sans-serif;
           color: #1a1a1a;
-          font-size: 9pt;
+          font-size: 8pt;
           background: #fff;
           line-height: 1.4;
         }
@@ -360,8 +360,8 @@ export default function ClientStatement() {
 
         /* Footer */
         .stmt-footer {
-          margin-top: 14px;
-          padding-top: 8px;
+          margin-top: 8px;
+          padding-top: 4px;
           border-top: 2px solid #1a3a5c;
         }
         .stmt-footer-addr {
@@ -380,16 +380,16 @@ export default function ClientStatement() {
           border: 1px solid #e0c000;
           background: #fffdf0;
           border-radius: 3px;
-          padding: 5px 7px;
-          font-size: 6.5pt;
+          padding: 3px 5px;
+          font-size: 5.5pt;
           color: #555;
-          line-height: 1.4;
+          line-height: 1.3;
         }
         .stmt-warning-title {
           font-weight: bold;
           color: #8a6f00;
-          font-size: 7pt;
-          margin-bottom: 2px;
+          font-size: 6pt;
+          margin-bottom: 1px;
         }
         .stmt-page-num {
           text-align: center;
