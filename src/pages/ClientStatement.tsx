@@ -176,9 +176,9 @@ export default function ClientStatement() {
           display: flex;
           justify-content: space-between;
           align-items: flex-start;
-          border-bottom: 3px solid #1a3a5c;
-          padding-bottom: 10px;
-          margin-bottom: 10px;
+          border-bottom: 2px solid #1a3a5c;
+          padding-bottom: 6px;
+          margin-bottom: 6px;
         }
         .stmt-logo-cn {
           font-size: 15pt;
@@ -206,12 +206,12 @@ export default function ClientStatement() {
         /* Title block */
         .stmt-title-block {
           text-align: center;
-          margin: 6px 0 10px;
+          margin: 4px 0 6px;
           border-bottom: 1px solid #ccc;
-          padding-bottom: 6px;
+          padding-bottom: 4px;
         }
         .stmt-title-main {
-          font-size: 13pt;
+          font-size: 11pt;
           font-weight: bold;
           color: #1a3a5c;
           letter-spacing: 1px;
@@ -253,10 +253,10 @@ export default function ClientStatement() {
         .stmt-section-hdr {
           background: #1a3a5c;
           color: #fff;
-          font-size: 9pt;
+          font-size: 8pt;
           font-weight: bold;
-          padding: 5px 10px;
-          margin: 10px 0 0;
+          padding: 3px 8px;
+          margin: 6px 0 0;
           border-radius: 2px 2px 0 0;
         }
         .stmt-section {
@@ -389,8 +389,6 @@ export default function ClientStatement() {
           font-size: 4.5pt;
           color: #777;
           line-height: 1.15;
-          overflow: hidden;
-          max-height: 50px;
         }
         .stmt-warning-title {
           font-weight: bold;
