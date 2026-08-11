@@ -365,38 +365,36 @@ export default function ClientStatement() {
 
         /* Footer */
         .stmt-footer {
-          margin-top: 12px;
-          padding-top: 6px;
+          margin-top: 8px;
+          padding-top: 4px;
           border-top: 2px solid #1a3a5c;
-          break-inside: avoid;
-          page-break-inside: avoid;
         }
         .stmt-footer-addr {
-          font-size: 7pt;
+          font-size: 6pt;
           color: #555;
           text-align: center;
-          margin-bottom: 6px;
+          margin-bottom: 3px;
         }
         .stmt-warnings {
           display: grid;
           grid-template-columns: 1fr 1fr 1fr;
-          gap: 4px;
-          margin-bottom: 4px;
+          gap: 3px;
+          margin-bottom: 3px;
         }
         .stmt-warning-box {
-          border: 1px solid #e0c000;
-          background: #fffdf0;
+          border: 1px solid #ddd;
+          background: #fafafa;
           border-radius: 2px;
-          padding: 2px 4px;
-          font-size: 5pt;
-          color: #555;
-          line-height: 1.2;
+          padding: 2px 3px;
+          font-size: 4.5pt;
+          color: #777;
+          line-height: 1.15;
           overflow: hidden;
         }
         .stmt-warning-title {
           font-weight: bold;
-          color: #8a6f00;
-          font-size: 5pt;
+          color: #555;
+          font-size: 4.5pt;
           margin-bottom: 0;
         }
         .stmt-page-num {
@@ -457,13 +455,9 @@ export default function ClientStatement() {
 
         {/* ── HEADER ── */}
         <div className="stmt-header">
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <img src="/logo-zh-official.jpg" alt="誠港金融" style={{ height: 40 }} onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
-            <div>
-              <div className="stmt-logo-cn">誠港金融股份有限公司</div>
-              <div className="stmt-logo-en">Canton Mutual Financial Limited</div>
-              <div className="stmt-logo-tag">CE No.: BSU667 &nbsp;·&nbsp; SFC Licensed Type 1, 4 &amp; 9</div>
-            </div>
+          <div>
+            <img src="/logo-zh-official.jpg" alt="誠港金融" style={{ height: 44 }} onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+            <div className="stmt-logo-tag">CE No.: BSU667 &nbsp;·&nbsp; SFC Licensed Type 1, 4 &amp; 9</div>
           </div>
           <div className="stmt-company-addr">
             Units 2304-05, 23/F, 308 Des Voeux Road Central<br/>
