@@ -376,12 +376,12 @@ export default function ClientStatement() {
           margin-bottom: 3px;
         }
         .stmt-warnings {
-          display: grid;
-          grid-template-columns: 1fr 1fr 1fr;
+          display: flex;
           gap: 3px;
-          margin-bottom: 3px;
+          margin-bottom: 2px;
         }
         .stmt-warning-box {
+          flex: 1;
           border: 1px solid #ddd;
           background: #fafafa;
           border-radius: 2px;
@@ -390,6 +390,7 @@ export default function ClientStatement() {
           color: #777;
           line-height: 1.15;
           overflow: hidden;
+          max-height: 32px;
         }
         .stmt-warning-title {
           font-weight: bold;
@@ -399,8 +400,9 @@ export default function ClientStatement() {
         }
         .stmt-page-num {
           text-align: center;
-          font-size: 7pt;
-          color: #888;
+          font-size: 6pt;
+          color: #999;
+          margin-top: 1px;
         }
         .stmt-currency-hdr {
           background: #2d5a9e;
