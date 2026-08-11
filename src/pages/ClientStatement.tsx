@@ -459,10 +459,6 @@ export default function ClientStatement() {
             <img src="/logo-zh-official.jpg" alt="誠港金融" style={{ height: 44 }} onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
             <div className="stmt-logo-tag">CE No.: BSU667 &nbsp;·&nbsp; SFC Licensed Type 1, 4 &amp; 9</div>
           </div>
-          <div className="stmt-company-addr">
-            Units 2304-05, 23/F, 308 Des Voeux Road Central, Hong Kong<br/>
-            Tel: +852 2598 1700 &nbsp;|&nbsp; info@cmfinancial.com
-          </div>
         </div>
 
         {/* ── TITLE ── */}
