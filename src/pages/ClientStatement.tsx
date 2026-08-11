@@ -255,9 +255,12 @@ export default function ClientStatement() {
           color: #fff;
           font-size: 8pt;
           font-weight: bold;
-          padding: 3px 8px;
+          padding: 4px 8px;
           margin: 6px 0 0;
           border-radius: 2px 2px 0 0;
+          display: flex;
+          align-items: center;
+          min-height: 22px;
         }
         .stmt-section {
           break-inside: avoid;
@@ -409,6 +412,9 @@ export default function ClientStatement() {
           padding: 3px 10px;
           font-weight: bold;
           margin: 6px 0 0;
+          display: flex;
+          align-items: center;
+          min-height: 20px;
         }
         .no-data-row td {
           text-align: center;
