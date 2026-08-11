@@ -457,7 +457,6 @@ export default function ClientStatement() {
         <div className="stmt-header">
           <div>
             <img src="/logo-zh-official.jpg" alt="誠港金融" style={{ height: 44 }} onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
-            <div className="stmt-logo-tag">CE No.: BSU667 &nbsp;·&nbsp; SFC Licensed Type 1, 4 &amp; 9</div>
           </div>
         </div>
 
@@ -666,7 +665,8 @@ export default function ClientStatement() {
         {/* ── FOOTER ── */}
         <div className="stmt-footer">
           <div className="stmt-footer-addr">
-            誠港金融股份有限公司 Canton Mutual Financial Limited &nbsp;|&nbsp; Units 2304-05, 23/F, 308 Des Voeux Road Central, Hong Kong &nbsp;|&nbsp; Tel: +852 2598 1700 &nbsp;|&nbsp; info@cmfinancial.com &nbsp;|&nbsp; SFC CE No.: BSU667
+            誠港金融股份有限公司 Canton Mutual Financial Limited &nbsp;|&nbsp; CE No.: BSU667 &nbsp;|&nbsp; SFC Licensed Type 1, 4 &amp; 9<br/>
+            Units 2304-05, 23/F, 308 Des Voeux Road Central, Hong Kong &nbsp;|&nbsp; Tel: +852 2598 1700 &nbsp;|&nbsp; info@cmfinancial.com
           </div>
           <div className="stmt-warnings">
             <div className="stmt-warning-box">
