@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useParams, useSearchParams } from 'react-router-dom'
+import { useParams, useSearchParams, useNavigate } from 'react-router-dom'
 
 const API_BASE = import.meta.env.VITE_API_URL || ''
 
@@ -51,6 +51,7 @@ function fmtAmt(n: number, decimals = 2): string {
 
 export default function ClientStatement() {
   const { id } = useParams()
+  const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const type = searchParams.get('type') || 'monthly'
   const month = searchParams.get('month') || ''
@@ -415,7 +416,7 @@ export default function ClientStatement() {
       {/* Floating action buttons */}
       <div className="no-print" style={{ position: 'fixed', bottom: 24, right: 24, zIndex: 100, display: 'flex', gap: 10, alignItems: 'center' }}>
         <button
-          onClick={() => window.history.back()}
+          onClick={() => navigate(`/crm/clients/${id}`)}
           style={{ background: '#6b7280', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: 8, fontWeight: 'bold', cursor: 'pointer', fontSize: 14, boxShadow: '0 2px 8px rgba(0,0,0,0.3)' }}
         >
           返回
