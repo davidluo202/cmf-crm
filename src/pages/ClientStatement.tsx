@@ -163,10 +163,10 @@ export default function ClientStatement() {
         .stmt-page {
           max-width: 210mm;
           margin: 0 auto;
-          padding: 16px 20px;
+          padding: 20px 24px;
           font-family: "Arial", "PingFang TC", "Microsoft JhengHei", sans-serif;
           color: #1a1a1a;
-          font-size: 8pt;
+          font-size: 9pt;
           background: #fff;
           line-height: 1.4;
         }
@@ -258,6 +258,10 @@ export default function ClientStatement() {
           padding: 5px 10px;
           margin: 10px 0 0;
           border-radius: 2px 2px 0 0;
+        }
+        .stmt-section {
+          break-inside: avoid;
+          page-break-inside: avoid;
         }
 
         /* Summary table */
@@ -361,9 +365,11 @@ export default function ClientStatement() {
 
         /* Footer */
         .stmt-footer {
-          margin-top: 8px;
-          padding-top: 4px;
+          margin-top: 12px;
+          padding-top: 6px;
           border-top: 2px solid #1a3a5c;
+          break-inside: avoid;
+          page-break-inside: avoid;
         }
         .stmt-footer-addr {
           font-size: 7pt;
@@ -374,23 +380,24 @@ export default function ClientStatement() {
         .stmt-warnings {
           display: grid;
           grid-template-columns: 1fr 1fr 1fr;
-          gap: 6px;
-          margin-bottom: 6px;
+          gap: 4px;
+          margin-bottom: 4px;
         }
         .stmt-warning-box {
           border: 1px solid #e0c000;
           background: #fffdf0;
-          border-radius: 3px;
-          padding: 3px 5px;
-          font-size: 5.5pt;
+          border-radius: 2px;
+          padding: 2px 4px;
+          font-size: 5pt;
           color: #555;
-          line-height: 1.3;
+          line-height: 1.2;
+          overflow: hidden;
         }
         .stmt-warning-title {
           font-weight: bold;
           color: #8a6f00;
-          font-size: 6pt;
-          margin-bottom: 1px;
+          font-size: 5pt;
+          margin-bottom: 0;
         }
         .stmt-page-num {
           text-align: center;
@@ -450,10 +457,13 @@ export default function ClientStatement() {
 
         {/* ── HEADER ── */}
         <div className="stmt-header">
-          <div>
-            <div className="stmt-logo-cn">誠港金融股份有限公司</div>
-            <div className="stmt-logo-en">Canton Mutual Financial Limited</div>
-            <div className="stmt-logo-tag">CE No.: BSU667 &nbsp;·&nbsp; SFC Licensed Type 1, 4 &amp; 9</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <img src="/logo-zh-official.jpg" alt="誠港金融" style={{ height: 40 }} onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
+            <div>
+              <div className="stmt-logo-cn">誠港金融股份有限公司</div>
+              <div className="stmt-logo-en">Canton Mutual Financial Limited</div>
+              <div className="stmt-logo-tag">CE No.: BSU667 &nbsp;·&nbsp; SFC Licensed Type 1, 4 &amp; 9</div>
+            </div>
           </div>
           <div className="stmt-company-addr">
             Units 2304-05, 23/F, 308 Des Voeux Road Central<br/>
