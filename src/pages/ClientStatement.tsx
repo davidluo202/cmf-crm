@@ -671,21 +671,18 @@ export default function ClientStatement() {
           <div className="stmt-warnings">
             <div className="stmt-warning-box">
               <div className="stmt-warning-title">防詐騙警示 Anti-Fraud Warning</div>
-              請勿將賬戶資料或密碼透露予任何人。如有任何疑問，請立即致電 +852 2598 1700 聯絡本公司。<br/>
-              Never disclose your account information or password to anyone. Contact us immediately if in doubt.
+              請勿將賬戶資料或密碼透露予任何人。如有任何疑問，請立即致電 +852 2598 1700 聯絡本公司。
             </div>
             <div className="stmt-warning-box">
               <div className="stmt-warning-title">投資風險警示 Investment Risk Warning</div>
-              投資涉及風險，產品價格可升可跌。過往表現並不代表將來表現。本結單不構成投資建議。<br/>
-              Investment involves risks. Past performance is not indicative of future results. This statement is not investment advice.
+              投資涉及風險，產品價格可升可跌。過往表現並不代表將來表現。本結單不構成投資建議。
             </div>
             <div className="stmt-warning-box">
               <div className="stmt-warning-title">結單查詢期 Statement Dispute Period</div>
-              如對本結單有任何疑問，請於收到後30日内以書面形式通知本公司。<br/>
-              If you disagree with this statement, please notify us in writing within 30 days of receipt.
+              如對本結單有任何疑問，請於收到後30日内以書面形式通知本公司。
             </div>
           </div>
-          <div className="stmt-page-num">第 1 頁，共 1 頁 &nbsp;·&nbsp; Page 1 of 1 &nbsp;·&nbsp; {stmtRef}</div>
+          <div className="stmt-page-num">{stmtRef}</div>
         </div>
 
       </div>
