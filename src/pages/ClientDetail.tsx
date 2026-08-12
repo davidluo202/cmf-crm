@@ -447,7 +447,7 @@ export default function ClientDetail() {
         <div className="flex flex-wrap items-center gap-3">
           <h1 className="text-2xl font-bold text-slate-900">{client.nameCn}</h1>
           {client.nameEn && <span className="text-lg text-slate-500">{client.nameEn}</span>}
-          <span className={`text-xs px-2 py-1 rounded-full ${segmentColor[client.segment] || 'bg-slate-200 text-slate-600'}`}>{client.segment}</span>
+          <span className={`text-xs px-2 py-1 rounded-full ${segmentColor[client.segment] || 'bg-slate-200 text-slate-600'}`}>{{ Individual: '個人', HNWI: '高淨值', Corporate: '公司', Institutional: '機構' }[client.segment] || client.segment}</span>
           <span className={`text-xs px-2 py-1 rounded-full ${tierColor[client.tier] || ''}`}>{client.tier}</span>
           <span className={`text-xs px-2 py-1 rounded-full ${client.status === '活跃' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'}`}>{client.status}</span>
           {(client as any).riskLevel && (
@@ -605,8 +605,8 @@ export default function ClientDetail() {
                 ['电话', client.phone || '—'],
                 ['地址', client.address || '—'],
               ] as [string, string][]),
-              ['分类', client.segment],
-              ['等级', client.tier],
+              ['分类', { Individual: '個人賬戶 Individual', HNWI: '高淨值個人 HNWI', Corporate: '公司賬戶 Corporate', Institutional: '機構賬戶 Institutional' }[client.segment] || client.segment],
+              ['等级', { Platinum: '白金 Platinum', Gold: '黃金 Gold', Silver: '白銀 Silver', Bronze: '銅 Bronze' }[client.tier] || client.tier],
               ['专业投资者', (client as any).isProfessionalInvestor === false ? '否' : '是'],
               ['风险评估等级', (client as any).riskLevel || '—'],
               ['客户经理(RM)', client.rm || '—'],
