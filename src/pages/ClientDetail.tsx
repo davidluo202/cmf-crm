@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 
 const API_BASE = import.meta.env.VITE_API_URL || ''
 
@@ -137,7 +137,9 @@ function AccountsStatementBar({ clientId }: { clientId: string }) {
 export default function ClientDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const [activeTab, setActiveTab] = useState<typeof tabList[number]>('Profile')
+  const [searchParams] = useSearchParams()
+  const initialTab = (searchParams.get('tab') as typeof tabList[number]) || 'Profile'
+  const [activeTab, setActiveTab] = useState<typeof tabList[number]>(initialTab)
   const [client, setClient] = useState<ClientData | null>(null)
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState(false)

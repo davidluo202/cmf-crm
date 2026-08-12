@@ -421,7 +421,7 @@ export default function ClientStatement() {
       {/* Floating action buttons */}
       <div className="no-print" style={{ position: 'fixed', bottom: 24, right: 24, zIndex: 100, display: 'flex', gap: 10, alignItems: 'center' }}>
         <button
-          onClick={() => navigate(`/crm/clients/${id}`)}
+          onClick={() => navigate(`/crm/clients/${id}?tab=Accounts`)}
           style={{ background: '#6b7280', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: 8, fontWeight: 'bold', cursor: 'pointer', fontSize: 14, boxShadow: '0 2px 8px rgba(0,0,0,0.3)' }}
         >
           返回
