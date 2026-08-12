@@ -373,7 +373,7 @@ export default function ClientStatement() {
           font-size: 6pt;
           color: #555;
           text-align: center;
-          margin-bottom: 3px;
+          margin-bottom: 6px;
         }
         .stmt-warnings {
           display: flex;
