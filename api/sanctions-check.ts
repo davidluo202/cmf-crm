@@ -3,7 +3,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 const SANCTIONS_API_KEY = '60e75f2d08a24d98a967f6315f00b251';
 
 async function screenName(name: string): Promise<{ hitCount: number; hits: any[] }> {
-  const url = `https://api.sanctions.io/search/?min_score=0.80&name=${encodeURIComponent(name)}&data_source=all`;
+  const url = `https://api.sanctions.io/search/?min_score=0.95&name=${encodeURIComponent(name)}&data_source=all`;
   const res = await fetch(url, {
     headers: { 'Authorization': `Bearer ${SANCTIONS_API_KEY}`, 'Accept': 'application/json' },
   });
@@ -17,7 +17,7 @@ async function screenName(name: string): Promise<{ hitCount: number; hits: any[]
     address: r.address ?? '',
     data_source: r.data_source ?? '',
   }));
-  return { hitCount: data.count ?? hits.length, hits };
+  return { hitCount: hits.length, hits };
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
