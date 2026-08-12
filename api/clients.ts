@@ -166,7 +166,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (b.code) data.code = b.code;
       if (b.accountNumber) data.accountNumber = b.accountNumber;
 
-      await createCrmClient(pool, data);
+      const result = await createCrmClient(pool, data);
+      const newId = result.insertId;
+
+      // Auto AML screening on client creation
+      if (newId && (data.nameCn || data.nameEn)) {
+        try {
+          const selfUrl = `${req.headers.origin || 'https://cmf-crm.vercel.app'}`;
+          await fetch(`${selfUrl}/api/sanctions-check`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ clientId: String(newId + 10000), trigger: 'onboarding' }),
+          });
+        } catch { /* non-critical */ }
+      }
+
       return res.json({ success: true });
     }
 
