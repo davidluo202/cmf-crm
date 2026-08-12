@@ -160,7 +160,7 @@ function generateWelcomeLetterPDF(data: WelcomeLetterBody): Promise<Buffer> {
       y = drawSep(y);
 
       doc.font(F).fontSize(11).fillColor('#222');
-      doc.text(`尊敬的${data.clientName || '客戶'}，您好！`, ML, y);
+      doc.text('尊敬的客戶，您好！', ML, y);
       y += 20;
       doc.fontSize(10);
       doc.text('歡迎您成為本公司的客戶，我們已為您開立證券交易賬戶。詳情如下：', ML, y, { width: W });
@@ -203,7 +203,7 @@ function generateWelcomeLetterPDF(data: WelcomeLetterBody): Promise<Buffer> {
       y = drawSep(y);
 
       doc.font(F).fontSize(11).fillColor('#222');
-      doc.text(`尊敬的${data.clientName || '客户'}，您好！`, ML, y);
+      doc.text('尊敬的客户，您好！', ML, y);
       y += 20;
       doc.fontSize(10);
       doc.text('欢迎您成为本公司的客户，我们已为您开立证券交易账户。详情如下：', ML, y, { width: W });
@@ -246,7 +246,7 @@ function generateWelcomeLetterPDF(data: WelcomeLetterBody): Promise<Buffer> {
       y = drawSep(y);
 
       doc.font(F).fontSize(11).fillColor('#222');
-      doc.text(`Dear ${data.clientNameEn || 'Client'},`, ML, y);
+      doc.text('Dear Client,', ML, y);
       y += 20;
       doc.fontSize(10);
       doc.text('Welcome to Canton Mutual Financial Limited. We have opened a securities trading account for you. Details are as follows:', ML, y, { width: W });
