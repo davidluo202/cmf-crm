@@ -34,7 +34,7 @@ const FOOTER_EN_LINE3 = 'ADD: Units 2304-5, 23/F, 308 Des Voeux Road Central, Ho
 function generateWelcomeLetterPDF(data: WelcomeLetterBody): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     try {
-      const doc = new PDFDocument({ size: 'A4', margins: { top: 60, bottom: 60, left: 50, right: 50 } });
+      const doc = new PDFDocument({ size: 'A4', margins: { top: 60, bottom: 30, left: 50, right: 50 } });
       const chunks: Buffer[] = [];
       doc.on('data', (chunk) => chunks.push(chunk));
       doc.on('end', () => resolve(Buffer.concat(chunks)));
@@ -126,26 +126,28 @@ function generateWelcomeLetterPDF(data: WelcomeLetterBody): Promise<Buffer> {
         return y;
       }
 
-      // Helper: draw footer (TC style — left aligned, CE No. right, 10mm from bottom)
+      // Helper: draw footer — use page.write to bypass margin auto-pagination
+      // A4=841.89pt, 10mm≈28pt, last line at ~814pt, first line at ~775pt
       function drawFooterTC() {
-        const fy = 780; // ~10mm from bottom edge (A4=841.89pt, 841.89-60≈782)
+        doc.save();
         doc.font(F).fontSize(8).fillColor('#000');
-        doc.text(FOOTER_TC_LINE1, ML, fy, { width: W, continued: false });
+        doc.text(FOOTER_TC_LINE1, ML, 775, { lineBreak: false });
         doc.fontSize(7).fillColor('#333');
-        doc.text(FOOTER_TC_LINE2, ML, fy + 13);
-        doc.text('地址：香港上環德輔道中308號23樓2304-5室', ML, fy + 25);
-        doc.text('CE No. BSU667', ML + W - 80, fy + 25);
+        doc.text(FOOTER_TC_LINE2, ML, 788, { lineBreak: false });
+        doc.text('地址：香港上環德輔道中308號23樓2304-5室', ML, 800, { lineBreak: false });
+        doc.text('CE No. BSU667', ML + W - 80, 800, { lineBreak: false });
+        doc.restore();
       }
 
-      // Helper: draw footer (EN style — left aligned, CE No. right, 10mm from bottom)
       function drawFooterEN() {
-        const fy = 780;
+        doc.save();
         doc.font(F).fontSize(8).fillColor('#000');
-        doc.text(FOOTER_EN_LINE1, ML, fy, { width: W, continued: false });
+        doc.text(FOOTER_EN_LINE1, ML, 775, { lineBreak: false });
         doc.fontSize(7).fillColor('#333');
-        doc.text(FOOTER_EN_LINE2, ML, fy + 13);
-        doc.text('ADD: Units 2304-5, 23/F, 308 Central Des Voeux, No. 308 Des Voeux Road Central, Hong Kong', ML, fy + 25);
-        doc.text('CE No. BSU667', ML + W - 80, fy + 25);
+        doc.text(FOOTER_EN_LINE2, ML, 788, { lineBreak: false });
+        doc.text('ADD: Units 2304-5, 23/F, 308 Des Voeux Road Central, Hong Kong', ML, 800, { lineBreak: false });
+        doc.text('CE No. BSU667', ML + W - 80, 800, { lineBreak: false });
+        doc.restore();
       }
 
       // ===================== PAGE 1: Traditional Chinese =====================
@@ -191,7 +193,7 @@ function generateWelcomeLetterPDF(data: WelcomeLetterBody): Promise<Buffer> {
       drawFooterTC();
 
       // ===================== PAGE 2: Simplified Chinese =====================
-      doc.addPage({ size: 'A4', margins: { top: 60, bottom: 60, left: 50, right: 50 } });
+      doc.addPage({ size: 'A4', margins: { top: 60, bottom: 30, left: 50, right: 50 } });
       drawLogo(logoZh);
       y = 90;
 
@@ -234,7 +236,7 @@ function generateWelcomeLetterPDF(data: WelcomeLetterBody): Promise<Buffer> {
       drawFooterTC();
 
       // ===================== PAGE 3: English =====================
-      doc.addPage({ size: 'A4', margins: { top: 60, bottom: 60, left: 50, right: 50 } });
+      doc.addPage({ size: 'A4', margins: { top: 60, bottom: 30, left: 50, right: 50 } });
       drawLogo(logoEn);
       y = 90;
 
