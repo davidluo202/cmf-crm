@@ -154,6 +154,7 @@ export default function ClientDetail() {
   const [showAddTx, setShowAddTx] = useState(false)
   const [newTx, setNewTx] = useState(EMPTY_TX)
   const [txSaving, setTxSaving] = useState(false)
+  const [editingTxId, setEditingTxId] = useState<number | null>(null)
 
   useEffect(() => {
     if (id) {
@@ -237,6 +238,22 @@ export default function ClientDetail() {
 
   const handleAddTx = async () => {
     if (!id || txSaving) return
+    // Edit mode: update existing transaction via PUT
+    if (editingTxId) {
+      if (!newTx.amount || Number(newTx.amount) <= 0) { alert('请填写有效金额'); return }
+      setTxSaving(true)
+      try {
+        const res = await fetch(`${API_BASE}/api/fund-transactions?id=${editingTxId}`, {
+          method: 'PUT', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ amount: parseFloat(newTx.amount), currency: newTx.currency, bank_name: newTx.bankName, bank_account: newTx.bankAccount, remarks: newTx.remarks }),
+        })
+        const data = await res.json()
+        if (data.success) { setEditingTxId(null); setNewTx(EMPTY_TX); setShowAddTx(false); loadFundTxs(id) }
+        else alert('修改失败: ' + (data.error || ''))
+      } catch (err: any) { alert('修改失败: ' + err.message) }
+      finally { setTxSaving(false) }
+      return
+    }
     if (!newTx.amount || Number(newTx.amount) <= 0) { alert('请填写有效金额'); return }
     if ((newTx.type === 'transfer_otc' || newTx.type === 'deposit_and_transfer') && !newTx.authRef) {
       if (!confirm('未填写授权编号，确认继续？')) return
@@ -982,7 +999,7 @@ export default function ClientDetail() {
             <div className="flex items-center justify-between p-4 border-b border-slate-100">
               <h3 className="text-sm font-semibold text-slate-700">资金流水</h3>
               <button
-                onClick={() => setShowAddTx(v => !v)}
+                onClick={() => { setShowAddTx(v => !v); if (showAddTx) { setEditingTxId(null); setNewTx(EMPTY_TX) } }}
                 className="px-3 py-1.5 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700"
               >
                 {showAddTx ? '取消' : '新增交易'}
@@ -1077,7 +1094,7 @@ export default function ClientDetail() {
                       disabled={txSaving}
                       className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 disabled:opacity-50"
                     >
-                      {txSaving ? '提交中...' : '确认提交'}
+                      {txSaving ? '提交中...' : editingTxId ? '确认修改' : '确认提交'}
                     </button>
                     <button
                       onClick={() => { setShowAddTx(false); setNewTx(EMPTY_TX) }}
@@ -1134,17 +1151,9 @@ export default function ClientDetail() {
                               {tx.status === 'pending' && (
                                 <button
                                   onClick={() => {
-                                    const newAmount = prompt('修改金额：', String(tx.amount))
-                                    if (newAmount === null) return
-                                    const newRemarks = prompt('修改备注：', tx.remarks || '')
-                                    fetch(`${API_BASE}/api/fund-transactions?id=${tx.id}`, {
-                                      method: 'PUT',
-                                      headers: { 'Content-Type': 'application/json' },
-                                      body: JSON.stringify({ amount: parseFloat(newAmount), remarks: newRemarks }),
-                                    }).then(r => r.json()).then(d => {
-                                      if (d.success && id) loadFundTxs(id)
-                                      else alert('修改失败: ' + (d.error || ''))
-                                    }).catch(e => alert('修改失败: ' + e.message))
+                                    setEditingTxId(tx.id)
+                                    setNewTx({ type: tx.type, amount: String(tx.amount), currency: tx.currency || 'HKD', bankName: tx.bank_name || '', bankAccount: tx.bank_account || '', remarks: tx.remarks || '', tradeDate: tx.created_at?.slice(0, 10) || new Date().toISOString().slice(0, 10), authType: '', authRef: '' })
+                                    setShowAddTx(true)
                                   }}
                                   className="text-xs text-amber-600 hover:text-amber-800 underline"
                                 >
