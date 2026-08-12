@@ -609,7 +609,10 @@ export default function ClientDetail() {
               ['等级', client.tier],
               ['专业投资者', (client as any).isProfessionalInvestor === false ? '否' : '是'],
               ['风险评估等级', (client as any).riskLevel || '—'],
+              ['客户经理(RM)', client.rm || '—'],
+              ['AUM (HKD)', client.aum > 0 ? `HK$ ${client.aum.toLocaleString()}` : '—'],
               ['加点(%)', client.markupPercent != null ? `${client.markupPercent}%` : '—'],
+              ['状态', client.status || '—'],
               ['开户日期', client.onboardedDate?.slice(0, 10) || client.createdAt?.slice(0, 10) || '—'],
             ] as [string, string][]).map(([label, value]) => (
               <div key={label} className="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm">
