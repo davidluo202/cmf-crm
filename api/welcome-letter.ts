@@ -263,7 +263,7 @@ function generateWelcomeLetterPDF(data: WelcomeLetterBody): Promise<Buffer> {
 
       y = drawBankTable(
         y,
-        ['Currency', 'Bank Name', 'Code', 'Beneficiary', 'Account No.', 'SWIFT'],
+        ['Currency', 'Bank Name', 'Bank Code', 'Beneficiary', 'Account No.', 'SWIFT'],
         BANK_NAME_EN, ['HKD', 'USD', 'RMB'], '—',
       );
       y += 15;
