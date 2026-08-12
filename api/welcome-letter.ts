@@ -108,7 +108,7 @@ function generateWelcomeLetterPDF(data: WelcomeLetterBody): Promise<Buffer> {
         y += 18;
 
         const bankRows = [
-          [currLabels[0], bankName, BANK_CODE, BENEFICIARY, ACCT_HKD, noSwiftLabel],
+          [currLabels[0], bankName, BANK_CODE, BENEFICIARY, ACCT_HKD, 'KWHKHKHH'],
           [currLabels[1], bankName, BANK_CODE, BENEFICIARY, ACCT_USD, SWIFT_USD],
           [currLabels[2], bankName, BANK_CODE, BENEFICIARY, ACCT_RMB, SWIFT_RMB],
         ];
