@@ -126,9 +126,9 @@ function generateWelcomeLetterPDF(data: WelcomeLetterBody): Promise<Buffer> {
         return y;
       }
 
-      // Helper: draw footer (TC style — left aligned, CE No. right)
+      // Helper: draw footer (TC style — left aligned, CE No. right, 10mm from bottom)
       function drawFooterTC() {
-        const fy = 735;
+        const fy = 780; // ~10mm from bottom edge (A4=841.89pt, 841.89-60≈782)
         doc.font(F).fontSize(8).fillColor('#000');
         doc.text(FOOTER_TC_LINE1, ML, fy, { width: W, continued: false });
         doc.fontSize(7).fillColor('#333');
@@ -137,9 +137,9 @@ function generateWelcomeLetterPDF(data: WelcomeLetterBody): Promise<Buffer> {
         doc.text('CE No. BSU667', ML + W - 80, fy + 25);
       }
 
-      // Helper: draw footer (EN style — left aligned, CE No. right)
+      // Helper: draw footer (EN style — left aligned, CE No. right, 10mm from bottom)
       function drawFooterEN() {
-        const fy = 735;
+        const fy = 780;
         doc.font(F).fontSize(8).fillColor('#000');
         doc.text(FOOTER_EN_LINE1, ML, fy, { width: W, continued: false });
         doc.fontSize(7).fillColor('#333');
@@ -176,7 +176,7 @@ function generateWelcomeLetterPDF(data: WelcomeLetterBody): Promise<Buffer> {
 
       y = drawBankTable(
         y,
-        ['幣種', '銀行名稱', '編號', '收款戶名', '收款賬號', '國際代碼'],
+        ['幣種', '銀行名稱', '銀行編號', '收款戶名', '收款賬號', '國際代碼'],
         BANK_NAME_TC, ['港幣', '美元', '人民幣'], '—',
       );
       y += 15;
@@ -219,7 +219,7 @@ function generateWelcomeLetterPDF(data: WelcomeLetterBody): Promise<Buffer> {
 
       y = drawBankTable(
         y,
-        ['币种', '银行名称', '编号', '收款户名', '收款账号', '国际代码'],
+        ['币种', '银行名称', '银行编号', '收款户名', '收款账号', '国际代码'],
         BANK_NAME_SC, ['港币', '美元', '人民币'], '—',
       );
       y += 15;
