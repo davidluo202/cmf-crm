@@ -134,13 +134,11 @@ function generateWelcomeLetterPDF(data: WelcomeLetterBody): Promise<Buffer> {
       doc.fontSize(9).fillColor('#555');
       doc.text('感謝閣下選擇使用誠港金融股份有限公司一站式環球投資服務。感謝您的信任與支持！', ML, y, { width: W });
 
-      // Footer
-      const footerY = 750;
+      // Footer — fixed at bottom of page
+      const footerY = 760;
       doc.moveTo(ML, footerY).lineTo(ML + W, footerY).lineWidth(0.5).strokeColor('#ccc').stroke();
-      doc.font(F).fontSize(8).fillColor('#666');
-      doc.text('誠港金融股份有限公司 Canton Mutual Financial Limited', ML, footerY + 8);
-      doc.text('香港客服熱線：(852) 2598 1700 | 電郵：operation@cmfinancial.com | 網址：www.cmfinancial.com', ML, footerY + 20);
-      doc.text('Units 2304-05, 23/F, 308 Des Voeux Road Central, Hong Kong | CE No. BSU667', ML, footerY + 32);
+      doc.font(F).fontSize(7).fillColor('#888');
+      doc.text('誠港金融股份有限公司 Canton Mutual Financial Limited | Units 2304-05, 23/F, 308 Des Voeux Road Central, Hong Kong | (852) 2598 1700 | CE No. BSU667', ML, footerY + 6, { width: W, align: 'center' });
 
       doc.end();
     } catch (error) {
