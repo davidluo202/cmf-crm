@@ -166,12 +166,12 @@ export default function ClientList() {
                   {client.nameEn && <div className="text-xs text-slate-400">{client.nameEn}</div>}
                 </td>
                 <td className="p-4">
-                  <div className="text-slate-700 text-xs">{client.email}</div>
-                  {client.phone && <div className="text-xs text-slate-400">{client.phone}</div>}
+                  <div className="text-slate-700 text-xs">{(client.segment === 'Corporate' || client.segment === 'Institutional') ? (client.contactEmail || client.email) : client.email}</div>
+                  {((client.segment === 'Corporate' || client.segment === 'Institutional') ? (client.contactPhone || client.phone) : client.phone) && <div className="text-xs text-slate-400">{(client.segment === 'Corporate' || client.segment === 'Institutional') ? (client.contactPhone || client.phone) : client.phone}</div>}
                 </td>
                 <td className="p-4">
                   <span className={`text-xs px-2 py-1 rounded-full ${segmentColor[client.segment] || 'bg-gray-100 text-gray-600'}`}>
-                    {client.segment}
+                    {{ Individual: '個人', HNWI: '高淨值', Corporate: '公司', Institutional: '機構' }[client.segment] || client.segment}
                   </span>
                 </td>
                 <td className="p-4">
