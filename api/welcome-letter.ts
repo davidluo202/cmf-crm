@@ -126,24 +126,26 @@ function generateWelcomeLetterPDF(data: WelcomeLetterBody): Promise<Buffer> {
         return y;
       }
 
-      // Helper: draw footer (TC style)
+      // Helper: draw footer (TC style — left aligned, CE No. right)
       function drawFooterTC() {
-        const fy = 740;
-        doc.moveTo(ML, fy).lineTo(ML + W, fy).lineWidth(0.5).strokeColor('#ccc').stroke();
-        doc.font(F).fontSize(7).fillColor('#888');
-        doc.text(FOOTER_TC_LINE1, ML, fy + 5, { width: W, align: 'center' });
-        doc.text(FOOTER_TC_LINE2, ML, fy + 15, { width: W, align: 'center' });
-        doc.text(FOOTER_TC_LINE3, ML, fy + 25, { width: W, align: 'center' });
+        const fy = 735;
+        doc.font(F).fontSize(8).fillColor('#000');
+        doc.text(FOOTER_TC_LINE1, ML, fy, { width: W, continued: false });
+        doc.fontSize(7).fillColor('#333');
+        doc.text(FOOTER_TC_LINE2, ML, fy + 13);
+        doc.text('地址：香港上環德輔道中308號23樓2304-5室', ML, fy + 25);
+        doc.text('CE No. BSU667', ML + W - 80, fy + 25);
       }
 
-      // Helper: draw footer (EN style)
+      // Helper: draw footer (EN style — left aligned, CE No. right)
       function drawFooterEN() {
-        const fy = 740;
-        doc.moveTo(ML, fy).lineTo(ML + W, fy).lineWidth(0.5).strokeColor('#ccc').stroke();
-        doc.font(F).fontSize(7).fillColor('#888');
-        doc.text(FOOTER_EN_LINE1, ML, fy + 5, { width: W, align: 'center' });
-        doc.text(FOOTER_EN_LINE2, ML, fy + 15, { width: W, align: 'center' });
-        doc.text(FOOTER_EN_LINE3, ML, fy + 25, { width: W, align: 'center' });
+        const fy = 735;
+        doc.font(F).fontSize(8).fillColor('#000');
+        doc.text(FOOTER_EN_LINE1, ML, fy, { width: W, continued: false });
+        doc.fontSize(7).fillColor('#333');
+        doc.text(FOOTER_EN_LINE2, ML, fy + 13);
+        doc.text('ADD: Units 2304-5, 23/F, 308 Central Des Voeux, No. 308 Des Voeux Road Central, Hong Kong', ML, fy + 25);
+        doc.text('CE No. BSU667', ML + W - 80, fy + 25);
       }
 
       // ===================== PAGE 1: Traditional Chinese =====================
@@ -296,7 +298,7 @@ async function sendViaResend(
   const payload = {
     from: 'customer-services@cmfinancial.com',
     to: [to],
-    cc: ['customer-services@cmfinancial.com', 'jmou@cmfinancial.com', 'xluo@cmfinancial.com', 'operation@cmfinancial.com', 'compliance@cmfinancial.com'],
+    // cc: ['customer-services@cmfinancial.com', 'jmou@cmfinancial.com', 'xluo@cmfinancial.com', 'operation@cmfinancial.com', 'compliance@cmfinancial.com'], // 测试阶段暂不CC
     subject: '歡迎成為誠港金融客戶 Welcome to Canton Mutual Financial',
     text: emailBody,
     attachments: [
