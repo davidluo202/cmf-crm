@@ -296,7 +296,7 @@ async function sendViaResend(
   const payload = {
     from: 'customer-services@cmfinancial.com',
     to: [to],
-    cc: ['jmou@cmfinancial.com', 'xluo@cmfinancial.com', 'operation@cmfinancial.com', 'compliance@cmfinancial.com'],
+    cc: ['customer-services@cmfinancial.com', 'jmou@cmfinancial.com', 'xluo@cmfinancial.com', 'operation@cmfinancial.com', 'compliance@cmfinancial.com'],
     subject: '歡迎成為誠港金融客戶 Welcome to Canton Mutual Financial',
     text: emailBody,
     attachments: [
