@@ -12,9 +12,24 @@ interface WelcomeLetterBody {
   onboardedDate: string;
 }
 
-function escapeHtml(s: string): string {
-  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-}
+const BANK_NAME_TC = '中信銀行（國際）有限公司';
+const BANK_NAME_SC = '中信银行（国际）有限公司';
+const BANK_NAME_EN = 'China CITIC Bank International Limited';
+const BANK_CODE = '018';
+const BENEFICIARY = 'CANTON MUTUAL FINANCIAL LIMITED - CLIENT ACCOUNT';
+const ACCT_HKD = '744-1-81145700';
+const ACCT_USD = '744-1-81145701';
+const ACCT_RMB = '744-1-81145718';
+const SWIFT_USD = 'KWHKHKHH';
+const SWIFT_RMB = 'KWHKHKHH';
+
+const FOOTER_TC_LINE1 = '誠港金融股份有限公司';
+const FOOTER_TC_LINE2 = '電話(852)2598 1700 | 傳真(852)2561 7028 | 郵箱customer-services@cmfinancial.com | 網址www.cmfinancial.com';
+const FOOTER_TC_LINE3 = '地址:香港上環德輔道中308號23樓2304-5室 CE No. BSU667';
+
+const FOOTER_EN_LINE1 = 'CANTON MUTUAL FINANCIAL LIMITED';
+const FOOTER_EN_LINE2 = 'TEL(852)2598 1700 | FAX(852)2561 7028 | EMAIL customer-services@cmfinancial.com | WEB www.cmfinancial.com';
+const FOOTER_EN_LINE3 = 'ADD: Units 2304-5, 23/F, 308 Des Voeux Road Central, Hong Kong CE No. BSU667';
 
 function generateWelcomeLetterPDF(data: WelcomeLetterBody): Promise<Buffer> {
   return new Promise((resolve, reject) => {
@@ -25,7 +40,6 @@ function generateWelcomeLetterPDF(data: WelcomeLetterBody): Promise<Buffer> {
       doc.on('end', () => resolve(Buffer.concat(chunks)));
       doc.on('error', reject);
 
-      // Register CJK font
       let F = 'Helvetica';
       const fontPath = path.join(process.cwd(), 'api', 'fonts', 'NotoSansCJKtc-Regular.otf');
       try {
@@ -33,33 +47,114 @@ function generateWelcomeLetterPDF(data: WelcomeLetterBody): Promise<Buffer> {
           doc.registerFont('NotoSansCJK', fontPath);
           F = 'NotoSansCJK';
         }
-      } catch { /* fallback to Helvetica */ }
+      } catch { /* fallback */ }
 
-      // Logo
-      const logoPath = path.join(process.cwd(), 'public', 'logo-zh-official.jpg');
-      try {
-        if (fs.existsSync(logoPath)) {
-          doc.image(logoPath, 50, 30, { width: 120 });
-        }
-      } catch { /* no logo */ }
-
-      const W = 495; // content width
+      const logoZh = path.join(process.cwd(), 'public', 'logo-zh-official.jpg');
+      const logoEn = path.join(process.cwd(), 'public', 'logo-en-official.jpg');
+      const W = 495;
       const ML = 50;
+      const displayName = [data.clientName, data.clientNameEn].filter(Boolean).join(' / ');
+
+      // Helper: draw logo
+      function drawLogo(logoPath: string) {
+        try {
+          if (fs.existsSync(logoPath)) {
+            doc.image(logoPath, ML, 30, { width: 120 });
+          }
+        } catch { /* no logo */ }
+      }
+
+      // Helper: draw separator
+      function drawSep(y: number): number {
+        doc.moveTo(ML, y).lineTo(ML + W, y).lineWidth(1.5).strokeColor('#1a3a6a').stroke();
+        return y + 20;
+      }
+
+      // Helper: draw account info table
+      function drawAccountTable(y: number, labels: string[]): number {
+        const labelW = 180;
+        const valW = W - labelW;
+        const rows = [
+          [labels[0], labels[4]],
+          [labels[1], displayName],
+          [labels[2], data.accountNumber],
+          [labels[3], data.onboardedDate],
+        ];
+        for (const [label, value] of rows) {
+          doc.rect(ML, y, labelW, 22).fillAndStroke('#f0f4fa', '#d1d5db');
+          doc.rect(ML + labelW, y, valW, 22).fillAndStroke('#fff', '#d1d5db');
+          doc.fillColor('#4b5563').fontSize(9).font(F).text(label, ML + 6, y + 6, { width: labelW - 12 });
+          doc.fillColor('#111').fontSize(9).font(F).text(value, ML + labelW + 6, y + 6, { width: valW - 12 });
+          y += 22;
+        }
+        return y;
+      }
+
+      // Helper: draw bank table
+      function drawBankTable(
+        y: number,
+        headers: string[],
+        bankName: string,
+        currLabels: [string, string, string],
+        noSwiftLabel: string,
+      ): number {
+        const cols = [50, 130, 40, 150, 85, 60];
+        let x = ML;
+        for (let i = 0; i < headers.length; i++) {
+          doc.rect(x, y, cols[i], 18).fillAndStroke('#1a3a6a', '#1a3a6a');
+          doc.fillColor('#fff').fontSize(7).font(F).text(headers[i], x + 3, y + 5, { width: cols[i] - 6 });
+          x += cols[i];
+        }
+        y += 18;
+
+        const bankRows = [
+          [currLabels[0], bankName, BANK_CODE, BENEFICIARY, ACCT_HKD, noSwiftLabel],
+          [currLabels[1], bankName, BANK_CODE, BENEFICIARY, ACCT_USD, SWIFT_USD],
+          [currLabels[2], bankName, BANK_CODE, BENEFICIARY, ACCT_RMB, SWIFT_RMB],
+        ];
+
+        for (const row of bankRows) {
+          x = ML;
+          const rowH = 28;
+          for (let i = 0; i < row.length; i++) {
+            doc.rect(x, y, cols[i], rowH).fillAndStroke('#fff', '#d1d5db');
+            doc.fillColor('#222').fontSize(6.5).font(F).text(row[i], x + 3, y + 4, { width: cols[i] - 6 });
+            x += cols[i];
+          }
+          y += rowH;
+        }
+        return y;
+      }
+
+      // Helper: draw footer (TC style)
+      function drawFooterTC() {
+        const fy = 740;
+        doc.moveTo(ML, fy).lineTo(ML + W, fy).lineWidth(0.5).strokeColor('#ccc').stroke();
+        doc.font(F).fontSize(7).fillColor('#888');
+        doc.text(FOOTER_TC_LINE1, ML, fy + 5, { width: W, align: 'center' });
+        doc.text(FOOTER_TC_LINE2, ML, fy + 15, { width: W, align: 'center' });
+        doc.text(FOOTER_TC_LINE3, ML, fy + 25, { width: W, align: 'center' });
+      }
+
+      // Helper: draw footer (EN style)
+      function drawFooterEN() {
+        const fy = 740;
+        doc.moveTo(ML, fy).lineTo(ML + W, fy).lineWidth(0.5).strokeColor('#ccc').stroke();
+        doc.font(F).fontSize(7).fillColor('#888');
+        doc.text(FOOTER_EN_LINE1, ML, fy + 5, { width: W, align: 'center' });
+        doc.text(FOOTER_EN_LINE2, ML, fy + 15, { width: W, align: 'center' });
+        doc.text(FOOTER_EN_LINE3, ML, fy + 25, { width: W, align: 'center' });
+      }
+
+      // ===================== PAGE 1: Traditional Chinese =====================
+      drawLogo(logoZh);
       let y = 90;
 
-      // Title
       doc.font(F).fontSize(16).fillColor('#1a3a6a');
       doc.text('開戶通知及入金指引', ML, y, { width: W, align: 'center' });
-      y += 25;
-      doc.fontSize(10).fillColor('#555');
-      doc.text('Account Opening Notice & Deposit Instructions', ML, y, { width: W, align: 'center' });
-      y += 25;
+      y += 30;
+      y = drawSep(y);
 
-      // Separator
-      doc.moveTo(ML, y).lineTo(ML + W, y).lineWidth(1.5).strokeColor('#1a3a6a').stroke();
-      y += 20;
-
-      // Greeting
       doc.font(F).fontSize(11).fillColor('#222');
       doc.text('尊敬的客戶，您好！', ML, y);
       y += 20;
@@ -67,78 +162,118 @@ function generateWelcomeLetterPDF(data: WelcomeLetterBody): Promise<Buffer> {
       doc.text('歡迎您成為本公司的客戶，我們已為您開立證券交易賬戶。詳情如下：', ML, y, { width: W });
       y += 30;
 
-      // Account info table
-      const displayName = [data.clientName, data.clientNameEn].filter(Boolean).join(' / ');
-      const infoRows = [
-        ['賬戶類型 Account Type', '現金賬戶 Cash Account'],
-        ['賬戶名稱 Account Name', displayName],
-        ['賬戶號碼 Account No.', data.accountNumber],
-        ['開立日期 Opening Date', data.onboardedDate],
-      ];
-
-      const labelW = 180;
-      const valW = W - labelW;
-      for (const [label, value] of infoRows) {
-        doc.rect(ML, y, labelW, 22).fillAndStroke('#f0f4fa', '#d1d5db');
-        doc.rect(ML + labelW, y, valW, 22).fillAndStroke('#fff', '#d1d5db');
-        doc.fillColor('#4b5563').fontSize(9).text(label, ML + 6, y + 6, { width: labelW - 12 });
-        doc.fillColor('#111').fontSize(9).text(value, ML + labelW + 6, y + 6, { width: valW - 12 });
-        y += 22;
-      }
-
+      y = drawAccountTable(y, ['賬戶類型', '賬戶名稱', '賬戶號碼', '開立日期', '現金賬戶']);
       y += 20;
 
-      // Deposit instructions header
       doc.font(F).fontSize(12).fillColor('#1a3a6a');
       doc.text('誠港金融入金指引', ML, y);
       y += 20;
-
       doc.fontSize(10).fillColor('#1a3a6a');
       doc.text('第一步：請把您的資金存入以下銀行賬戶', ML, y);
       y += 18;
 
-      // Bank table header
-      const cols = [50, 130, 40, 150, 85, 60]; // widths
-      const headers = ['幣種', '銀行名稱', '編號', '收款戶名', '收款賬號', '國際代碼'];
-      let x = ML;
-      for (let i = 0; i < headers.length; i++) {
-        doc.rect(x, y, cols[i], 18).fillAndStroke('#1a3a6a', '#1a3a6a');
-        doc.fillColor('#fff').fontSize(7).text(headers[i], x + 3, y + 5, { width: cols[i] - 6 });
-        x += cols[i];
-      }
-      y += 18;
-
-      // Bank rows
-      const bankRows = [
-        ['港幣', '中信銀行(國際)', '018', 'CANTON MUTUAL FINANCIAL LIMITED - CLIENT ACCOUNT', '744-2-37805600', '—'],
-        ['美元', '中信銀行(國際)', '018', 'CANTON MUTUAL FINANCIAL LIMITED - CLIENT ACCOUNT', '744-2-37805601', 'KWHKHKHH'],
-        ['人民幣', '中信銀行(國際)', '018', 'CANTON MUTUAL FINANCIAL LIMITED - CLIENT ACCOUNT', '744-2-37805618', 'KWHKHKHH'],
-      ];
-
-      for (const row of bankRows) {
-        x = ML;
-        const rowH = 28;
-        for (let i = 0; i < row.length; i++) {
-          doc.rect(x, y, cols[i], rowH).fillAndStroke('#fff', '#d1d5db');
-          doc.fillColor('#222').fontSize(6.5).text(row[i], x + 3, y + 4, { width: cols[i] - 6 });
-          x += cols[i];
-        }
-        y += rowH;
-      }
-
+      y = drawBankTable(
+        y,
+        ['幣種', '銀行名稱', '編號', '收款戶名', '收款賬號', '國際代碼'],
+        BANK_NAME_TC, ['港幣', '美元', '人民幣'], '—',
+      );
       y += 15;
-      doc.fontSize(10).fillColor('#1a3a6a');
+
+      doc.fontSize(10).fillColor('#1a3a6a').font(F);
       doc.text('第二步：請把存款憑證發送至郵箱：operation@cmfinancial.com', ML, y);
       y += 25;
 
-      doc.fontSize(9).fillColor('#555');
+      doc.fontSize(9).fillColor('#555').font(F);
       doc.text('感謝閣下選擇使用誠港金融股份有限公司一站式環球投資服務。感謝您的信任與支持！', ML, y, { width: W });
 
-      // Footer — fixed at bottom of page
-      const footerY = 760;
-      doc.moveTo(ML, footerY).lineTo(ML + W, footerY).lineWidth(0.5).strokeColor('#ccc').stroke();
-      doc.font(F).fontSize(7).fillColor('#888');
-      doc.text('誠港金融股份有限公司 Canton Mutual Financial Limited | Units 2304-05, 23/F, 308 Des Voeux Road Central, Hong Kong | (852) 2598 1700 | CE No. BSU667', ML, footerY + 6, { width: W, align: 'center' });
+      drawFooterTC();
+
+      // ===================== PAGE 2: Simplified Chinese =====================
+      doc.addPage({ size: 'A4', margins: { top: 60, bottom: 60, left: 50, right: 50 } });
+      drawLogo(logoZh);
+      y = 90;
+
+      doc.font(F).fontSize(16).fillColor('#1a3a6a');
+      doc.text('开户通知及入金指引', ML, y, { width: W, align: 'center' });
+      y += 30;
+      y = drawSep(y);
+
+      doc.font(F).fontSize(11).fillColor('#222');
+      doc.text('尊敬的客户，您好！', ML, y);
+      y += 20;
+      doc.fontSize(10);
+      doc.text('欢迎您成为本公司的客户，我们已为您开立证券交易账户。详情如下：', ML, y, { width: W });
+      y += 30;
+
+      y = drawAccountTable(y, ['账户类型', '账户名称', '账户号码', '开立日期', '现金账户']);
+      y += 20;
+
+      doc.font(F).fontSize(12).fillColor('#1a3a6a');
+      doc.text('诚港金融入金指引', ML, y);
+      y += 20;
+      doc.fontSize(10).fillColor('#1a3a6a');
+      doc.text('第一步：请将您的资金存入以下银行账户', ML, y);
+      y += 18;
+
+      y = drawBankTable(
+        y,
+        ['币种', '银行名称', '编号', '收款户名', '收款账号', '国际代码'],
+        BANK_NAME_SC, ['港币', '美元', '人民币'], '—',
+      );
+      y += 15;
+
+      doc.fontSize(10).fillColor('#1a3a6a').font(F);
+      doc.text('第二步：请把存款凭证发送至邮箱：operation@cmfinancial.com', ML, y);
+      y += 25;
+
+      doc.fontSize(9).fillColor('#555').font(F);
+      doc.text('感谢阁下选择使用诚港金融股份有限公司一站式环球投资服务。感谢您的信任与支持！', ML, y, { width: W });
+
+      drawFooterTC();
+
+      // ===================== PAGE 3: English =====================
+      doc.addPage({ size: 'A4', margins: { top: 60, bottom: 60, left: 50, right: 50 } });
+      drawLogo(logoEn);
+      y = 90;
+
+      doc.font(F).fontSize(16).fillColor('#1a3a6a');
+      doc.text('Account Opening Notice & Deposit Instructions', ML, y, { width: W, align: 'center' });
+      y += 30;
+      y = drawSep(y);
+
+      doc.font(F).fontSize(11).fillColor('#222');
+      doc.text('Dear Client,', ML, y);
+      y += 20;
+      doc.fontSize(10);
+      doc.text('Welcome to Canton Mutual Financial Limited. We have opened a securities trading account for you. Details are as follows:', ML, y, { width: W });
+      y += 30;
+
+      const enInfoLabels = ['Account Type', 'Account Name', 'Account No.', 'Opening Date', 'Cash Account'];
+      y = drawAccountTable(y, enInfoLabels);
+      y += 20;
+
+      doc.font(F).fontSize(12).fillColor('#1a3a6a');
+      doc.text('Deposit Instructions', ML, y);
+      y += 20;
+      doc.fontSize(10).fillColor('#1a3a6a');
+      doc.text('Step 1: Please deposit your funds into the following bank account', ML, y);
+      y += 18;
+
+      y = drawBankTable(
+        y,
+        ['Currency', 'Bank Name', 'Code', 'Beneficiary', 'Account No.', 'SWIFT'],
+        BANK_NAME_EN, ['HKD', 'USD', 'RMB'], '—',
+      );
+      y += 15;
+
+      doc.fontSize(10).fillColor('#1a3a6a').font(F);
+      doc.text('Step 2: Please send your deposit receipt to: operation@cmfinancial.com', ML, y);
+      y += 25;
+
+      doc.fontSize(9).fillColor('#555').font(F);
+      doc.text('Thank you for choosing Canton Mutual Financial Limited. We appreciate your trust and support!', ML, y, { width: W });
+
+      drawFooterEN();
 
       doc.end();
     } catch (error) {
