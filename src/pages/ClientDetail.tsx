@@ -365,8 +365,11 @@ export default function ClientDetail() {
   const handleSendWelcomeLetter = async () => {
     if (!client || welcomeLetterSending) return
     const displayName = [client.nameCn, client.nameEn].filter(Boolean).join(' / ')
-    const confirmMsg = `確認發送歡迎信？\n\n客戶：${displayName}\n郵箱：${client.email || '未填寫'}\n賬戶號：${client.code}`
-    if (!client.email) { alert('此客户没有邮箱地址，无法发送欢迎信。'); return }
+    const clientEmail = (client.segment === 'Corporate' || client.segment === 'Institutional')
+      ? ((client as any).contactEmail || client.email)
+      : client.email
+    const confirmMsg = `確認發送歡迎信？\n\n客戶：${displayName}\n郵箱：${clientEmail || '未填寫'}\n賬戶號：${client.code}`
+    if (!clientEmail) { alert('此客户没有邮箱地址，无法发送欢迎信。'); return }
     if (!confirm(confirmMsg)) return
     setWelcomeLetterSending(true)
     try {
@@ -378,13 +381,13 @@ export default function ClientDetail() {
           clientName: client.nameCn || '',
           clientNameEn: client.nameEn || '',
           accountNumber: client.code,
-          email: client.email,
+          email: clientEmail,
           onboardedDate: client.onboardedDate?.slice(0, 10) || client.createdAt?.slice(0, 10) || '',
         }),
       })
       const data = await res.json()
       if (data.success) {
-        alert('歡迎信已成功發送至 ' + client.email)
+        alert('歡迎信已成功發送至 ' + clientEmail)
       } else {
         alert('發送失敗: ' + (data.error || '未知錯誤'))
       }
