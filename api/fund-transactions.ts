@@ -116,17 +116,26 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const id = req.query.id as string;
       if (!id) return res.status(400).json({ success: false, error: 'Missing id' });
       const b = req.body || {};
-      if (!b.status) return res.status(400).json({ success: false, error: 'Missing status' });
 
-      const updates: string[] = ['status = ?'];
-      const params: any[] = [b.status];
-      if (b.status === 'confirmed' || b.status === 'completed') {
-        updates.push('confirmed_at = NOW()');
-        if (b.confirmedBy) { updates.push('confirmed_by = ?'); params.push(b.confirmedBy); }
+      const updates: string[] = [];
+      const params: any[] = [];
+
+      if (b.status) {
+        updates.push('status = ?'); params.push(b.status);
+        if (b.status === 'confirmed' || b.status === 'completed') {
+          updates.push('confirmed_at = NOW()');
+          if (b.confirmedBy) { updates.push('confirmed_by = ?'); params.push(b.confirmedBy); }
+        }
       }
+      if (b.amount !== undefined) { updates.push('amount = ?'); params.push(b.amount); }
+      if (b.currency !== undefined) { updates.push('currency = ?'); params.push(b.currency); }
       if (b.remarks !== undefined) { updates.push('remarks = ?'); params.push(b.remarks); }
-      params.push(parseInt(id));
+      if (b.bank_name !== undefined) { updates.push('bank_name = ?'); params.push(b.bank_name); }
+      if (b.bank_account !== undefined) { updates.push('bank_account = ?'); params.push(b.bank_account); }
 
+      if (updates.length === 0) return res.status(400).json({ success: false, error: 'No fields to update' });
+
+      params.push(parseInt(id));
       await pool.query(`UPDATE fund_transactions SET ${updates.join(', ')} WHERE id = ?`, params);
       return res.json({ success: true });
     }

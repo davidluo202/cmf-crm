@@ -1130,14 +1130,36 @@ export default function ClientDetail() {
                           </td>
                           <td className="px-4 py-3 text-slate-500 max-w-[180px] truncate">{tx.remarks || '—'}</td>
                           <td className="px-4 py-3">
-                            {nextStatus && (
-                              <button
-                                onClick={() => handleUpdateTxStatus(tx.id, nextStatus)}
-                                className="text-xs text-blue-600 hover:text-blue-800 underline"
-                              >
-                                {nextLabel}
-                              </button>
-                            )}
+                            <div className="flex gap-2">
+                              {tx.status === 'pending' && (
+                                <button
+                                  onClick={() => {
+                                    const newAmount = prompt('修改金额：', String(tx.amount))
+                                    if (newAmount === null) return
+                                    const newRemarks = prompt('修改备注：', tx.remarks || '')
+                                    fetch(`${API_BASE}/api/fund-transactions?id=${tx.id}`, {
+                                      method: 'PUT',
+                                      headers: { 'Content-Type': 'application/json' },
+                                      body: JSON.stringify({ amount: parseFloat(newAmount), remarks: newRemarks }),
+                                    }).then(r => r.json()).then(d => {
+                                      if (d.success && id) loadFundTxs(id)
+                                      else alert('修改失败: ' + (d.error || ''))
+                                    }).catch(e => alert('修改失败: ' + e.message))
+                                  }}
+                                  className="text-xs text-amber-600 hover:text-amber-800 underline"
+                                >
+                                  编辑
+                                </button>
+                              )}
+                              {nextStatus && (
+                                <button
+                                  onClick={() => handleUpdateTxStatus(tx.id, nextStatus)}
+                                  className="text-xs text-blue-600 hover:text-blue-800 underline"
+                                >
+                                  {nextLabel}
+                                </button>
+                              )}
+                            </div>
                           </td>
                         </tr>
                       )
