@@ -444,10 +444,10 @@ export default function ClientStatement() {
             const el = document.querySelector('.stmt-page') as HTMLElement | null
             if (!el) return
             html2pdf().set({
-              margin: [5, 5, 5, 5],
+              margin: [3, 3, 3, 3],
               filename: `${stmtRef}.pdf`,
               image: { type: 'jpeg', quality: 0.95 },
-              html2canvas: { scale: 1.5, useCORS: true },
+              html2canvas: { scale: 1.2, useCORS: true, windowWidth: 794 },
               jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
             } as any).from(el).save()
           }}
