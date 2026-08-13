@@ -117,7 +117,7 @@ export default function ClientStatement() {
   const clientNameEn = clientExtra?.nameEn || data.client.nameEn || '—'
   const clientRm = clientExtra?.rm || '—'
   const isProfessional = (clientExtra as any)?.isProfessionalInvestor === false ? '否 No' : '是 Yes'
-  const accountType = clientExtra?.segment === 'Corporate' || clientExtra?.segment === 'Institutional' ? '機構賬戶 Corporate' : '個人賬戶 Individual'
+  const accountType = clientExtra?.segment === 'Corporate' ? '公司賬戶 Corporate' : clientExtra?.segment === 'Institutional' ? '機構賬戶 Institutional' : '個人賬戶 Individual'
 
   // Group transactions by currency
   const currencies = [...new Set([
@@ -161,7 +161,7 @@ export default function ClientStatement() {
           .page-break { page-break-before: always; }
         }
         .stmt-page {
-          width: 210mm;
+          max-width: 210mm;
           min-height: 297mm;
           margin: 0 auto;
           padding: 20px 24px;
@@ -171,7 +171,11 @@ export default function ClientStatement() {
           background: #fff;
           line-height: 1.4;
           box-shadow: 0 0 10px rgba(0,0,0,0.1);
-          position: relative;
+          display: flex;
+          flex-direction: column;
+        }
+        .stmt-content {
+          flex: 1;
         }
 
         /* Header */
@@ -368,10 +372,8 @@ export default function ClientStatement() {
 
         /* Footer */
         .stmt-footer {
-          position: absolute;
-          bottom: 15px;
-          left: 24px;
-          right: 24px;
+          margin-top: auto;
+          padding-top: 8px;
         }
         .stmt-footer-addr {
           font-size: 6pt;
@@ -456,6 +458,7 @@ export default function ClientStatement() {
       </div>
 
       <div className="stmt-page">
+        <div className="stmt-content">
 
         {/* ── HEADER ── */}
         <div className="stmt-header">
@@ -665,6 +668,8 @@ export default function ClientStatement() {
             </div>
           ) : null}
         </div>
+
+        </div>{/* end stmt-content */}
 
         {/* ── FOOTER ── */}
         <div className="stmt-footer">
