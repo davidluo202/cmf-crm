@@ -161,7 +161,8 @@ export default function ClientStatement() {
           .page-break { page-break-before: always; }
         }
         .stmt-page {
-          max-width: 210mm;
+          width: 210mm;
+          min-height: 297mm;
           margin: 0 auto;
           padding: 20px 24px;
           font-family: "Arial", "PingFang TC", "Microsoft JhengHei", sans-serif;
@@ -169,6 +170,8 @@ export default function ClientStatement() {
           font-size: 9pt;
           background: #fff;
           line-height: 1.4;
+          box-shadow: 0 0 10px rgba(0,0,0,0.1);
+          position: relative;
         }
 
         /* Header */
@@ -365,9 +368,10 @@ export default function ClientStatement() {
 
         /* Footer */
         .stmt-footer {
-          margin-top: 8px;
-          padding-top: 4px;
-          border-top: 2px solid #1a3a5c;
+          position: absolute;
+          bottom: 15px;
+          left: 24px;
+          right: 24px;
         }
         .stmt-footer-addr {
           font-size: 6pt;
