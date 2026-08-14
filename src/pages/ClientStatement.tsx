@@ -436,11 +436,18 @@ export default function ClientStatement() {
                       deposit_and_transfer: ['Deposit', 'FUND DEPOSIT 客戶入金'],
                     }
                     let [txnType, desc] = typeMap[tx.type] || [tx.type, tx.type]
-                    if (tx.remarks?.includes('全额划转')) { desc = 'Fund Deposit-Collateral-LONGTREND'; txnType = 'Transfer' }
-                    if (tx.remarks?.includes('Option Premium')) { desc = 'Fund Deposit-Option Premium-LONGTREND-OPT'; txnType = 'Transfer' }
-                    if (tx.remarks?.includes('本地汇款') || tx.type === 'deposit') { desc = tx.bank_name ? `存款 - 本地匯款 ${tx.bank_name}` : 'FUND DEPOSIT 客戶入金' }
-                    if (tx.type === 'transfer_otc') { desc = 'Fund Deposit-Collateral-LONGTREND'; txnType = 'Transfer' }
-                    const detailedRemarks = tx.remarks && !tx.remarks.includes('客户入金') && !tx.remarks.includes('全额划转') ? tx.remarks : ''
+                    // Detect fee transactions
+                    if (tx.remarks?.startsWith('[FEE]') || tx.remarks?.toLowerCase().includes('wire fee') || tx.remarks?.toLowerCase().includes('手續費') || tx.remarks?.toLowerCase().includes('手续费')) {
+                      txnType = 'Fee'
+                      desc = tx.remarks.replace('[FEE] ', '')
+                    } else if (tx.remarks?.startsWith('[BUY]') || tx.remarks?.toLowerCase().includes('buy ')) {
+                      txnType = 'Buy'
+                      desc = tx.remarks.replace('[BUY] ', '')
+                    } else if (tx.remarks?.includes('全额划转')) { desc = 'Fund Deposit-Collateral-LONGTREND'; txnType = 'Transfer' }
+                    else if (tx.remarks?.includes('Option Premium')) { desc = 'Fund Deposit-Option Premium-LONGTREND-OPT'; txnType = 'Transfer' }
+                    else if (tx.remarks?.includes('本地汇款') || (tx.type === 'deposit' && !tx.remarks?.startsWith('['))) { desc = tx.bank_name ? `存款 - 本地匯款 ${tx.bank_name}` : 'FUND DEPOSIT 客戶入金' }
+                    else if (tx.type === 'transfer_otc') { desc = 'Fund Deposit-Collateral-LONGTREND'; txnType = 'Transfer' }
+                    const detailedRemarks = tx.remarks && !tx.remarks.startsWith('[FEE]') && !tx.remarks.startsWith('[BUY]') && !tx.remarks.includes('客户入金') && !tx.remarks.includes('全额划转') && !tx.remarks.includes('Client fund deposit') ? tx.remarks : ''
                     const statusPending = tx.status === 'pending' ? ' (待確認)' : ''
                     return (
                       <tr key={tx.id}>
