@@ -972,6 +972,7 @@ export default function ClientDetail() {
             const totalIn: Record<string, number> = {}
             const totalOut: Record<string, number> = {}
             for (const tx of fundTxs) {
+              if (tx.status === 'cancelled') continue
               const cur = tx.currency || 'HKD'
               if (tx.type === 'deposit') totalIn[cur] = (totalIn[cur] || 0) + Number(tx.amount)
               else if (tx.type === 'withdrawal') totalOut[cur] = (totalOut[cur] || 0) + Number(tx.amount)
@@ -1126,9 +1127,11 @@ export default function ClientDetail() {
                     </tr>
                   </thead>
                   <tbody>
-                    {fundTxs.map(tx => {
-                      const typeLabel = tx.type === 'deposit' ? '入金' : tx.type === 'withdrawal' ? '出金' : '划转OTC'
-                      const typeColor = tx.type === 'deposit' ? 'text-green-600' : tx.type === 'withdrawal' ? 'text-red-500' : 'text-blue-600'
+                    {fundTxs.filter(tx => tx.status !== 'cancelled').map(tx => {
+                      const isFee = tx.remarks?.startsWith('[FEE]') || tx.remarks?.includes('手續費') || tx.remarks?.includes('wire fee')
+                      const isBuy = tx.remarks?.startsWith('[BUY]') || tx.remarks?.toLowerCase().includes('buy ')
+                      const typeLabel = isFee ? '手续费' : isBuy ? '买入' : tx.type === 'deposit' ? '入金' : tx.type === 'withdrawal' ? '出金' : '划转OTC'
+                      const typeColor = isFee ? 'text-orange-500' : isBuy ? 'text-purple-600' : tx.type === 'deposit' ? 'text-green-600' : tx.type === 'withdrawal' ? 'text-red-500' : 'text-blue-600'
                       const statusColor = tx.status === 'completed' ? 'bg-green-100 text-green-700' : tx.status === 'confirmed' ? 'bg-blue-100 text-blue-700' : tx.status === 'cancelled' ? 'bg-red-100 text-red-500' : 'bg-yellow-100 text-yellow-700'
                       const statusLabel = tx.status === 'completed' ? '已完成' : tx.status === 'confirmed' ? '已确认' : tx.status === 'cancelled' ? '已取消' : '待处理'
                       const nextStatus = tx.status === 'pending' ? 'confirmed' : tx.status === 'confirmed' ? 'completed' : null
