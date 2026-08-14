@@ -61,7 +61,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Transactions in period
     const [txRows] = await pool.query(
-      `SELECT * FROM fund_transactions WHERE client_id = ? AND created_at >= ? AND created_at <= ? ORDER BY created_at ASC`,
+      `SELECT * FROM fund_transactions WHERE client_id = ? AND created_at >= ? AND created_at <= ? AND status IN ('confirmed','completed') ORDER BY created_at ASC`,
       [rawId, periodStart, periodEnd]
     );
     const transactions = txRows as any[];
