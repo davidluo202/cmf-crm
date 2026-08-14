@@ -102,22 +102,20 @@ export default function ClientStatement() {
   if (type === 'monthly') {
     const [yr, mo] = data.period.label.split('-')
     stmtDateLabel = `${yr}年${mo}月`
-    stmtTitle = '綜合月結單 Consolidated Monthly Statement'
+    stmtTitle = 'Monthly Combined Statement of Account / 帳戶綜合月結單'
     // MS-YYYYMM-XXXX
     const seq = String(data.client.id).padStart(4, '0')
     stmtRef = `MS-${data.period.label.replace('-', '')}-${seq}`
   } else {
     stmtDateLabel = data.period.label
-    stmtTitle = '綜合日結單 Consolidated Daily Statement'
+    stmtTitle = 'Daily Combined Statement of Account / 帳戶綜合日結單'
     const seq = String(data.client.id).padStart(4, '0')
     stmtRef = `DS-${data.period.label.replace(/-/g, '')}-${seq}`
   }
 
   const clientName = clientExtra?.nameCn || data.client.name || '—'
   const clientNameEn = clientExtra?.nameEn || data.client.nameEn || '—'
-  const clientRm = clientExtra?.rm || '—'
-  const isProfessional = (clientExtra as any)?.isProfessionalInvestor === false ? '否 No' : '是 Yes'
-  const accountType = clientExtra?.segment === 'Corporate' ? '公司賬戶 Corporate' : clientExtra?.segment === 'Institutional' ? '機構賬戶 Institutional' : '個人賬戶 Individual'
+  const accountType = clientExtra?.segment === 'Corporate' ? '公司帳戶 Corporate' : clientExtra?.segment === 'Institutional' ? '機構帳戶 Institutional' : '個人帳戶 Individual'
 
   // Group transactions by currency
   const currencies = [...new Set([
@@ -157,7 +155,7 @@ export default function ClientStatement() {
         @media print {
           .no-print { display: none !important; }
           body { background: #fff; margin: 0; }
-          @page { margin: 12mm 10mm; size: A4; }
+          @page { margin: 5mm 12.7mm; size: A4; }
           .page-break { page-break-before: always; }
         }
         .stmt-page {
@@ -181,51 +179,26 @@ export default function ClientStatement() {
         /* Header */
         .stmt-header {
           display: flex;
-          justify-content: space-between;
           align-items: flex-start;
-          border-bottom: 2px solid #1a3a5c;
           padding-bottom: 6px;
           margin-bottom: 6px;
-        }
-        .stmt-logo-cn {
-          font-size: 15pt;
-          font-weight: bold;
-          color: #1a3a5c;
-          letter-spacing: 1px;
-        }
-        .stmt-logo-en {
-          font-size: 9pt;
-          color: #1a3a5c;
-          margin-top: 2px;
-        }
-        .stmt-logo-tag {
-          font-size: 7.5pt;
-          color: #666;
-          margin-top: 3px;
-        }
-        .stmt-company-addr {
-          text-align: right;
-          font-size: 7.5pt;
-          color: #444;
-          line-height: 1.6;
         }
 
         /* Title block */
         .stmt-title-block {
           text-align: center;
           margin: 4px 0 6px;
-          border-bottom: 1px solid #ccc;
           padding-bottom: 4px;
         }
         .stmt-title-main {
-          font-size: 11pt;
+          font-size: 12pt;
           font-weight: bold;
-          color: #1a3a5c;
+          color: #2c3e50;
           letter-spacing: 1px;
         }
         .stmt-title-ref {
-          font-size: 8pt;
-          color: #666;
+          font-size: 7.5pt;
+          color: #888;
           margin-top: 2px;
         }
 
@@ -236,8 +209,8 @@ export default function ClientStatement() {
           padding: 8px 12px;
           margin-bottom: 12px;
           display: grid;
-          grid-template-columns: 1fr 1fr 1fr;
-          gap: 4px 12px;
+          grid-template-columns: 1fr 1fr;
+          gap: 4px 24px;
         }
         .stmt-field {
           display: flex;
@@ -258,7 +231,7 @@ export default function ClientStatement() {
 
         /* Section headers */
         .stmt-section-hdr {
-          background: #1a3a5c;
+          background: #2c3e50;
           color: #fff;
           font-size: 8pt;
           font-weight: bold;
@@ -279,8 +252,8 @@ export default function ClientStatement() {
           font-size: 8.5pt;
         }
         .stmt-summary-table th {
-          background: #eef2f8;
-          color: #1a3a5c;
+          background: #2c3e50;
+          color: #fff;
           padding: 5px 8px;
           text-align: left;
           border: 1px solid #d0d8e4;
@@ -303,8 +276,8 @@ export default function ClientStatement() {
           margin-bottom: 4px;
         }
         .stmt-ledger-table th {
-          background: #e8edf5;
-          color: #1a3a5c;
+          background: #2c3e50;
+          color: #fff;
           padding: 4px 6px;
           border: 1px solid #c8d0dc;
           font-size: 7.5pt;
@@ -329,8 +302,8 @@ export default function ClientStatement() {
           margin-bottom: 4px;
         }
         .stmt-cashbal-table th {
-          background: #e8edf5;
-          color: #1a3a5c;
+          background: #2c3e50;
+          color: #fff;
           padding: 4px 8px;
           border: 1px solid #c8d0dc;
           font-size: 7.5pt;
@@ -365,25 +338,38 @@ export default function ClientStatement() {
           padding: 6px 0 4px;
           font-weight: bold;
           font-size: 10pt;
-          color: #1a3a5c;
-          border-top: 2px solid #1a3a5c;
+          color: #2c3e50;
+          border-top: 2px solid #2c3e50;
           margin-top: 4px;
         }
 
         /* Footer */
         .stmt-footer {
           margin-top: auto;
-          padding-top: 8px;
+          border-top: 1px solid #ccc;
+          padding-top: 6px;
         }
-        .stmt-footer-addr {
-          font-size: 6pt;
+        .stmt-footer-letterhead {
+          font-size: 8px;
           color: #555;
           text-align: center;
-          margin-bottom: 6px;
+          line-height: 1.6;
+        }
+        .stmt-footer-letterhead .company-name {
+          font-weight: bold;
+          color: #2c3e50;
+          font-size: 9px;
+        }
+        .stmt-footer-ce {
+          text-align: right;
+          font-size: 8px;
+          color: #555;
+          margin-top: 2px;
         }
         .stmt-warnings {
           display: flex;
           gap: 3px;
+          margin-top: 6px;
           margin-bottom: 2px;
         }
         .stmt-warning-box {
@@ -409,7 +395,7 @@ export default function ClientStatement() {
           margin-top: 1px;
         }
         .stmt-currency-hdr {
-          background: #2d5a9e;
+          background: #2c3e50;
           color: #fff;
           font-size: 8pt;
           padding: 4px 10px 3px;
@@ -434,7 +420,7 @@ export default function ClientStatement() {
         </button>
         <button
           onClick={() => window.print()}
-          style={{ background: '#1a3a5c', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: 8, fontWeight: 'bold', cursor: 'pointer', fontSize: 14, boxShadow: '0 2px 8px rgba(0,0,0,0.3)' }}
+          style={{ background: '#2c3e50', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: 8, fontWeight: 'bold', cursor: 'pointer', fontSize: 14, boxShadow: '0 2px 8px rgba(0,0,0,0.3)' }}
         >
           列印
         </button>
@@ -463,7 +449,7 @@ export default function ClientStatement() {
         {/* ── HEADER ── */}
         <div className="stmt-header">
           <div>
-            <img src="/logo-zh-official.jpg" alt="誠港金融" style={{ height: 44 }} onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+            <img src="/logo-zh-official.jpg" alt="誠港金融" style={{ height: 50 }} onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
           </div>
         </div>
 
@@ -475,38 +461,29 @@ export default function ClientStatement() {
 
         {/* ── CLIENT INFO BOX ── */}
         <div className="stmt-client-box">
+          {/* Left column */}
           <div className="stmt-field">
-            <span className="stmt-field-label">賬戶類型</span>
-            <span className="stmt-field-value">{accountType}</span>
+            <span className="stmt-field-label">帳戶名稱 A/C Name</span>
+            <span className="stmt-field-value">{clientName} {clientNameEn !== '—' ? `/ ${clientNameEn}` : ''}</span>
           </div>
+          {/* Right column */}
           <div className="stmt-field">
-            <span className="stmt-field-label">結單日期</span>
+            <span className="stmt-field-label">結單日期 Statement Date</span>
             <span className="stmt-field-value">{stmtDateLabel}</span>
           </div>
           <div className="stmt-field">
-            <span className="stmt-field-label">專業投資者</span>
-            <span className="stmt-field-value">{isProfessional}</span>
-          </div>
-          <div className="stmt-field">
-            <span className="stmt-field-label">賬戶號碼</span>
+            <span className="stmt-field-label">帳戶號碼 A/C Number</span>
             <span className="stmt-field-value">{data.client.code}</span>
           </div>
           <div className="stmt-field">
-            <span className="stmt-field-label">客戶姓名</span>
-            <span className="stmt-field-value">{clientName}</span>
-          </div>
-          <div className="stmt-field">
-            <span className="stmt-field-label">列印日期</span>
+            <span className="stmt-field-label">列印日期 Print Date</span>
             <span className="stmt-field-value">{printDate}</span>
           </div>
           <div className="stmt-field">
-            <span className="stmt-field-label">英文姓名</span>
-            <span className="stmt-field-value">{clientNameEn}</span>
+            <span className="stmt-field-label">帳戶類型 Account Type</span>
+            <span className="stmt-field-value">{accountType}</span>
           </div>
-          <div className="stmt-field">
-            <span className="stmt-field-label">客戶經理</span>
-            <span className="stmt-field-value">{clientRm}</span>
-          </div>
+          <div style={{ /* empty cell for alignment */ }} />
         </div>
 
         {/* ── SECTION 1: Summary ── */}
@@ -543,10 +520,9 @@ export default function ClientStatement() {
                   <tr>
                     <th style={{ width: '10%' }}>交易日期<br/>Trade Date</th>
                     <th style={{ width: '10%' }}>結算日期<br/>Sett. Date</th>
-                    <th style={{ width: '14%' }}>參考編號<br/>Ref. #</th>
-                    <th style={{ width: '28%' }}>說明<br/>Description</th>
-                    <th style={{ width: '12%', textAlign: 'right' }}>借記<br/>Debit</th>
-                    <th style={{ width: '12%', textAlign: 'right' }}>貸記<br/>Credit</th>
+                    <th style={{ width: '40%' }}>說明<br/>Description</th>
+                    <th style={{ width: '13%', textAlign: 'right' }}>借記<br/>Debit</th>
+                    <th style={{ width: '13%', textAlign: 'right' }}>貸記<br/>Credit</th>
                     <th style={{ width: '14%', textAlign: 'right' }}>結餘<br/>Balance</th>
                   </tr>
                 </thead>
@@ -555,36 +531,38 @@ export default function ClientStatement() {
                   <tr className="stmt-opening-row">
                     <td>{type === 'monthly' ? `${data.period.label}-01` : data.period.label}</td>
                     <td>—</td>
-                    <td>—</td>
                     <td>期初結餘 Opening Balance</td>
                     <td className="stmt-num">—</td>
                     <td className="stmt-num">—</td>
                     <td className="stmt-num stmt-balance-col">{fmtAmt(ledger[0].balance)}</td>
                   </tr>
                   {txRows.length === 0 ? (
-                    <tr className="no-data-row"><td colSpan={7}>本期無交易記錄 No transactions in this period</td></tr>
+                    <tr className="no-data-row"><td colSpan={6}>本期無交易記錄 No transactions in this period</td></tr>
                   ) : txRows.map(({ tx, credit, debit, balance }) => {
                     const tradeDate = tx.created_at?.slice(0, 10) || '—'
                     const settleDate = tx.settle_date?.slice(0, 10) || tradeDate
                     const typeMap: Record<string, string> = {
-                      deposit: '客戶入金 Client Deposit',
-                      withdrawal: '客戶出金 Client Withdrawal',
+                      deposit: 'FUND DEPOSIT 客戶入金',
+                      withdrawal: 'Client Withdrawal 客戶出金',
                       transfer_otc: 'Fund Deposit-Collateral-LONGTREND',
-                      deposit_and_transfer: '客戶入金 Client Deposit',
+                      deposit_and_transfer: 'FUND DEPOSIT 客戶入金',
                     }
                     let desc = typeMap[tx.type] || tx.type
                     if (tx.remarks?.includes('全额划转')) desc = 'Fund Deposit-Collateral-LONGTREND'
                     if (tx.remarks?.includes('Option Premium')) desc = 'Fund Deposit-Option Premium-LONGTREND-OPT'
-                    if (tx.remarks?.includes('本地汇款') || tx.type === 'deposit') desc = tx.bank_name ? `存款 - 本地匯款 ${tx.bank_name}` : '客戶入金 Client Deposit'
+                    if (tx.remarks?.includes('本地汇款') || tx.type === 'deposit') desc = tx.bank_name ? `存款 - 本地匯款 ${tx.bank_name}` : 'FUND DEPOSIT 客戶入金'
                     if (tx.type === 'transfer_otc') desc = 'Fund Deposit-Collateral-LONGTREND'
-                    const fullDesc = tx.remarks && !tx.remarks.includes('客户入金') && !tx.remarks.includes('全额划转') ? `${desc} — ${tx.remarks}` : desc
+                    const detailedRemarks = tx.remarks && !tx.remarks.includes('客户入金') && !tx.remarks.includes('全额划转') ? tx.remarks : ''
                     const statusPending = tx.status === 'pending' ? ' (待確認)' : ''
                     return (
                       <tr key={tx.id}>
                         <td>{tradeDate}</td>
                         <td>{settleDate}</td>
-                        <td style={{ fontFamily: 'monospace', fontSize: '7.5pt' }}>{tx.tx_code}</td>
-                        <td>{fullDesc}{statusPending}</td>
+                        <td>
+                          <div>{desc}{statusPending}</div>
+                          <div style={{ fontSize: '7pt', color: '#888', fontFamily: 'monospace', marginTop: 1 }}>Ref: {tx.tx_code}</div>
+                          {detailedRemarks && <div style={{ fontSize: '7pt', color: '#555', marginTop: 1 }}>{detailedRemarks}</div>}
+                        </td>
                         <td className={`stmt-num ${debit > 0 ? 'stmt-debit' : ''}`}>
                           {debit > 0 ? `(${fmtAmt(debit)})` : '—'}
                         </td>
@@ -597,7 +575,7 @@ export default function ClientStatement() {
                   })}
                   {/* Closing row */}
                   <tr className="stmt-total-row">
-                    <td colSpan={6} style={{ textAlign: 'right', fontWeight: 'bold' }}>期末結餘 Closing Balance</td>
+                    <td colSpan={5} style={{ textAlign: 'right', fontWeight: 'bold' }}>期末結餘 Closing Balance</td>
                     <td className="stmt-num stmt-balance-col">{fmtAmt(data.closingBalance[currency] || 0)}</td>
                   </tr>
                 </tbody>
@@ -641,7 +619,7 @@ export default function ClientStatement() {
               <td className="stmt-num">—</td>
               <td className="stmt-num">—</td>
               <td className="stmt-num">—</td>
-              <td className="stmt-num" style={{ fontWeight: 'bold', color: '#1a3a5c' }}>{fmtAmt(totalHkd)}</td>
+              <td className="stmt-num" style={{ fontWeight: 'bold', color: '#2c3e50' }}>{fmtAmt(totalHkd)}</td>
             </tr>
           </tbody>
         </table>
@@ -673,14 +651,18 @@ export default function ClientStatement() {
 
         {/* ── FOOTER ── */}
         <div className="stmt-footer">
-          <div className="stmt-footer-addr">
-            誠港金融股份有限公司 Canton Mutual Financial Limited &nbsp;|&nbsp; CE No.: BSU667 &nbsp;|&nbsp; SFC Licensed Type 1, 4 &amp; 9 &nbsp;|&nbsp; {stmtRef}<br/>
-            Units 2304-05, 23/F, 308 Des Voeux Road Central, Hong Kong &nbsp;|&nbsp; Tel: +852 2598 1700 &nbsp;|&nbsp; info@cmfinancial.com
+          <div className="stmt-footer-letterhead">
+            <div className="company-name">誠港金融股份有限公司</div>
+            <div>電話: (852) 2598 1700 | 傳真: (852) 2561 7028 | 郵箱: customer-services@cmfinancial.com | 網址: www.cmfinancial.com</div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span>地址: 香港上環德輔道中 308 號 23 樓 2304-5 室</span>
+              <span>CE No. BSU667</span>
+            </div>
           </div>
           <div className="stmt-warnings">
             <div className="stmt-warning-box">
               <div className="stmt-warning-title">防詐騙警示 Anti-Fraud Warning</div>
-              請勿將賬戶資料或密碼透露予任何人。如有任何疑問，請立即致電 +852 2598 1700 聯絡本公司。<br/>
+              請勿將帳戶資料或密碼透露予任何人。如有任何疑問，請立即致電 +852 2598 1700 聯絡本公司。<br/>
               Never disclose your account information or password to anyone. Contact us immediately if in doubt.
             </div>
             <div className="stmt-warning-box">
@@ -690,7 +672,7 @@ export default function ClientStatement() {
             </div>
             <div className="stmt-warning-box">
               <div className="stmt-warning-title">結單查詢期 Statement Dispute Period</div>
-              如對本結單有任何疑問，請於收到後30日内以書面形式通知本公司。<br/>
+              如對本結單有任何疑問，請於收到後30日內以書面形式通知本公司。<br/>
               If you disagree with this statement, please notify us in writing within 30 days of receipt.
             </div>
           </div>
