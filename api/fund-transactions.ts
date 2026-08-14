@@ -132,6 +132,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (b.remarks !== undefined) { updates.push('remarks = ?'); params.push(b.remarks); }
       if (b.bank_name !== undefined) { updates.push('bank_name = ?'); params.push(b.bank_name); }
       if (b.bank_account !== undefined) { updates.push('bank_account = ?'); params.push(b.bank_account); }
+      if (b.created_at !== undefined) { updates.push('created_at = ?'); params.push(new Date(b.created_at)); }
+      if (b.settle_date !== undefined) { updates.push('settle_date = ?'); params.push(b.settle_date ? new Date(b.settle_date) : null); }
 
       if (updates.length === 0) return res.status(400).json({ success: false, error: 'No fields to update' });
 
