@@ -259,7 +259,7 @@ export default function ClientStatement() {
         .stmt-footer-body {
           font-size: 8px;
           color: #555;
-          text-align: center;
+          text-align: left;
           line-height: 1.6;
         }
         .stmt-footer-body .company-name {
