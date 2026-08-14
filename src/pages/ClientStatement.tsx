@@ -125,7 +125,7 @@ export default function ClientStatement() {
   const clientName = clientExtra?.nameCn || data.client.name || '—'
   const clientNameEn = clientExtra?.nameEn || data.client.nameEn || '—'
   const displayName = clientNameEn !== '—' ? `${clientName} / ${clientNameEn}` : clientName
-  const accountType = clientExtra?.segment === 'Corporate' ? '公司帳戶 Corporate' : clientExtra?.segment === 'Institutional' ? '機構帳戶 Institutional' : '個人帳戶 Individual'
+  const accountType = clientExtra?.segment === 'Corporate' ? '公司賬戶 Corporate' : clientExtra?.segment === 'Institutional' ? '公司賬戶 Institutional' : '個人賬戶 Individual'
 
   // Group transactions by currency
   const currencies = [...new Set([
