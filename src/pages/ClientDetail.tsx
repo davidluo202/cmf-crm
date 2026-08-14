@@ -1129,8 +1129,8 @@ export default function ClientDetail() {
                     {fundTxs.map(tx => {
                       const typeLabel = tx.type === 'deposit' ? '入金' : tx.type === 'withdrawal' ? '出金' : '划转OTC'
                       const typeColor = tx.type === 'deposit' ? 'text-green-600' : tx.type === 'withdrawal' ? 'text-red-500' : 'text-blue-600'
-                      const statusColor = tx.status === 'completed' ? 'bg-green-100 text-green-700' : tx.status === 'confirmed' ? 'bg-blue-100 text-blue-700' : 'bg-yellow-100 text-yellow-700'
-                      const statusLabel = tx.status === 'completed' ? '已完成' : tx.status === 'confirmed' ? '已确认' : '待处理'
+                      const statusColor = tx.status === 'completed' ? 'bg-green-100 text-green-700' : tx.status === 'confirmed' ? 'bg-blue-100 text-blue-700' : tx.status === 'cancelled' ? 'bg-red-100 text-red-500' : 'bg-yellow-100 text-yellow-700'
+                      const statusLabel = tx.status === 'completed' ? '已完成' : tx.status === 'confirmed' ? '已确认' : tx.status === 'cancelled' ? '已取消' : '待处理'
                       const nextStatus = tx.status === 'pending' ? 'confirmed' : tx.status === 'confirmed' ? 'completed' : null
                       const nextLabel = tx.status === 'pending' ? '确认' : tx.status === 'confirmed' ? '完成' : null
                       return (
@@ -1166,6 +1166,18 @@ export default function ClientDetail() {
                                   className="text-xs text-blue-600 hover:text-blue-800 underline"
                                 >
                                   {nextLabel}
+                                </button>
+                              )}
+                              {tx.status === 'pending' && (
+                                <button
+                                  onClick={() => {
+                                    if (confirm('確認取消此交易？取消後不可恢復。')) {
+                                      handleUpdateTxStatus(tx.id, 'cancelled')
+                                    }
+                                  }}
+                                  className="text-xs text-red-500 hover:text-red-700 underline"
+                                >
+                                  取消
                                 </button>
                               )}
                             </div>
