@@ -1,7 +1,7 @@
 {
   "name": "cmf-crm",
   "private": true,
-  "version": "260713.001",
+  "version": "260813.001",
   "type": "module",
   "scripts": {
     "dev": "vite",
