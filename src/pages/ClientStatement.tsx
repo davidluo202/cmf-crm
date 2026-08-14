@@ -255,6 +255,7 @@ export default function ClientStatement() {
           margin-top: auto;
           border-top: 1px solid #ccc;
           padding-top: 6px;
+          page-break-inside: avoid;
         }
         .stmt-footer-body {
           font-size: 8px;
@@ -408,10 +409,10 @@ export default function ClientStatement() {
               <table className="stmt-table">
                 <thead>
                   <tr>
-                    <th style={{ width: '9%' }}>Trade Date<br/>交易日</th>
-                    <th style={{ width: '9%' }}>Sett. Date<br/>交收日</th>
-                    <th style={{ width: '10%' }}>Txn. Type<br/>交易類別</th>
-                    <th style={{ width: '28%' }}>Description 項目說明</th>
+                    <th style={{ width: '11%', whiteSpace: 'nowrap' }}>Trade Date<br/>交易日</th>
+                    <th style={{ width: '11%', whiteSpace: 'nowrap' }}>Sett. Date<br/>交收日</th>
+                    <th style={{ width: '9%' }}>Txn. Type<br/>交易類別</th>
+                    <th style={{ width: '25%' }}>Description 項目說明</th>
                     <th className="num" style={{ width: '8%' }}>Quantity<br/>庫存</th>
                     <th className="num" style={{ width: '10%' }}>Unit Price<br/>單位價格</th>
                     <th className="num" style={{ width: '13%' }}>(Dr)/Cr Amount<br/>(借)/存金額</th>
@@ -451,8 +452,8 @@ export default function ClientStatement() {
                     const statusPending = tx.status === 'pending' ? ' (待確認)' : ''
                     return (
                       <tr key={tx.id}>
-                        <td>{tradeDate}</td>
-                        <td>{settleDate}</td>
+                        <td style={{ whiteSpace: 'nowrap' }}>{tradeDate}</td>
+                        <td style={{ whiteSpace: 'nowrap' }}>{settleDate}</td>
                         <td>{txnType}</td>
                         <td>
                           <div>{desc}{statusPending}</div>
@@ -499,8 +500,8 @@ export default function ClientStatement() {
               <span>地址: 香港上環德輔道中 308 號 23 樓 2304-5 室</span>
               <span>CE No. BSU667</span>
             </div>
+            <div className="stmt-page-num">Page 1 of {totalPages}</div>
           </div>
-          <div className="stmt-page-num">Page 1 of {totalPages}</div>
         </div>
       </div>
     </>
