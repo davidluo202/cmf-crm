@@ -72,6 +72,7 @@ export default function ClientStatement() {
 
   const [data, setData] = useState<StatementData | null>(null)
   const [clientExtra, setClientExtra] = useState<any>(null)
+  const [holdings, setHoldings] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
@@ -84,11 +85,13 @@ export default function ClientStatement() {
     Promise.all([
       fetch(`${API_BASE}/api/client-statement?${params}`).then(r => r.json()),
       fetch(`${API_BASE}/api/clients?id=${id}`).then(r => r.json()),
+      fetch(`${API_BASE}/api/client-holdings?clientId=${id}`).then(r => r.json()),
     ])
-      .then(([stmtData, clientData]) => {
+      .then(([stmtData, clientData, holdingsData]) => {
         if (!stmtData.success) { setError(stmtData.error || '加载失败'); return }
         setData(stmtData.data)
         if (clientData.success && clientData.data) setClientExtra(clientData.data)
+        if (holdingsData.success && holdingsData.data) setHoldings(holdingsData.data)
       })
       .catch(err => setError(err.message))
       .finally(() => setLoading(false))
@@ -153,10 +156,23 @@ export default function ClientStatement() {
     return rows
   }
 
+  // Holdings value per currency
+  const holdingsValueByCurrency: Record<string, number> = {}
+  for (const h of holdings) {
+    const cur = h.currency || 'USD'
+    const mv = Number(h.quantity) * Number(h.market_price)
+    holdingsValueByCurrency[cur] = (holdingsValueByCurrency[cur] || 0) + mv
+  }
+
   // Totals for portfolio summary
   const totalCashHkd = Object.entries(data.closingBalance).reduce((sum, [cur, bal]) => {
     const rate = EXCHANGE_RATES[cur] || 1
     return sum + bal * rate
+  }, 0)
+
+  const totalHoldingsHkd = Object.entries(holdingsValueByCurrency).reduce((sum, [cur, val]) => {
+    const rate = EXCHANGE_RATES[cur] || 1
+    return sum + val * rate
   }, 0)
 
   // Count total pages (1 base + 1 per currency with transactions)
@@ -252,10 +268,10 @@ export default function ClientStatement() {
 
         /* Footer */
         .stmt-footer {
-          margin-top: auto;
           border-top: 1px solid #ccc;
           padding-top: 6px;
           page-break-inside: avoid;
+          break-inside: avoid;
         }
         .stmt-footer-body {
           font-size: 8px;
@@ -379,8 +395,8 @@ export default function ClientStatement() {
           <tbody>
             <tr>
               <td>Bonds/Stocks</td>
-              {currencies.map(c => <td key={c} className="num">0.00</td>)}
-              <td className="num">0.00</td>
+              {currencies.map(c => <td key={c} className="num">{fmtAmt(holdingsValueByCurrency[c] || 0)}</td>)}
+              <td className="num">{fmtAmt(totalHoldingsHkd)}</td>
             </tr>
             <tr>
               <td>Cash Balance [1]</td>
@@ -389,8 +405,8 @@ export default function ClientStatement() {
             </tr>
             <tr className="total-row">
               <td>Total</td>
-              {currencies.map(c => <td key={c} className="num">{fmtAmt(data.closingBalance[c] || 0)}</td>)}
-              <td className="num">{fmtAmt(totalCashHkd)}</td>
+              {currencies.map(c => <td key={c} className="num">{fmtAmt((data.closingBalance[c] || 0) + (holdingsValueByCurrency[c] || 0))}</td>)}
+              <td className="num">{fmtAmt(totalCashHkd + totalHoldingsHkd)}</td>
             </tr>
           </tbody>
         </table>
@@ -479,6 +495,47 @@ export default function ClientStatement() {
           )
         })}
 
+        {/* Securities Holdings */}
+        {holdings.length > 0 && (
+          <div>
+            <div className="section-title" style={{ marginTop: 12 }}>Securities Holdings 證券庫存</div>
+            <table className="stmt-table">
+              <thead>
+                <tr>
+                  <th>Exch 交易所</th>
+                  <th>Product Code 產品代號</th>
+                  <th style={{ width: '30%' }}>Securities Name 證券名稱</th>
+                  <th className="num">Quantity 庫存</th>
+                  <th className="num">Market Price 市價($)</th>
+                  <th className="num">Market Value 市值</th>
+                  <th>CCY 幣別</th>
+                </tr>
+              </thead>
+              <tbody>
+                {holdings.map((h: any) => {
+                  const mv = Number(h.quantity) * Number(h.market_price)
+                  return (
+                    <tr key={h.id}>
+                      <td>{h.exchange_name || 'OTC'}</td>
+                      <td>{h.security_code}</td>
+                      <td>{h.security_name}</td>
+                      <td className="num">{fmtAmt(Number(h.quantity), 0)}</td>
+                      <td className="num">{fmtAmt(Number(h.market_price), 8)}</td>
+                      <td className="num">{fmtAmt(mv)}</td>
+                      <td>{h.currency || 'USD'}</td>
+                    </tr>
+                  )
+                })}
+                <tr className="total-row">
+                  <td colSpan={5} style={{ textAlign: 'right' }}>Sub-Total</td>
+                  <td className="num">{fmtAmt(holdings.reduce((sum, h) => sum + Number(h.quantity) * Number(h.market_price), 0))}</td>
+                  <td></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        )}
+
         {/* Important Notes */}
         <div className="section-title" style={{ marginTop: 12 }}>Important Notes 重要備註:</div>
         <div className="stmt-notes">
@@ -490,6 +547,8 @@ export default function ClientStatement() {
         </div>
 
         </div>{/* end stmt-content */}
+
+        <div style={{ flexGrow: 1 }} />
 
         {/* Footer */}
         <div className="stmt-footer">
