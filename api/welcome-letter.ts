@@ -313,13 +313,13 @@ function generateWelcomeLetterPDF(data: WelcomeLetterBody): Promise<Buffer> {
 
       doc.fontSize(8.5).fillColor('#555').font(F);
       doc.text('Notes:', ML, y, { width: W });
-      y += 12;
+      y += 14;
       doc.text('1. The cut-off time for withdrawal is 11:00 AM daily. Withdrawal instructions received after 11:00 AM will be processed on the next business day.', ML, y, { width: W });
-      y += 22;
+      y += 28;
       doc.text('2. The cut-off time for deposit is 3:00 PM daily. Deposits received after 3:00 PM will be credited to the client account on the next business day.', ML, y, { width: W });
-      y += 22;
+      y += 28;
       doc.text('3. Please note that if the receiving bank charges any related fees, such fees (if applicable) will be deducted directly from the deposited amount. All handling fees arising from deposits and withdrawals shall be borne by the client.', ML, y, { width: W });
-      y += 18;
+      y += 28;
       doc.text('Should you have any queries, please do not hesitate to contact us.', ML, y, { width: W });
 
       drawFooterEN();
