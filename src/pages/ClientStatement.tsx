@@ -413,12 +413,12 @@ export default function ClientStatement() {
           </thead>
           <tbody>
             <tr>
-              <td>Bonds/Stocks</td>
+              <td>Bonds/Stocks 債券/股票</td>
               {currencies.map(c => <td key={c} className="num">{fmtAmt(holdingsValueByCurrency[c] || 0)}</td>)}
               <td className="num">{fmtAmt(totalHoldingsHkd)}</td>
             </tr>
             <tr>
-              <td>Cash Balance [1]</td>
+              <td>Cash Balance 現金結餘</td>
               {currencies.map(c => <td key={c} className="num">{fmtAmt(data.closingBalance[c] || 0)}</td>)}
               <td className="num">{fmtAmt(totalCashHkd)}</td>
             </tr>
