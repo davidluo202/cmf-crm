@@ -184,7 +184,10 @@ export default function ClientStatement() {
   }, 0)
 
   // Count total pages (1 base + 1 per currency with transactions)
-  const totalPages = 1 + currencies.length
+  // Estimate pages: 1 base page, only add more if there are many transactions or holdings
+  const txCount = data.transactions.length
+  const hasHoldings = activeHoldings.length > 0
+  const totalPages = txCount > 8 || (txCount > 4 && hasHoldings) ? 2 : 1
 
   return (
     <>
