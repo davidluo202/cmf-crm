@@ -524,7 +524,7 @@ export default function ClientStatement() {
                 <tr>
                   <th>Exch<br/>交易所</th>
                   <th>Product Code<br/>產品代號</th>
-                  <th style={{ width: '30%' }}>Securities Name 證券名稱</th>
+                  <th style={{ width: '30%' }}>Securities Name<br/>證券名稱</th>
                   <th className="num">Quantity<br/>庫存</th>
                   <th className="num">Market Price<br/>市價($)</th>
                   <th className="num">Market Value<br/>市值</th>
