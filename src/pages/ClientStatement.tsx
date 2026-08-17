@@ -199,6 +199,7 @@ export default function ClientStatement() {
         }
         .stmt-page {
           max-width: 210mm;
+          min-height: 280mm;
           margin: 0 auto 10px;
           padding: 20px 24px;
           font-family: "Arial", "PingFang TC", "Microsoft JhengHei", sans-serif;
@@ -207,8 +208,10 @@ export default function ClientStatement() {
           background: #fff;
           line-height: 1.4;
           box-shadow: 0 0 10px rgba(0,0,0,0.1);
+          display: flex;
+          flex-direction: column;
         }
-        .stmt-content { }
+        .stmt-content { flex: 1; }
 
         /* Section title - simple text with bottom border */
         .section-title {
@@ -350,31 +353,14 @@ export default function ClientStatement() {
             const html2pdf = (await import('html2pdf.js')).default
             const el = document.querySelector('.stmt-page') as HTMLElement | null
             if (!el) return
-            // Calculate spacer to push footer to page bottom
-            const footer = el.querySelector('.stmt-footer') as HTMLElement
-            const spacer = el.querySelector('.pdf-spacer') as HTMLElement
-            if (footer && spacer) {
-              const A4_HEIGHT_PX = 1122 // A4 at 96dpi
-              const margins = (5 + 12) * 3.78 // top+bottom margin in px
-              const usableHeight = A4_HEIGHT_PX - margins
-              const contentHeight = el.scrollHeight - footer.offsetHeight - spacer.offsetHeight
-              const pages = Math.ceil(contentHeight / usableHeight)
-              const targetHeight = pages * usableHeight
-              const gap = targetHeight - contentHeight - footer.offsetHeight
-              spacer.style.height = Math.max(0, gap) + 'px'
-            }
-            await new Promise(r => setTimeout(r, 100))
             html2pdf().set({
-              margin: [5, 3, 12, 3],
+              margin: [5, 3, 5, 3],
               filename: `${stmtRef}.pdf`,
-              image: { type: 'jpeg', quality: 0.95 },
-              html2canvas: { scale: 1.2, useCORS: true, windowWidth: 794 },
+              image: { type: 'jpeg', quality: 0.98 },
+              html2canvas: { scale: 1.5, useCORS: true, windowWidth: 794 },
               jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
               pagebreak: { mode: ['avoid-all', 'css'], avoid: ['.stmt-footer', '.stmt-footer-body'] },
-            } as any).from(el).save().then(() => {
-              // Reset spacer after PDF generation
-              if (spacer) spacer.style.height = '0px'
-            })
+            } as any).from(el).save()
           }}
           style={{ background: '#4caf50', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: 8, fontWeight: 'bold', cursor: 'pointer', fontSize: 14, boxShadow: '0 2px 8px rgba(0,0,0,0.3)' }}
         >
@@ -576,8 +562,8 @@ export default function ClientStatement() {
 
         </div>{/* end stmt-content */}
 
-        {/* Dynamic spacer for PDF — height set by JS before PDF generation */}
-        <div className="pdf-spacer" style={{ height: 0 }} />
+        {/* Flex spacer pushes footer to bottom */}
+        <div className="pdf-spacer" style={{ flexGrow: 1, minHeight: 20 }} />
 
         {/* Footer */}
         <div className="stmt-footer">
