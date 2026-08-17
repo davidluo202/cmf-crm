@@ -156,9 +156,17 @@ export default function ClientStatement() {
     return rows
   }
 
-  // Holdings value per currency
+  // Filter holdings by acquired_date <= statement end date
+  const stmtEndDate = data.period.end?.slice(0, 10) || data.period.label
+  const activeHoldings = holdings.filter(h => {
+    const acqDate = h.acquired_date?.slice(0, 10)
+    if (!acqDate) return true // no date = always show
+    return acqDate <= stmtEndDate
+  })
+
+  // Holdings value per currency (only active holdings for this period)
   const holdingsValueByCurrency: Record<string, number> = {}
-  for (const h of holdings) {
+  for (const h of activeHoldings) {
     const cur = h.currency || 'USD'
     const mv = Number(h.quantity) * Number(h.market_price)
     holdingsValueByCurrency[cur] = (holdingsValueByCurrency[cur] || 0) + mv
@@ -342,7 +350,7 @@ export default function ClientStatement() {
             const el = document.querySelector('.stmt-page') as HTMLElement | null
             if (!el) return
             html2pdf().set({
-              margin: [3, 3, 3, 3],
+              margin: [3, 3, 8, 3],
               filename: `${stmtRef}.pdf`,
               image: { type: 'jpeg', quality: 0.95 },
               html2canvas: { scale: 1.2, useCORS: true, windowWidth: 794 },
@@ -497,7 +505,7 @@ export default function ClientStatement() {
         })}
 
         {/* Securities Holdings */}
-        {holdings.length > 0 && (
+        {activeHoldings.length > 0 && (
           <div>
             <div className="section-title" style={{ marginTop: 12 }}>Securities Holdings<br/><span style={{fontSize:"10px",fontWeight:"normal"}}>證券庫存</span></div>
             <table className="stmt-table">
