@@ -109,7 +109,9 @@ export default function ClientStatement() {
   if (!data) return null
 
   const today = new Date()
-  const printDate = today.toLocaleDateString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' })
+  // Print date = statement date (not today's date)
+  const stmtEnd = data.period.end?.slice(0, 10) || data.period.label
+  const printDate = stmtEnd
 
   // Determine statement date label
   let stmtDateLabel = ''
