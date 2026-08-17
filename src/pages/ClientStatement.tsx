@@ -423,7 +423,7 @@ export default function ClientStatement() {
               <td className="num">{fmtAmt(totalCashHkd)}</td>
             </tr>
             <tr className="total-row">
-              <td>Total</td>
+              <td>Total 總計</td>
               {currencies.map(c => <td key={c} className="num">{fmtAmt((data.closingBalance[c] || 0) + (holdingsValueByCurrency[c] || 0))}</td>)}
               <td className="num">{fmtAmt(totalCashHkd + totalHoldingsHkd)}</td>
             </tr>
