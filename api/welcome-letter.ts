@@ -190,6 +190,10 @@ function generateWelcomeLetterPDF(data: WelcomeLetterBody): Promise<Buffer> {
       doc.text('第二步：請把存款憑證發送至郵箱：operation@cmfinancial.com', ML, y);
       y += 22;
 
+      doc.fontSize(9).fillColor('#555').font(F);
+      doc.text('感謝閣下選擇使用誠港金融股份有限公司一站式環球投資服務。感謝您的信任與支持！', ML, y, { width: W });
+      y += 25;
+
       doc.fontSize(8.5).fillColor('#555').font(F);
       doc.text('提示：', ML, y, { width: W });
       y += 12;
@@ -200,10 +204,6 @@ function generateWelcomeLetterPDF(data: WelcomeLetterBody): Promise<Buffer> {
       doc.text('3. 請留意，如收款銀行會收取相關費用，有關費用（如有）將直接從存入款項中扣除。入金及出金所產生的手續費，均由客戶承擔。', ML, y, { width: W });
       y += 18;
       doc.text('如有任何疑問，請及時聯繫我司查詢。', ML, y, { width: W });
-      y += 25;
-
-      doc.fontSize(9).fillColor('#555').font(F);
-      doc.text('感謝閣下選擇使用誠港金融股份有限公司一站式環球投資服務。感謝您的信任與支持！', ML, y, { width: W });
 
       drawFooterTC();
 
@@ -248,6 +248,10 @@ function generateWelcomeLetterPDF(data: WelcomeLetterBody): Promise<Buffer> {
       doc.text('第二步：请把存款凭证发送至邮箱：operation@cmfinancial.com', ML, y);
       y += 22;
 
+      doc.fontSize(9).fillColor('#555').font(F);
+      doc.text('感谢阁下选择使用诚港金融股份有限公司一站式环球投资服务。感谢您的信任与支持！', ML, y, { width: W });
+      y += 25;
+
       doc.fontSize(8.5).fillColor('#555').font(F);
       doc.text('提示：', ML, y, { width: W });
       y += 12;
@@ -258,10 +262,6 @@ function generateWelcomeLetterPDF(data: WelcomeLetterBody): Promise<Buffer> {
       doc.text('3. 请留意，如收款银行会收取相关费用，有关费用（如有）将直接从存入款项中扣除。入金及出金所产生的手续费，均由客户承担。', ML, y, { width: W });
       y += 18;
       doc.text('如有任何疑问，请及时联系我司查询。', ML, y, { width: W });
-      y += 25;
-
-      doc.fontSize(9).fillColor('#555').font(F);
-      doc.text('感谢阁下选择使用诚港金融股份有限公司一站式环球投资服务。感谢您的信任与支持！', ML, y, { width: W });
 
       drawFooterTC();
 
@@ -307,6 +307,10 @@ function generateWelcomeLetterPDF(data: WelcomeLetterBody): Promise<Buffer> {
       doc.text('Step 2: Please send your deposit receipt to: operation@cmfinancial.com', ML, y);
       y += 22;
 
+      doc.fontSize(9).fillColor('#555').font(F);
+      doc.text('Thank you for choosing Canton Mutual Financial Limited. We appreciate your trust and support!', ML, y, { width: W });
+      y += 25;
+
       doc.fontSize(8.5).fillColor('#555').font(F);
       doc.text('Notes:', ML, y, { width: W });
       y += 12;
@@ -317,10 +321,6 @@ function generateWelcomeLetterPDF(data: WelcomeLetterBody): Promise<Buffer> {
       doc.text('3. Please note that if the receiving bank charges any related fees, such fees (if applicable) will be deducted directly from the deposited amount. All handling fees arising from deposits and withdrawals shall be borne by the client.', ML, y, { width: W });
       y += 18;
       doc.text('Should you have any queries, please do not hesitate to contact us.', ML, y, { width: W });
-      y += 25;
-
-      doc.fontSize(9).fillColor('#555').font(F);
-      doc.text('Thank you for choosing Canton Mutual Financial Limited. We appreciate your trust and support!', ML, y, { width: W });
 
       drawFooterEN();
 
