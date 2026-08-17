@@ -198,6 +198,8 @@ function generateWelcomeLetterPDF(data: WelcomeLetterBody): Promise<Buffer> {
       doc.text('2. 截止收款時間為每天下午 3:00，任何下午 3:00 後收到的款項視作下個工作天存款，將在下個工作天存入客戶帳戶。', ML, y, { width: W });
       y += 22;
       doc.text('3. 請留意，如收款銀行會收取相關費用，有關費用（如有）將直接從存入款項中扣除。入金及出金所產生的手續費，均由客戶承擔。', ML, y, { width: W });
+      y += 18;
+      doc.text('如有任何疑問，請及時聯繫我司查詢。', ML, y, { width: W });
       y += 25;
 
       doc.fontSize(9).fillColor('#555').font(F);
@@ -254,6 +256,8 @@ function generateWelcomeLetterPDF(data: WelcomeLetterBody): Promise<Buffer> {
       doc.text('2. 截止收款时间为每天下午 3:00，任何下午 3:00 后收到的款项视作下个工作天存款，将在下个工作天存入客户账户。', ML, y, { width: W });
       y += 22;
       doc.text('3. 请留意，如收款银行会收取相关费用，有关费用（如有）将直接从存入款项中扣除。入金及出金所产生的手续费，均由客户承担。', ML, y, { width: W });
+      y += 18;
+      doc.text('如有任何疑问，请及时联系我司查询。', ML, y, { width: W });
       y += 25;
 
       doc.fontSize(9).fillColor('#555').font(F);
@@ -311,6 +315,8 @@ function generateWelcomeLetterPDF(data: WelcomeLetterBody): Promise<Buffer> {
       doc.text('2. The cut-off time for deposit is 3:00 PM daily. Deposits received after 3:00 PM will be credited to the client account on the next business day.', ML, y, { width: W });
       y += 22;
       doc.text('3. Please note that if the receiving bank charges any related fees, such fees (if applicable) will be deducted directly from the deposited amount. All handling fees arising from deposits and withdrawals shall be borne by the client.', ML, y, { width: W });
+      y += 18;
+      doc.text('Should you have any queries, please do not hesitate to contact us.', ML, y, { width: W });
       y += 25;
 
       doc.fontSize(9).fillColor('#555').font(F);
