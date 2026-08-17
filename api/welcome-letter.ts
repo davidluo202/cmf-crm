@@ -183,7 +183,7 @@ function generateWelcomeLetterPDF(data: WelcomeLetterBody): Promise<Buffer> {
       );
       y += 10;
       doc.fontSize(9).fillColor('#c0392b').font(F);
-      doc.text('* 入金時請於存款備註填寫客戶名稱及客戶證券戶口號碼', ML, y, { width: W });
+      doc.text('* 入金時請於存款備註（附言欄位）清楚填寫客戶名稱及客戶證券戶口號碼。', ML, y, { width: W });
       y += 20;
 
       doc.fontSize(10).fillColor('#1a3a6a').font(F);
@@ -229,7 +229,7 @@ function generateWelcomeLetterPDF(data: WelcomeLetterBody): Promise<Buffer> {
       );
       y += 10;
       doc.fontSize(9).fillColor('#c0392b').font(F);
-      doc.text('* 入金时请于存款备注填写客户名称及客户证券户口号码', ML, y, { width: W });
+      doc.text('* 入金时请于存款备注（附言栏位）清楚填写客户名称及客户证券户口号码。', ML, y, { width: W });
       y += 20;
 
       doc.fontSize(10).fillColor('#1a3a6a').font(F);
@@ -276,7 +276,7 @@ function generateWelcomeLetterPDF(data: WelcomeLetterBody): Promise<Buffer> {
       );
       y += 10;
       doc.fontSize(9).fillColor('#c0392b').font(F);
-      doc.text('* Please enter your name and securities account number in the deposit remark/reference field', ML, y, { width: W });
+      doc.text('* Please clearly enter your name and securities account number in the deposit remark/reference field.', ML, y, { width: W });
       y += 20;
 
       doc.fontSize(10).fillColor('#1a3a6a').font(F);
