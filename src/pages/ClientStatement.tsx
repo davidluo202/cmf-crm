@@ -199,7 +199,6 @@ export default function ClientStatement() {
         }
         .stmt-page {
           max-width: 210mm;
-          min-height: 297mm;
           margin: 0 auto 10px;
           padding: 20px 24px;
           font-family: "Arial", "PingFang TC", "Microsoft JhengHei", sans-serif;
@@ -208,10 +207,8 @@ export default function ClientStatement() {
           background: #fff;
           line-height: 1.4;
           box-shadow: 0 0 10px rgba(0,0,0,0.1);
-          display: flex;
-          flex-direction: column;
         }
-        .stmt-content { flex: 1; }
+        .stmt-content { }
 
         /* Section title - simple text with bottom border */
         .section-title {
@@ -562,7 +559,7 @@ export default function ClientStatement() {
 
         </div>{/* end stmt-content */}
 
-        <div style={{ flexGrow: 1 }} />
+        {/* spacer removed — causes large gap in PDF download */}
 
         {/* Footer */}
         <div className="stmt-footer">
