@@ -282,6 +282,10 @@ export default function ClientStatement() {
           page-break-inside: avoid;
           break-inside: avoid;
         }
+        .stmt-footer * {
+          page-break-inside: avoid;
+          break-inside: avoid;
+        }
         .stmt-footer-body {
           font-size: 8px;
           color: #555;
@@ -350,11 +354,12 @@ export default function ClientStatement() {
             const el = document.querySelector('.stmt-page') as HTMLElement | null
             if (!el) return
             html2pdf().set({
-              margin: [3, 3, 8, 3],
+              margin: [5, 3, 12, 3],
               filename: `${stmtRef}.pdf`,
               image: { type: 'jpeg', quality: 0.95 },
               html2canvas: { scale: 1.2, useCORS: true, windowWidth: 794 },
               jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+              pagebreak: { mode: ['avoid-all', 'css'], avoid: ['.stmt-footer', '.stmt-footer-body'] },
             } as any).from(el).save()
           }}
           style={{ background: '#4caf50', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: 8, fontWeight: 'bold', cursor: 'pointer', fontSize: 14, boxShadow: '0 2px 8px rgba(0,0,0,0.3)' }}
