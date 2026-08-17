@@ -382,8 +382,8 @@ export default function ClientStatement() {
 
         {/* Title */}
         <div style={{ textAlign: 'center', margin: '6px 0 10px' }}>
-          <div style={{ fontSize: 18, fontWeight: 'bold', color: '#2c3e50' }}>Daily Combined Statement of Account</div>
-          <div style={{ fontSize: 16, color: '#2c3e50', marginTop: 2 }}>帳戶綜合日結單</div>
+          <div style={{ fontSize: 18, fontWeight: 'bold', color: '#2c3e50' }}>Daily Combined Statement</div>
+          <div style={{ fontSize: 16, color: '#2c3e50', marginTop: 2 }}>綜合日結單</div>
         </div>
 
         {/* Client Info - two column */}
@@ -406,7 +406,7 @@ export default function ClientStatement() {
             <tr>
               <th></th>
               {currencies.map(c => <th key={c} className="num">{c} {c === 'USD' ? '美元' : c === 'HKD' ? '港元' : c === 'CNY' ? '人民幣' : c}</th>)}
-              <th className="num">HKD Equivalent 港元等值</th>
+              <th className="num">HKD Equivalent<br/>港元等值</th>
             </tr>
           </thead>
           <tbody>
@@ -445,7 +445,7 @@ export default function ClientStatement() {
                     <th style={{ width: '11%', whiteSpace: 'nowrap' }}>Trade Date<br/>交易日</th>
                     <th style={{ width: '11%', whiteSpace: 'nowrap' }}>Sett. Date<br/>交收日</th>
                     <th style={{ width: '9%' }}>Txn. Type<br/>交易類別</th>
-                    <th style={{ width: '25%' }}>Description 項目說明</th>
+                    <th style={{ width: '25%' }}>Description<br/>項目說明</th>
                     <th className="num" style={{ width: '8%' }}>Quantity<br/>庫存</th>
                     <th className="num" style={{ width: '10%' }}>Unit Price<br/>單位價格</th>
                     <th className="num" style={{ width: '13%' }}>(Dr)/Cr Amount<br/>(借)/存金額</th>
@@ -519,13 +519,13 @@ export default function ClientStatement() {
             <table className="stmt-table">
               <thead>
                 <tr>
-                  <th>Exch 交易所</th>
-                  <th>Product Code 產品代號</th>
+                  <th>Exch<br/>交易所</th>
+                  <th>Product Code<br/>產品代號</th>
                   <th style={{ width: '30%' }}>Securities Name 證券名稱</th>
-                  <th className="num">Quantity 庫存</th>
-                  <th className="num">Market Price 市價($)</th>
-                  <th className="num">Market Value 市值</th>
-                  <th>CCY 幣別</th>
+                  <th className="num">Quantity<br/>庫存</th>
+                  <th className="num">Market Price<br/>市價($)</th>
+                  <th className="num">Market Value<br/>市值</th>
+                  <th>CCY<br/>幣別</th>
                 </tr>
               </thead>
               <tbody>
