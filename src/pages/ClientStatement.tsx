@@ -249,10 +249,11 @@ export default function ClientStatement() {
         .stmt-table th {
           background: #2c3e50;
           color: #fff;
-          padding: 5px 6px;
+          padding: 6px 6px;
           font-size: 10.5px;
           font-weight: 600;
           text-align: left;
+          vertical-align: middle;
           border-bottom: 1px solid #fff;
         }
         .stmt-table th.num { text-align: right; }
