@@ -219,7 +219,7 @@ export default function ClientStatement() {
 
         /* Section title - simple text with bottom border */
         .section-title {
-          font-size: 12px;
+          font-size: 14px;
           font-weight: bold;
           color: #2c3e50;
           border-bottom: 1px solid #ccc;
@@ -403,7 +403,7 @@ export default function ClientStatement() {
         </div>
 
         {/* Portfolio Summary */}
-        <div className="section-title">Portfolio Summary<br/><span style={{fontSize:"10px",fontWeight:"normal"}}>投資組合總覽</span></div>
+        <div className="section-title">Portfolio Summary<br/><span style={{fontSize:"12px",fontWeight:"normal"}}>投資組合總覽</span></div>
         <table className="stmt-table">
           <thead>
             <tr>
@@ -441,7 +441,7 @@ export default function ClientStatement() {
           const closingBal = data.closingBalance[currency] || 0
           return (
             <div key={currency} style={ci > 0 ? { marginTop: 8 } : undefined}>
-              <div className="section-title">Cash & Portfolio Movements<br/><span style={{fontSize:"10px",fontWeight:"normal"}}>現金及庫存異動</span>{currencies.length > 1 ? ` (${currency})` : ''}</div>
+              <div className="section-title">Cash & Portfolio Movements<br/><span style={{fontSize:"12px",fontWeight:"normal"}}>現金及庫存異動</span>{currencies.length > 1 ? ` (${currency})` : ''}</div>
               <table className="stmt-table">
                 <thead>
                   <tr>
@@ -518,7 +518,7 @@ export default function ClientStatement() {
         {/* Securities Holdings */}
         {activeHoldings.length > 0 && (
           <div>
-            <div className="section-title" style={{ marginTop: 12 }}>Securities Holdings<br/><span style={{fontSize:"10px",fontWeight:"normal"}}>證券庫存</span></div>
+            <div className="section-title" style={{ marginTop: 12 }}>Securities Holdings<br/><span style={{fontSize:"12px",fontWeight:"normal"}}>證券庫存</span></div>
             <table className="stmt-table">
               <thead>
                 <tr>
@@ -557,7 +557,7 @@ export default function ClientStatement() {
         )}
 
         {/* Important Notes */}
-        <div className="section-title" style={{ marginTop: 12 }}>Important Notes<br/><span style={{fontSize:"10px",fontWeight:"normal"}}>重要備註</span></div>
+        <div className="section-title" style={{ marginTop: 12 }}>Important Notes<br/><span style={{fontSize:"12px",fontWeight:"normal"}}>重要備註</span></div>
         <div className="stmt-notes">
           <div>[1] Cash Balance includes all settled and unsettled amounts. 現金結餘包括所有已結算及未結算之金額。</div>
           <div>[2] Market prices are indicative only and sourced from third-party data providers. 市場價格僅供參考，數據來自第三方供應商。</div>
