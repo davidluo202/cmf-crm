@@ -186,7 +186,7 @@ export default function ClientStatement() {
         @media print {
           .no-print { display: none !important; }
           body { background: #fff; margin: 0; }
-          @page { margin: 5mm 12.7mm; size: A4; }
+          @page { margin: 5mm 12.7mm 10mm 12.7mm; size: A4; }
           .page-break { page-break-before: always; }
         }
         .stmt-page {
@@ -270,6 +270,7 @@ export default function ClientStatement() {
         .stmt-footer {
           border-top: 1px solid #ccc;
           padding-top: 6px;
+          margin-top: 15px;
           page-break-inside: avoid;
           break-inside: avoid;
         }

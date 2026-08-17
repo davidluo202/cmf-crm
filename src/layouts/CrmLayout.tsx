@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Outlet, useNavigate } from 'react-router-dom'
 
-const VERSION = 'v260812.002'
+const VERSION = 'v260817.001'
 
 const NAV_ITEMS = [
   { path: '/crm/dashboard', label: '仪表盘', key: 'dashboard' },
