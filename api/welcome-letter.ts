@@ -188,6 +188,16 @@ function generateWelcomeLetterPDF(data: WelcomeLetterBody): Promise<Buffer> {
 
       doc.fontSize(10).fillColor('#1a3a6a').font(F);
       doc.text('第二步：請把存款憑證發送至郵箱：operation@cmfinancial.com', ML, y);
+      y += 22;
+
+      doc.fontSize(8.5).fillColor('#555').font(F);
+      doc.text('提示：', ML, y, { width: W });
+      y += 12;
+      doc.text('1. 截止提款時間為每天上午 11:00，任何上午 11:00 正後收到的提款指示當作下個工作天提款。', ML, y, { width: W });
+      y += 22;
+      doc.text('2. 截止收款時間為每天下午 3:00，任何下午 3:00 後收到的款項視作下個工作天存款，將在下個工作天存入客戶帳戶。', ML, y, { width: W });
+      y += 22;
+      doc.text('3. 收款銀行所收取的費用（如有），將會從存入款項中扣除。入金及出金手續費由客戶承擔。', ML, y, { width: W });
       y += 25;
 
       doc.fontSize(9).fillColor('#555').font(F);
@@ -234,6 +244,16 @@ function generateWelcomeLetterPDF(data: WelcomeLetterBody): Promise<Buffer> {
 
       doc.fontSize(10).fillColor('#1a3a6a').font(F);
       doc.text('第二步：请把存款凭证发送至邮箱：operation@cmfinancial.com', ML, y);
+      y += 22;
+
+      doc.fontSize(8.5).fillColor('#555').font(F);
+      doc.text('提示：', ML, y, { width: W });
+      y += 12;
+      doc.text('1. 截止提款时间为每天上午 11:00，任何上午 11:00 正后收到的提款指示当作下个工作天提款。', ML, y, { width: W });
+      y += 22;
+      doc.text('2. 截止收款时间为每天下午 3:00，任何下午 3:00 后收到的款项视作下个工作天存款，将在下个工作天存入客户账户。', ML, y, { width: W });
+      y += 22;
+      doc.text('3. 收款银行所收取的费用（如有），将会从存入款项中扣除。入金及出金手续费由客户承担。', ML, y, { width: W });
       y += 25;
 
       doc.fontSize(9).fillColor('#555').font(F);
@@ -281,6 +301,16 @@ function generateWelcomeLetterPDF(data: WelcomeLetterBody): Promise<Buffer> {
 
       doc.fontSize(10).fillColor('#1a3a6a').font(F);
       doc.text('Step 2: Please send your deposit receipt to: operation@cmfinancial.com', ML, y);
+      y += 22;
+
+      doc.fontSize(8.5).fillColor('#555').font(F);
+      doc.text('Notes:', ML, y, { width: W });
+      y += 12;
+      doc.text('1. The cut-off time for withdrawal is 11:00 AM daily. Withdrawal instructions received after 11:00 AM will be processed on the next business day.', ML, y, { width: W });
+      y += 22;
+      doc.text('2. The cut-off time for deposit is 3:00 PM daily. Deposits received after 3:00 PM will be credited to the client account on the next business day.', ML, y, { width: W });
+      y += 22;
+      doc.text('3. Any fees charged by the receiving bank (if applicable) will be deducted from the deposited amount. All deposit and withdrawal handling fees shall be borne by the client.', ML, y, { width: W });
       y += 25;
 
       doc.fontSize(9).fillColor('#555').font(F);
