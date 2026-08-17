@@ -393,6 +393,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       clientId, clientName, clientNameEn, accountNumber, email, onboardedDate,
     });
 
+    // Preview mode: return PDF directly without sending email
+    if (req.body?.preview === true || req.query?.preview === 'true') {
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `inline; filename="Welcome-Letter-${accountNumber}.pdf"`);
+      return res.send(Buffer.from(pdfBuffer));
+    }
+
     const result = await sendViaResend(email, clientName || clientNameEn, pdfBuffer);
 
     if (!result.success) {
