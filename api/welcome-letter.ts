@@ -181,7 +181,10 @@ function generateWelcomeLetterPDF(data: WelcomeLetterBody): Promise<Buffer> {
         ['幣種', '銀行名稱', '銀行編號', '收款戶名', '收款賬號', '國際代碼'],
         BANK_NAME_TC, ['港幣', '美元', '人民幣'], '—',
       );
-      y += 15;
+      y += 10;
+      doc.fontSize(9).fillColor('#c0392b').font(F);
+      doc.text('* 入金時請於存款備註填寫客戶名稱及客戶證券戶口號碼', ML, y, { width: W });
+      y += 20;
 
       doc.fontSize(10).fillColor('#1a3a6a').font(F);
       doc.text('第二步：請把存款憑證發送至郵箱：operation@cmfinancial.com', ML, y);
@@ -224,7 +227,10 @@ function generateWelcomeLetterPDF(data: WelcomeLetterBody): Promise<Buffer> {
         ['币种', '银行名称', '银行编号', '收款户名', '收款账号', '国际代码'],
         BANK_NAME_SC, ['港币', '美元', '人民币'], '—',
       );
-      y += 15;
+      y += 10;
+      doc.fontSize(9).fillColor('#c0392b').font(F);
+      doc.text('* 入金时请于存款备注填写客户名称及客户证券户口号码', ML, y, { width: W });
+      y += 20;
 
       doc.fontSize(10).fillColor('#1a3a6a').font(F);
       doc.text('第二步：请把存款凭证发送至邮箱：operation@cmfinancial.com', ML, y);
@@ -268,7 +274,10 @@ function generateWelcomeLetterPDF(data: WelcomeLetterBody): Promise<Buffer> {
         ['Currency', 'Bank Name', 'Bank Code', 'Beneficiary', 'Account No.', 'SWIFT'],
         BANK_NAME_EN, ['HKD', 'USD', 'RMB'], '—',
       );
-      y += 15;
+      y += 10;
+      doc.fontSize(9).fillColor('#c0392b').font(F);
+      doc.text('* Please enter your name and securities account number in the deposit remark/reference field', ML, y, { width: W });
+      y += 20;
 
       doc.fontSize(10).fillColor('#1a3a6a').font(F);
       doc.text('Step 2: Please send your deposit receipt to: operation@cmfinancial.com', ML, y);
