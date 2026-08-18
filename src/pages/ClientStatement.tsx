@@ -108,9 +108,8 @@ export default function ClientStatement() {
   if (error) return <div style={{ padding: 40, textAlign: 'center', color: 'red', fontFamily: 'Arial' }}>Error: {error}</div>
   if (!data) return null
 
-  // Print date = statement date (not today's date)
-  const stmtEnd = data.period.end?.slice(0, 10) || data.period.label
-  const printDate = stmtEnd
+  // Print date = today (the date when statement is generated)
+  const printDate = new Date().toISOString().slice(0, 10)
 
   // Determine statement date label
   let stmtDateLabel = ''
