@@ -36,7 +36,7 @@ export default function Settings() {
       </div>
 
       <div className="text-xs text-slate-400">
-        CMF CRM v260817.001 &middot; Canton Mutual Financial Limited
+        CMF CRM v260818.001 &middot; Canton Mutual Financial Limited
       </div>
     </div>
   )
