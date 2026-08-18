@@ -47,6 +47,7 @@ export default function ClientList() {
     clientType: '10', channel: '1', segment: 'Individual', isManual: true,
   })
   const [adding, setAdding] = useState(false)
+  const [amlScanning, setAmlScanning] = useState(false)
 
   useEffect(() => { loadClients() }, [])
 
@@ -90,6 +91,32 @@ export default function ClientList() {
     finally { setAdding(false) }
   }
 
+  async function batchAmlScan() {
+    setAmlScanning(true)
+    try {
+      let hits = 0
+      for (const client of clients) {
+        try {
+          const res = await fetch(`${API_BASE}/api/sanctions-check`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ clientId: String(client.id >= 10000 ? client.id : client.id + 10000), trigger: 'batch_scan' }),
+          })
+          const data = await res.json()
+          if (data.status === 'alert') {
+            hits++
+            ;(client as any).amlStatus = 'alert'
+          } else {
+            ;(client as any).amlStatus = 'clear'
+          }
+        } catch { /* skip individual errors */ }
+      }
+      alert(`AML批量篩查完成：${clients.length}個客戶，${hits}個命中`)
+      setTab('AML Alert')
+    } catch (err) { alert('AML篩查失敗') }
+    finally { setAmlScanning(false) }
+  }
+
   const filtered = clients.filter((c) => {
     if (tab === 'AML Alert') { if (!(c as any).amlStatus || (c as any).amlStatus === 'clear') return false }
     else if (tab !== 'All' && c.status !== tab) return false
@@ -125,12 +152,12 @@ export default function ClientList() {
           {tabs.map((t) => (
             <button
               key={t}
-              onClick={() => setTab(t)}
+              onClick={() => { if (t === 'AML Alert' && tab !== 'AML Alert') { batchAmlScan() } else { setTab(t) } }}
               className={`px-4 py-2 text-sm rounded-lg transition-colors ${
                 tab === t ? (t === 'AML Alert' ? 'bg-red-600 text-white' : 'bg-blue-600 text-white') : (t === 'AML Alert' ? 'bg-white text-red-500 border border-red-300 hover:text-red-700' : 'bg-white text-slate-600 border border-slate-300 hover:text-slate-900')
               }`}
             >
-              {t === 'All' ? '全部' : t === 'AML Alert' ? 'AML命中' : t}
+              {t === 'All' ? '全部' : t === 'AML Alert' ? (amlScanning ? 'AML篩查中...' : 'AML命中') : t}
             </button>
           ))}
         </div>
