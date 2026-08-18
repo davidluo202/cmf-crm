@@ -19,7 +19,7 @@ interface Client {
   createdAt: string
 }
 
-const tabs = ['All', '活跃', '冻结'] as const
+const tabs = ['All', '活跃', '冻结', 'AML Alert'] as const
 
 const segmentColor: Record<string, string> = {
   Individual: 'bg-blue-500/20 text-blue-600',
@@ -91,7 +91,8 @@ export default function ClientList() {
   }
 
   const filtered = clients.filter((c) => {
-    if (tab !== 'All' && c.status !== tab) return false
+    if (tab === 'AML Alert') { if (!(c as any).amlStatus || (c as any).amlStatus === 'clear') return false }
+    else if (tab !== 'All' && c.status !== tab) return false
     if (search) {
       const q = search.toLowerCase()
       if (!c.nameCn.toLowerCase().includes(q) && !c.nameEn.toLowerCase().includes(q) && !c.code.toLowerCase().includes(q) && !c.email.toLowerCase().includes(q)) return false
@@ -126,10 +127,10 @@ export default function ClientList() {
               key={t}
               onClick={() => setTab(t)}
               className={`px-4 py-2 text-sm rounded-lg transition-colors ${
-                tab === t ? 'bg-blue-600 text-white' : 'bg-white text-slate-600 border border-slate-300 hover:text-slate-900'
+                tab === t ? (t === 'AML Alert' ? 'bg-red-600 text-white' : 'bg-blue-600 text-white') : (t === 'AML Alert' ? 'bg-white text-red-500 border border-red-300 hover:text-red-700' : 'bg-white text-slate-600 border border-slate-300 hover:text-slate-900')
               }`}
             >
-              {t === 'All' ? '全部' : t}
+              {t === 'All' ? '全部' : t === 'AML Alert' ? 'AML命中' : t}
             </button>
           ))}
         </div>
