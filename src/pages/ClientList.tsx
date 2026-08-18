@@ -242,7 +242,7 @@ export default function ClientList() {
             </div>
 
             <div>
-              <label className="text-xs text-slate-500 block mb-1">中文名称 *</label>
+              <label className="text-xs text-slate-500 block mb-1">中文名称</label>
               <input value={addForm.nameCn} onChange={e => setAddForm({...addForm, nameCn: e.target.value})} placeholder="客户中文名" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
             </div>
             <div>
