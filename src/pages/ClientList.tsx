@@ -162,8 +162,8 @@ export default function ClientList() {
               >
                 <td className="p-4 text-slate-500 font-mono text-xs">{client.code}</td>
                 <td className="p-4">
-                  <div className="text-slate-900 font-medium">{client.nameCn}</div>
-                  {client.nameEn && <div className="text-xs text-slate-400">{client.nameEn}</div>}
+                  {client.nameEn && <div className="text-slate-900 font-medium">{client.nameEn}</div>}
+                  {client.nameCn && <div className="text-xs text-slate-400">{client.nameCn}</div>}
                 </td>
                 <td className="p-4">
                   <div className="text-slate-700 text-xs">{(client.segment === 'Corporate' || client.segment === 'Institutional') ? ((client as any).contactEmail || client.email) : client.email}</div>
